@@ -22,29 +22,29 @@ var error = function(msg) {
  * @param {function(string): void) opt_errorCallback callback for errors.
  * @return {!WebGLShader} The created shader.
  */
-var loadShader = function(gl, shaderSource, shaderType, opt_errorCallback) {
-  var errFn = opt_errorCallback || error;
-  // Create the shader object
-  var shader = gl.createShader(shaderType);
-
-  // Load the shader source
-  gl.shaderSource(shader, shaderSource);
-
-  // Compile the shader
-  gl.compileShader(shader);
-
-  // Check the compile status
-  var compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-  if (!compiled) {
-    // Something went wrong during compilation; get the error
-    lastError = gl.getShaderInfoLog(shader);
-    errFn("*** Error compiling shader '" + shader + "':" + lastError);
-    gl.deleteShader(shader);
-    return null;
-  }
-
-  return shader;
-}
+// var loadShader = function(gl, shaderSource, shaderType, opt_errorCallback) {
+//   var errFn = opt_errorCallback || error;
+//   // Create the shader object
+//   var shader = gl.createShader(shaderType);
+// 
+//   // Load the shader source
+//   gl.shaderSource(shader, shaderSource);
+// 
+//   // Compile the shader
+//   gl.compileShader(shader);
+// 
+//   // Check the compile status
+//   var compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+//   if (!compiled) {
+//     // Something went wrong during compilation; get the error
+//     lastError = gl.getShaderInfoLog(shader);
+//     errFn("*** Error compiling shader '" + shader + "':" + lastError);
+//     gl.deleteShader(shader);
+//     return null;
+//   }
+// 
+//   return shader;
+// }
 
 /**
  * Creates a program, attaches shaders, binds attrib locations, links the

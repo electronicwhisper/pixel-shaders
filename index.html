@@ -4,7 +4,8 @@
 
 <script src="CodeMirror-2.33/lib/codemirror.js"></script>
 <link rel="stylesheet" href="CodeMirror-2.33/lib/codemirror.css">
-<script src="CodeMirror-2.33/mode/clike/clike.js"></script>
+<!-- <script src="CodeMirror-2.33/mode/clike/clike.js"></script> -->
+<script src="glsl.js"></script>
 
 </head>
 <body>
@@ -12,20 +13,7 @@
     <canvas id="canvas" width="400" height="400" />
   </div>
   <div id="rasterCode"></div>
-
-<script id="2d-vertex-shader" type="x-shader/x-vertex">
-attribute vec2 a_position;
-
-void main() {
-  gl_Position = vec4(a_position, 0, 1);
-}
-</script>
-
-<script id="2d-fragment-shader" type="x-shader/x-fragment">
-void main() {
-  gl_FragColor = vec4(1,1,0,1);  // green
-}
-</script>
+  <div id="status"></div>
 
 <script src="util.js"></script>
 <script src="main.js"></script>
