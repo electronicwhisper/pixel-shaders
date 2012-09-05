@@ -1,13 +1,12 @@
 vertexShaderSource = """
 precision mediump float;
 
-attribute vec2 a_position;
-attribute vec2 a_texCoord;
-varying vec2 v_texCoord;
+attribute vec3 vertexPosition;
+varying vec2 position;
 
 void main() {
-  gl_Position = vec4(a_position, 0, 1);
-  v_texCoord = a_texCoord;
+  gl_Position = vec4(vertexPosition, 1.0);
+  position = (vertexPosition.xy + 1.0) * 0.5;
 }
 """
 
@@ -15,9 +14,10 @@ void main() {
 fragmentShaderSource = """
 precision mediump float;
 
-varying vec2 v_texCoord;
+varying vec2 position;
+
 void main() {
-  gl_FragColor = vec4(v_texCoord,0,1);
+  gl_FragColor = vec4(1, 0, 0, 1);
 }
 """
 
@@ -35,72 +35,87 @@ getShaderError = (gl, shader) ->
   else
     return null
 
+bufferAttribute = (gl, program, attrib, data, size=2) ->
+  location = gl.getAttribLocation(program, attrib)
+  buffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW)
+  gl.enableVertexAttribArray(location)
+  gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0)
 
 
-
-makePixelShader = (gl) ->
+parseShaderError = (error) ->
+  # Based on https://github.com/mrdoob/glsl-sandbox/blob/master/static/index.html
   
-  vertexShader = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER)
-  fragmentShader = compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER)
+  # Remove trailing linefeed, for FireFox's benefit.
+  while ((error.length > 1) && (error.charCodeAt(error.length - 1) < 32))
+    error = error.substring(0, error.length - 1)
   
+  parsed = []
+  index = 0
+  while index >= 0
+    index = error.indexOf("ERROR: 0:", index)
+    if index < 0
+      break
+    index += 9;
+    indexEnd = error.indexOf(':', index)
+    if (indexEnd > index)
+      lineNum = parseInt(error.substring(index, indexEnd))
+      index = indexEnd + 1
+      indexEnd = error.indexOf("ERROR: 0:", index)
+      lineError = if indexEnd > index then error.substring(index, indexEnd) else error.substring(index)
+      parsed.push({
+        lineNum: lineNum
+        error: lineError
+      })
+  return parsed
+
+
+makeFlatRenderer = (gl) ->
   program = gl.createProgram()
   
-  gl.attachShader(program, vertexShader)
-  gl.attachShader(program, fragmentShader)
+  shaders = {} # used to keep track of the shaders we've attached to program, so that we can detach them later
+  
+  shaders[gl.VERTEX_SHADER] = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER)
+  shaders[gl.FRAGMENT_SHADER] = compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER)
+  
+  gl.attachShader(program, shaders[gl.VERTEX_SHADER])
+  gl.attachShader(program, shaders[gl.FRAGMENT_SHADER])
   
   gl.linkProgram(program)
   
   gl.useProgram(program)
   
+  bufferAttribute(gl, program, "vertexPosition", [
+    -1.0, -1.0, 
+     1.0, -1.0, 
+    -1.0,  1.0, 
+    -1.0,  1.0, 
+     1.0, -1.0, 
+     1.0,  1.0
+  ])
   
-  # look up where the texture coordinates need to go.
-  texCoordLocation = gl.getAttribLocation(program, "a_texCoord")
-  # provide texture coordinates for the rectangle.
-  texCoordBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      0.0,  0.0,
-      1.0,  0.0,
-      0.0,  1.0,
-      0.0,  1.0,
-      1.0,  0.0,
-      1.0,  1.0]), gl.STATIC_DRAW)
-  gl.enableVertexAttribArray(texCoordLocation)
-  gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0)
-  
-  # look up where the vertex data needs to go.
-  positionLocation = gl.getAttribLocation(program, "a_position")
-  # Create a buffer and put a single clipspace rectangle in it (2 triangles)
-  buffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-  gl.bufferData(
-      gl.ARRAY_BUFFER, 
-      new Float32Array([
-          -1.0, -1.0, 
-           1.0, -1.0, 
-          -1.0,  1.0, 
-          -1.0,  1.0, 
-           1.0, -1.0, 
-           1.0,  1.0]), 
-      gl.STATIC_DRAW)
-  gl.enableVertexAttribArray(positionLocation)
-  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
+  replaceShader = (shaderSource, shaderType) ->
+    shader = compileShader(gl, shaderSource, shaderType)
+    err = getShaderError(gl, shader)
+    if err
+      gl.deleteShader(shader)
+      return err
+    else
+      # detach and delete old shader
+      gl.detachShader(program, shaders[shaderType])
+      gl.deleteShader(shaders[shaderType])
+      
+      # attach new shader, keep track of it in shaders
+      gl.attachShader(program, shader)
+      shaders[shaderType] = shader
+      
+      return null
   
   
   return {
-    loadFragmentShader: (source) ->
-      shader = compileShader(gl, source, gl.FRAGMENT_SHADER)
-      err = getShaderError(gl, shader)
-      if err
-        return err
-      else
-        # detach and delete old shader
-        gl.detachShader(program, fragmentShader)
-        gl.deleteShader(fragmentShader)
-        
-        fragmentShader = shader
-        gl.attachShader(program, fragmentShader)
-        return null
+    loadFragmentShader: (shaderSource) ->
+      replaceShader(shaderSource, gl.FRAGMENT_SHADER)
     
     link: () ->
       gl.linkProgram(program)
@@ -113,22 +128,55 @@ makePixelShader = (gl) ->
 
 
 canvas = document.getElementById("canvas")
-gl = canvas.getContext("experimental-webgl")
+gl = canvas.getContext("experimental-webgl", {premultipliedAlpha: false})
 
-ps = makePixelShader(gl)
+renderer = makeFlatRenderer(gl)
 
+
+
+errorLines = []
 draw = () ->
-  err = ps.loadFragmentShader(cm.getValue())
+  # clear previous error lines
+  for line in errorLines
+    cm.setLineClass(line, null, null)
+    cm.clearMarker(line)
+  errorLines = []
+  
+  err = renderer.loadFragmentShader(cm.getValue())
   if err
-    document.getElementById("status").innerHTML = err
+    errors = parseShaderError(err)
+    
+    for error in errors
+      line = cm.getLineHandle(error.lineNum - 1)
+      errorLines.push(line)
+      cm.setLineClass(line, null, "errorLine")
+      cm.setMarker(line, "%N%", "errorMarker")
+    
+    # document.getElementById("status").innerHTML = err
   else
     document.getElementById("status").innerHTML = ""
-    ps.link()
-    ps.draw()
+    renderer.link()
+    renderer.draw()
+
+
+
+
 
 cm = CodeMirror(document.getElementById("rasterCode"), {
-  value: fragmentShaderSource
+  value: """
+  precision mediump float;
+
+  varying vec2 position;
+
+  void main() {
+    gl_FragColor.r = position.x;
+    gl_FragColor.g = 0.0;
+    gl_FragColor.b = 0.0;
+    gl_FragColor.a = 1.0;
+  }
+  """
   mode: "text/x-glsl"
+  lineNumbers: true
   onChange: draw
 })
 

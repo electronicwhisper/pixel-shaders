@@ -7,12 +7,26 @@
 <!-- <script src="CodeMirror-2.33/mode/clike/clike.js"></script> -->
 <script src="glsl.js"></script>
 
+<style type="text/css">
+.CodeMirror-scroll {
+  height: 400px;
+}
+
+.errorLine {
+  background: #fdd !important;
+  margin: 0px -5px -1px -5px !important;
+}
+.errorMarker {
+  color: #900 !important;
+}
+</style>
+
 </head>
 <body>
-  <div style="float: left">
-    <canvas id="canvas" width="400" height="400" />
+  <div style="float: left;">
+    <canvas id="canvas" width="400" height="400" style="background: url(checker.png)"/>
   </div>
-  <div id="rasterCode"></div>
+  <div id="rasterCode" style="border: 1px solid #ccc; margin-left: 420px; height: 400px"></div>
   <div id="status"></div>
 
 <script src="util.js"></script>
