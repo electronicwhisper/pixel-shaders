@@ -8,8 +8,11 @@
 <script src="glsl.js"></script>
 
 <style type="text/css">
+body {
+  margin: 0;
+}
 .CodeMirror-scroll {
-  height: 400px;
+/*  height: 400px;*/
 }
 
 .errorLine {
@@ -23,13 +26,15 @@
 
 </head>
 <body>
-  <div style="float: left;">
-    <canvas id="canvas" width="400" height="400" style="background: url(checker.png)"/>
+  <div style="margin: 13px">
+    <div style="float: left;">
+      <canvas id="canvas" width="400" height="400" style="background: url(checker.png)"/>
+    </div>
+    <div id="rasterCode" style="border: 1px solid #ccc; margin-left: 413px"></div>
   </div>
-  <div id="rasterCode" style="border: 1px solid #ccc; margin-left: 420px; height: 400px"></div>
-  <div id="status"></div>
 
-<script src="util.js"></script>
+
+<script src="flatRenderer.js"></script>
 <script src="main.js"></script>
 </body>
 </html>
