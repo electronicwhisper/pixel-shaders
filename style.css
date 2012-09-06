@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+}
+
+.errorLine {
+  background: #fdd !important;
+  margin: 0px -5px -1px -5px !important;
+}
+.errorMarker {
+  color: #900 !important;
+}
+
+
+.env {
+  margin: 13px;
+  overflow: hidden;
+}
+.env canvas {
+  float: left;
+  width: 400px;
+  height: 400px;
+  background: url(checker.png);
+  cursor: crosshair;
+}
+.env .code {
+  border: 1px solid #ccc;
+  margin-left: 413px;
+}

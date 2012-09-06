@@ -1,8 +1,5 @@
-Bundle up flatRenderer
-Generalize CodeMirror setup
 Make set of examples
 Add in support for image textures
 Regular expression parse out uniform's
 Make uniforms generate interface to set them
-Mockup inspector
 Finish writing motivation essay

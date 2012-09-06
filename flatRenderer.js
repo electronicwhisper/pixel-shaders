@@ -1,5 +1,5 @@
 (function() {
-  var bufferAttribute, compileShader, fragmentShaderSource, getShaderError, makeFlatRenderer, parseShaderError, vertexShaderSource;
+  var bufferAttribute, compileShader, fragmentShaderSource, getShaderError, makeFlatRenderer, vertexShaderSource;
 
   vertexShaderSource = "precision mediump float;\n\nattribute vec3 vertexPosition;\nvarying vec2 position;\n\nvoid main() {\n  gl_Position = vec4(vertexPosition, 1.0);\n  position = (vertexPosition.xy + 1.0) * 0.5;\n}";
 
@@ -32,32 +32,6 @@
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(location);
     return gl.vertexAttribPointer(location, size, gl.FLOAT, false, 0, 0);
-  };
-
-  parseShaderError = function(error) {
-    var index, indexEnd, lineError, lineNum, parsed;
-    while ((error.length > 1) && (error.charCodeAt(error.length - 1) < 32)) {
-      error = error.substring(0, error.length - 1);
-    }
-    parsed = [];
-    index = 0;
-    while (index >= 0) {
-      index = error.indexOf("ERROR: 0:", index);
-      if (index < 0) break;
-      index += 9;
-      indexEnd = error.indexOf(':', index);
-      if (indexEnd > index) {
-        lineNum = parseInt(error.substring(index, indexEnd));
-        index = indexEnd + 1;
-        indexEnd = error.indexOf("ERROR: 0:", index);
-        lineError = indexEnd > index ? error.substring(index, indexEnd) : error.substring(index);
-        parsed.push({
-          lineNum: lineNum,
-          error: lineError
-        });
-      }
-    }
-    return parsed;
   };
 
   makeFlatRenderer = function(gl) {
