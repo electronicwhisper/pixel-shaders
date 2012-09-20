@@ -52,10 +52,15 @@ buildEnv = (opts) ->
   src = opts.src
   appendDiv = $(opts.append || "body")
   inspectorHint = opts.inspector
+  supplement = opts.supplement
+  supplementOff = opts.supplementOff
   
   env = $("""
     <div class='env'>
-      <canvas width='300' height='300'></canvas>
+      <div class='canvas'>
+        <canvas class='maincanvas' width='300' height='300'></canvas>
+        <canvas class='supplementcanvas' width='300' height='300'></canvas>
+      </div>
       <div class='uniforms'></div>
       <div class='code'></div>
     </div>
@@ -63,7 +68,7 @@ buildEnv = (opts) ->
   
   appendDiv.append(env)
   
-  canvas = env.find("canvas")[0]
+  canvas = env.find(".maincanvas")[0]
   code = env.find(".code")[0]
   $uniforms = env.find(".uniforms")
   
@@ -71,19 +76,6 @@ buildEnv = (opts) ->
   
   renderer = flatRenderer(gl)
   
-  # Load in tex0 (hack)
-  texture = gl.createTexture()
-  gl.bindTexture(gl.TEXTURE_2D, texture)
-  
-  # Set the parameters so we can render any size image.
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-
-  # Upload the image into the texture.
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tex0);
   
   uniforms = []
   uniformGetters = {}
@@ -189,18 +181,25 @@ buildEnv = (opts) ->
       
       cm.setValue(newLines.join("\n"))
     
-    $canvas = $(canvas)
+    $canvas = env.find(".canvas")
     updateWithEvent = (e) ->
       offset = $canvas.offset()
       x = (e.pageX - offset.left + 0.5) / $canvas.width()
       y = (1 - (e.pageY - offset.top + 0.5) / $canvas.height())
       update(x, y)
+      
+      if supplement
+        supplementCtx = env.find(".supplementcanvas")[0].getContext("2d")
+        supplement(cm, supplementCtx, x, y)
     $canvas.mouseover (e) ->
       originalValue = cm.getValue()
     $canvas.mousemove (e) ->
       updateWithEvent(e)
     $canvas.mouseout (e) ->
       cm.setValue(originalValue)
+      if supplementOff
+        supplementCtx = env.find(".supplementcanvas")[0].getContext("2d")
+        supplementOff(cm, supplementCtx)
     $canvas.click (e) ->
       cm.setValue(src)
       originalValue = src
@@ -212,36 +211,10 @@ buildEnv = (opts) ->
 
 
 start = () ->
-  buildEnv({
-    src: """
-      precision mediump float;
-      
-      varying vec2 position;
-      
-      void main() {
-        gl_FragColor.r = position.x;
-        gl_FragColor.g = 0.0;
-        gl_FragColor.b = 0.0;
-        gl_FragColor.a = 1.0;
-      }
-      """
-    inspector: (x, y) ->
-      [
-        false,
-        false,
-        [x, y],
-        false,
-        false,
-        x,
-        0,
-        0,
-        1,
-        false
-      ]
-  })
   
   
   buildEnv({
+    append: "#example-live-code"
     src: """
       precision mediump float;
       
@@ -254,23 +227,11 @@ start = () ->
         gl_FragColor.a = 1.0;
       }
       """
-    inspector: (x, y) ->
-      [
-        false,
-        false,
-        [x, y],
-        false,
-        false,
-        x,
-        0,
-        y,
-        1,
-        false
-      ]
   })
   
   
   buildEnv({
+    append: "#example-line-by-line"
     src: """
     precision mediump float;
     
@@ -309,43 +270,46 @@ start = () ->
         1,
         false
       ]
+    supplement: (cm, ctx, x, y) ->
+      cm.setLineClass(7, null, "iso-1")
+      cm.setMarker(7, "%N%", "iso-1")
+      cm.setLineClass(8, null, "iso-2")
+      cm.setMarker(8, "%N%", "iso-2")
+      
+      ctx.clearRect(0, 0, 300, 300)
+      
+      x = x - 0.5
+      y = 1 - y - 0.5
+      
+      r = Math.sqrt(x*x + y*y)
+      a = Math.atan(y, x)
+      
+      ctx.strokeStyle = "#f00"
+      ctx.beginPath()
+      ctx.arc(150, 150, r*300, 0, Math.PI*2, false)
+      ctx.stroke()
+      
+      ctx.strokeStyle = "#0f0"
+      ctx.beginPath()
+      ctx.moveTo(150, 150)
+      ctx.lineTo(150 + x * 600/r, 150 + y * 600/r)
+      ctx.stroke()
+    supplementOff: (cm, ctx) ->
+      cm.setLineClass(7, null, null)
+      cm.clearMarker(7)
+      cm.setLineClass(8, null, null)
+      cm.clearMarker(8)
+      
+      ctx.clearRect(0, 0, 300, 300)
   })
-  
-  
-  # buildEnv({
-  #   src: """
-  #   precision mediump float;
-  #   
-  #   varying vec2 position;
-  #   uniform sampler2D tex0;
-  #   
-  #   void main() {
-  #     vec4 color = texture2D(tex0, position);
-  #     gl_FragColor.rgb = 1.0 - color.rgb;
-  #     gl_FragColor.a = 1.0;
-  #   }
-  #   """
-  # })
-  # 
-  # buildEnv({
-  #   src: """
-  #   precision mediump float;
-  #   
-  #   varying vec2 position;
-  #   uniform sampler2D tex0;
-  #   uniform float threshold;
-  #   
-  #   void main() {
-  #     vec4 color = texture2D(tex0, position);
-  #     float brightness = (color.r + color.g + color.b) / 3.0;
-  #     if (brightness > threshold) {
-  #       gl_FragColor = color;
-  #     } else {
-  #       gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
-  #     }
-  #   }
-  #   """
-  # })
+
 
 tex0.onload = start
 tex0.src = "tex0.jpg"
+
+
+
+
+# $(document).mousemove (e) ->
+#   offset = $(".red").offset()
+#   offset.left

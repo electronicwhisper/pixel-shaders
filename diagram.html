@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+.diagram {
+  position: relative;
+}
+
+.slider {
+  position: absolute;
+  height: 204px;
+  cursor: ew-resize;
+}
+
+.handle {
+  position: absolute;
+  bottom: 0;
+  margin-left: -5px;
+  margin-bottom: -20px;
+  width: 9px;
+  height: 20px;
+  background-color: #999;
+}
+.line {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  margin-left: -1px;
+  border-left: 1px dotted #666;
+}
+</style>
+</head>
+<body>
+
+<code>smoothstep(<span data-bind="text: edge0.value()"></span>, <span data-bind="text: edge1.value()"></span>, <span data-bind="text: x()"></span>) = <span data-bind="text: y()"></span></code>
+
+<div class="diagram">
+  <canvas width="500" height="500" data-bind="canvas: draw, event: {mousemove: mousemove}"></canvas>
+  
+  <div data-bind="with: edge0">
+    <div class="slider" data-bind="position: $root.modelToCanvas([value(), 0]), event: {mousedown: mousedown}">
+      <div class="line"></div>
+      <div class="handle"></div>
+    </div>
+  </div>
+  <div data-bind="with: edge1">
+    <div class="slider" data-bind="position: $root.modelToCanvas([value(), 0]), event: {mousedown: mousedown}">
+      <div class="line"></div>
+      <div class="handle"></div>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/numeric-1.2.2.min.js"></script>
+<script src="vendor/jquery-1.8.1.min.js"></script>
+<script src="vendor/knockout-2.1.0.js"></script>
+<script src="diagram.js"></script>
+</body>
+</html>

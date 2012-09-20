@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>An Interactive Introduction to Graphics Programming</title>
+  <link href='http://fonts.googleapis.com/css?family=Contrail+One' rel='stylesheet' type='text/css'>
+  
+  <script src="vendor/CodeMirror-2.33/lib/codemirror.js"></script>
+  <script src="vendor/glsl.js"></script>
+  <link rel="stylesheet" href="vendor/CodeMirror-2.33/lib/codemirror.css">
+  
+  <style type="text/css">
+  body {
+    font-family: georgia;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #282828;
+    margin: 96px 48px 144px 372px;
+  }
+  a {
+    color: #900;
+  }
+  a:hover {
+    color: #d00;
+  }
+  
+  h1, h2, p, body > ul, body > ol {
+    width: 540px;
+  }
+  
+  h1, h2 {
+    font-family: 'Contrail One';
+    color: #000;
+  }
+  
+  h1 {
+    font-size: 42px;
+  }
+  h2 {
+    font-size: 30px;
+    margin-top: 48px;
+  }
+  .red {
+    color: #b00;
+/*    text-shadow: 0px 12px 10px rgba(0,0,0,0.2);*/
+  }
+  
+  .errorLine {
+    background: #fdd !important;
+    margin: 0px -7px -1px -6px !important;
+  }
+  .errorMarker {
+    color: #900 !important;
+  }
+  .errorMessage {
+    display: none;
+  }
+  
+  .CodeMirror-gutter .iso-1 {
+    color: #f00 !important;
+  }
+  .CodeMirror-lines .iso-1 {
+    background: #fdd !important;
+    margin: 0px -7px -1px -6px !important;
+  }
+  .CodeMirror-gutter .iso-2 {
+    color: #0f0 !important;
+  }
+  .CodeMirror-lines .iso-2 {
+    background: #dfd !important;
+    margin: 0px -7px -1px -6px !important;
+  }
+
+
+  .env {
+    overflow: hidden;
+    font-family: monospace;
+    margin-left: -324px;
+  }
+  .env .canvas {
+    float: left;
+    width: 300px;
+    height: 300px;
+    background: url(checker.png);
+    cursor: crosshair;
+  }
+  .env .canvas canvas {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+  }
+  .env .code {
+    border: 1px solid #ccc;
+    margin-left: 324px;
+  }
+
+  </style>
+</head>
+<body>
+
+
+
+  <h1 id="an_interactive_introductionto_graphics_programming">An <span class="red">Interactive Introduction</span><br />to Graphics Programming</h1>
+
+  <p>This is a proposal and proof-of-concept for an interactive book about programming the graphics processor.</p>
+
+  <p>Modern computers come with two separate processors, two &#8220;brains&#8221;:</p>
+
+  <ul>
+  <li>The traditional CPU, the Central Processing Unit</li>
+  <li>The newer GPU, the Graphics Processing Unit</li>
+  </ul>
+
+  <p>Almost all books and courses about programming only teach you how to program the CPU.</p>
+
+  <p>GPU programming is esoteric. Learning resources are targeted at experienced programmers who need to use the GPU for applications like high-performance video games and scientific simulations.</p>
+
+  <p>Yet there is a unique joy to programming the graphics processor. It <em>feels</em> different than traditional programming. Traditional programs are usually quite long. The challenge is in understanding how the computer steps through the program. GPU programs are often fiendishly short. The challenge is in understanding how a simple program, when performed thousands of time in parallel, can produce a powerful effect.</p>
+
+  <p>This book is intended to bring the wonder and joy of graphics processor programming to a wider audience. It is targeted at artists who want to integrate powerful computer graphics into their work, and traditional programmers who want to try thinking about programming in a different way. It has no programming pre-requisites, and indeed encourages a fresh mindset&#8212;many traditional programming tactics will be ineffective.</p>
+
+  <h2 id="an_interactive_book">An Interactive Book</h2>
+
+  <p>This book will be <em>interactive</em>. You can play with it as you read it.</p>
+
+  <p>The text will be extensively illustrated with <em>manipulable diagrams</em> and <em>live code examples</em>. Here&#8217;s a live code example:</p>
+
+  <div id="example-live-code"></div>
+
+  <p>On the left you have a graphic output and on the right you have the code that produced it. But you can also change the code and the output will change dynamically, as you type. Try it out!</p>
+
+  <p>By experimenting with the code&#8212;by <em>touching</em> it&#8212;you can gain a much deeper understanding of how it works.</p>
+
+  <p>The live coding interface will also feature line-by-line evaluation and visual aids to help you understand how a program works. Here&#8217;s a mockup, illustrating polar coordinates:</p>
+
+  <div id="example-line-by-line"></div>
+
+  <p>Try moving your mouse over the output.</p>
+
+  <p>The <em>line-by-line evaluation</em> on the source code shows you exactly how the color of the pixel you&#8217;re on was computed.</p>
+
+  <p>The <span style="color: #f00">red</span> and <span style="color: #0f0">green</span> <a href="http://en.wikipedia.org/wiki/Contour_line"><em>isolines</em></a> show you where on your image a particular line of code has the same value as the pixel you&#8217;re on. Just like a topographical map, isolines help you quickly understand how a value varies over the entire image.</p>
+
+  <p>I am extremely excited about the possibilities of interactive books in general. I hope that this book, in addition to teaching programming, will point to some future possibilities for this medium.</p>
+
+  <h2 id="contents">Contents</h2>
+
+  <p>The book in its initial incarnation will cover the topic of <em>pixel shaders</em>.</p>
+
+  <p>Pixel shaders are programs which compute a color for each pixel in an outputted image or animation. You can imagine thousands of independent computers&#8212;one in each pixel of your display&#8212;whose sole purpose is to figure out what color to be. Because each pixel needs to determine its color independently, programming pixel shaders is very different than programming graphics traditionally (as a sequence of centrally managed drawing operations).</p>
+
+  <p>The book will introduce the concepts of pixel shading from the ground up. Along the way, it will naturally motivate powerful concepts in mathematics and geometry. It will also explore optical phenomena and bring in ideas from contemporary visual art. Finally, it will show how pixel shaders can be integrated with other software frameworks.</p>
+
+  <p>Here is an in-progress table of contents for the book:</p>
+
+  <ol>
+  <li>Introduction
+  <ul>
+  <li>What are pixel shaders?</li>
+  <li>What can you do with pixel shaders?</li>
+  </ul></li>
+  <li>Colors
+  <ul>
+  <li>Gradients</li>
+  <li>Vector Math</li>
+  <li>Color Spaces, Rainbows</li>
+  </ul></li>
+  <li>Working with Textures
+  <ul>
+  <li>Image Filters</li>
+  <li>Compositing</li>
+  </ul></li>
+  <li>Transformations
+  <ul>
+  <li>Case Study: Gerhardt Richter&#8217;s <a href="http://artnet.tumblr.com/post/29052281623/gerhard-richter-patterns-for-his-latest-project">Patterns</a></li>
+  <li>Coordinate Spaces</li>
+  <li>Polar Coordinates</li>
+  <li>Distortion</li>
+  <li>Displacement Maps</li>
+  </ul></li>
+  <li>Multiple Point Sampling
+  <ul>
+  <li>Edge Detection</li>
+  <li>Blur</li>
+  </ul></li>
+  <li>Generative Textures
+  <ul>
+  <li>Noise</li>
+  <li>Quasicrystals</li>
+  <li>Fractals</li>
+  </ul></li>
+  <li>Raytracing
+  <ul>
+  <li>Case Study: Mirrors and Kaleidoscopes</li>
+  <li>3D</li>
+  </ul></li>
+  <li>Integrating Shaders With Other Frameworks
+  <ul>
+  <li>WebGL</li>
+  <li>Processing, openFrameworks, Jitter, Quartz Composer</li>
+  </ul></li>
+  </ol>
+
+  <h2 id="open_source">Open Source</h2>
+
+  <p>I&#8217;d like for the entire book and all of the code in it&#8212;both example code and the code to play with the examples&#8212;to be open source. All the code and contents of the book will be hosted on GitHub. The book itself will be freely available on the web.</p>
+
+  <p>In addition to the book being open, I anticipate that the production of the interactive examples in the book will spawn several independent open source projects. These projects might include code to:</p>
+
+  <ul>
+  <li>Flexibly embed pixel shaders with WebGL</li>
+  <li>Create live coding environments</li>
+  <li>Parse and simulate GLSL in Javascript</li>
+  <li>Create interactive diagrams</li>
+  <li>Integrate interactive examples with lightweight markup languages (e.g. Markdown, Asciidoc)</li>
+  <li>Render GPU output, e.g. WebGL to Animated GIF via Javascript</li>
+  </ul>
+
+  <h2 id="new_programmersnew_ways_of_programming">New programmers.<br />New ways of programming.</h2>
+
+  <p>Our most profound advances in computing were driven by endeavors to enable new programmers to richly interact with computers in new ways. For example, in the early 1970s, while others designed computers for engineers and businessmen, Alan Kay and his Learning Research Group at Xerox PARC believed computers could be <a href="http://www.newmediareader.com/book_samples/nmr-26-kay.pdf">used and programmed by children for creative purposes</a>. From this starting point, they invented object oriented programming and the modern GUI.</p>
+
+  <p>This book aims to challenge the traditional way we teach and learn programming. It is targeted at programmers who want to use technology primarily as a creative tool. It introduces programming with a topic normally considered advanced and esoteric, but whose importance to future computing problems is rapidly being recognized. It eschews the traditional programming challenge of designing sequences of operations and replaces it with the challenge of orchestrating thousands of deceptively simple computations to produce a powerful combined effect.</p>
+
+  <p>Finally, it abandons the notion of the book as a static medium. The interactions in this book will be developed in tandem with the text. They will be intimately tied in&#8212;part of the flow. Readers will be encouraged to engage with the book <em>actively</em>. </p>
+
+  <p>Our learning resources should inspire <em>thirst</em>. They should make you think, &#8220;I can&#8217;t get enough this!&#8221;</p>
+
+  <p>Like a child exploring some new, wondrous pocket of the universe, this is the feeling that I hope to inspire with this book.</p>
+
+  <p><strong>Toby Schachman</strong><br /><a href="mailto:tqs@alum.mit.edu">tqs@alum.mit.edu</a></p>
+
+
+
+
+<script src="vendor/numeric-1.2.2.min.js"></script>
+<script src="vendor/jquery-1.8.1.min.js"></script>
+<script src="vendor/underscore-min.js"></script>
+<script src="vendor/xregexp-min.js"></script>
+<script src="flatRenderer.js"></script>
+<script src="proposal.js"></script>
+</body>
+</html>

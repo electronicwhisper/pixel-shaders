@@ -44,27 +44,21 @@
   };
 
   buildEnv = function(opts) {
-    var $canvas, $uniforms, appendDiv, canvas, cm, code, codeChange, convert, draw, env, errorLines, gl, inspectorHint, makeSpaces, originalValue, renderer, round, src, texture, uniformGetters, uniforms, update, updateWithEvent;
+    var $canvas, $uniforms, appendDiv, canvas, cm, code, codeChange, convert, draw, env, errorLines, gl, inspectorHint, makeSpaces, originalValue, renderer, round, src, supplement, supplementOff, uniformGetters, uniforms, update, updateWithEvent;
     src = opts.src;
     appendDiv = $(opts.append || "body");
     inspectorHint = opts.inspector;
-    env = $("<div class='env'>\n  <canvas width='300' height='300'></canvas>\n  <div class='uniforms'></div>\n  <div class='code'></div>\n</div>");
+    supplement = opts.supplement;
+    supplementOff = opts.supplementOff;
+    env = $("<div class='env'>\n  <div class='canvas'>\n    <canvas class='maincanvas' width='300' height='300'></canvas>\n    <canvas class='supplementcanvas' width='300' height='300'></canvas>\n  </div>\n  <div class='uniforms'></div>\n  <div class='code'></div>\n</div>");
     appendDiv.append(env);
-    canvas = env.find("canvas")[0];
+    canvas = env.find(".maincanvas")[0];
     code = env.find(".code")[0];
     $uniforms = env.find(".uniforms");
     gl = canvas.getContext("experimental-webgl", {
       premultipliedAlpha: false
     });
     renderer = flatRenderer(gl);
-    texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tex0);
     uniforms = [];
     uniformGetters = {};
     errorLines = [];
@@ -181,13 +175,17 @@
         }
         return cm.setValue(newLines.join("\n"));
       };
-      $canvas = $(canvas);
+      $canvas = env.find(".canvas");
       updateWithEvent = function(e) {
-        var offset, x, y;
+        var offset, supplementCtx, x, y;
         offset = $canvas.offset();
         x = (e.pageX - offset.left + 0.5) / $canvas.width();
         y = 1 - (e.pageY - offset.top + 0.5) / $canvas.height();
-        return update(x, y);
+        update(x, y);
+        if (supplement) {
+          supplementCtx = env.find(".supplementcanvas")[0].getContext("2d");
+          return supplement(cm, supplementCtx, x, y);
+        }
       };
       $canvas.mouseover(function(e) {
         return originalValue = cm.getValue();
@@ -196,7 +194,12 @@
         return updateWithEvent(e);
       });
       $canvas.mouseout(function(e) {
-        return cm.setValue(originalValue);
+        var supplementCtx;
+        cm.setValue(originalValue);
+        if (supplementOff) {
+          supplementCtx = env.find(".supplementcanvas")[0].getContext("2d");
+          return supplementOff(cm, supplementCtx);
+        }
       });
       return $canvas.click(function(e) {
         cm.setValue(src);
@@ -208,18 +211,11 @@
 
   start = function() {
     buildEnv({
-      src: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}",
-      inspector: function(x, y) {
-        return [false, false, [x, y], false, false, x, 0, 0, 1, false];
-      }
-    });
-    buildEnv({
-      src: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = position.y;\n  gl_FragColor.a = 1.0;\n}",
-      inspector: function(x, y) {
-        return [false, false, [x, y], false, false, x, 0, y, 1, false];
-      }
+      append: "#example-live-code",
+      src: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = position.y;\n  gl_FragColor.a = 1.0;\n}"
     });
     return buildEnv({
+      append: "#example-line-by-line",
       src: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  vec2 p = position - vec2(0.5, 0.5);\n  \n  float radius = length(p);\n  float angle = atan(p.y, p.x);\n  \n  gl_FragColor.r = radius;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = abs(angle / 3.14159);\n  gl_FragColor.a = 1.0;\n}",
       inspector: function(x, y) {
         var angle, p, radius;
@@ -227,6 +223,34 @@
         radius = Math.sqrt(p[0] * p[0] + p[1] * p[1]);
         angle = Math.atan2(p[1], p[0]);
         return [false, false, [x, y], false, false, p, false, radius, angle, false, radius, 0, Math.abs(angle / 3.14159), 1, false];
+      },
+      supplement: function(cm, ctx, x, y) {
+        var a, r;
+        cm.setLineClass(7, null, "iso-1");
+        cm.setMarker(7, "%N%", "iso-1");
+        cm.setLineClass(8, null, "iso-2");
+        cm.setMarker(8, "%N%", "iso-2");
+        ctx.clearRect(0, 0, 300, 300);
+        x = x - 0.5;
+        y = 1 - y - 0.5;
+        r = Math.sqrt(x * x + y * y);
+        a = Math.atan(y, x);
+        ctx.strokeStyle = "#f00";
+        ctx.beginPath();
+        ctx.arc(150, 150, r * 300, 0, Math.PI * 2, false);
+        ctx.stroke();
+        ctx.strokeStyle = "#0f0";
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.lineTo(150 + x * 600 / r, 150 + y * 600 / r);
+        return ctx.stroke();
+      },
+      supplementOff: function(cm, ctx) {
+        cm.setLineClass(7, null, null);
+        cm.clearMarker(7);
+        cm.setLineClass(8, null, null);
+        cm.clearMarker(8);
+        return ctx.clearRect(0, 0, 300, 300);
       }
     });
   };

@@ -127,4 +127,4 @@ makeFlatRenderer = (gl) ->
 
 
 
-window.flatRenderer = makeFlatRenderer
+module.exports = makeFlatRenderer

@@ -3,3 +3,16 @@ Add in support for image textures
 Regular expression parse out uniform's
 Make uniforms generate interface to set them
 Finish writing motivation essay
+
+
+
+
+
+
+
+Make canvas resize to its size
+Add some uniforms:
+  float time
+  vec2 resolution
+  vec2 mouse
+Fullscreen
