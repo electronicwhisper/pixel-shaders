@@ -10,9 +10,20 @@ Finish writing motivation essay
 
 
 
-Make canvas resize to its size
 Add some uniforms:
-  float time
+  X float time
   vec2 resolution
   vec2 mouse
 Fullscreen
+Make error popup adjust automatically
+Uniforms (custom)
+  Parse ranges
+  
+Textures
+  Keep track of textures in flatRenderer
+  Add images
+  Add video
+  Add webcam
+Editor
+  Cmd+/ to comment
+  (), [], {} around selections

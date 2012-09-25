@@ -1,0 +1,25 @@
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 pos = position - vec2(0.5, 0.5);
+  
+  float samples = 16.;
+  float stepSize = 1. / 50. / samples;
+  vec2 step = vec2(stepSize, stepSize);
+  
+  float count = 0.;
+  for (float i = 0.0; i < 16.; i++) {
+    for (float  j = 0.0; j < 16.; j++) {
+      vec2 p = pos + vec2(i*step.x, j*step.x);
+      
+      float radius = length(p);
+      count += (radius > 0.4) ? 1. : -1.;
+      
+    }
+  }
+  
+  gl_FragColor = vec4(0.,0.,0.,1.);
+  gl_FragColor.r = abs(count) / (samples*samples);
+}

@@ -49,41 +49,129 @@
   }
   return this.require.define;
 }).call(this)({"app": function(exports, require, module) {(function() {
-  var flatRenderer, simpleSrc;
+  var exercises, flatRenderer, simpleSrc;
 
   flatRenderer = require("flatRenderer");
 
   simpleSrc = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}";
 
+  exercises = [
+    {
+      start: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\ngl_FragColor.r = 1.0;\ngl_FragColor.g = 0.0;\ngl_FragColor.b = 0.0;\ngl_FragColor.a = 1.0;\n}",
+      end: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\ngl_FragColor.r = 0.0;\ngl_FragColor.g = 0.0;\ngl_FragColor.b = 1.0;\ngl_FragColor.a = 1.0;\n}"
+    }, {
+      end: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\ngl_FragColor.r = 1.0;\ngl_FragColor.g = 1.0;\ngl_FragColor.b = 0.0;\ngl_FragColor.a = 1.0;\n}"
+    }, {
+      end: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\ngl_FragColor.r = 1.0;\ngl_FragColor.g = 0.5;\ngl_FragColor.b = 0.0;\ngl_FragColor.a = 1.0;\n}"
+    }
+  ];
+
   module.exports = function() {
-    var $canvas, ctx, renderer;
-    $canvas = $("<canvas />");
-    $("#output").append($canvas);
-    $canvas.attr({
-      width: $canvas.innerWidth(),
-      height: $canvas.innerHeight()
+    var editor, makeEditor;
+    editor = require("editor")({
+      src: exercises[0].start,
+      code: $("#code"),
+      output: $("#output")
     });
-    ctx = $canvas[0].getContext("experimental-webgl", {
-      premultipliedAlpha: false
+    return makeEditor = require("editor")({
+      src: exercises[0].end,
+      code: $("#makeCode"),
+      output: $("#makeOutput")
     });
-    renderer = flatRenderer(ctx);
-    renderer.loadFragmentShader(simpleSrc);
-    renderer.link();
-    return renderer.draw();
   };
 
 }).call(this);
 }, "editor": function(exports, require, module) {(function() {
-  var makeEditor;
+  var expandCanvas, flatRenderer, makeEditor, startTime;
 
-  makeEditor = function(src) {
-    var insertEditor, insertOutput, setSrc;
-    setSrc = function(newSrc) {
-      return src = newSrc;
-    };
-    insertOutput = function(div) {};
-    return insertEditor = function(div) {};
+  flatRenderer = require("flatRenderer");
+
+  startTime = Date.now();
+
+  expandCanvas = function(canvas) {
+    var $canvas;
+    $canvas = $(canvas);
+    return $canvas.attr({
+      width: $canvas.innerWidth(),
+      height: $canvas.innerHeight()
+    });
   };
+
+  makeEditor = function(opts) {
+    var $canvas, $code, $output, cm, ctx, draw, errorLines, markErrors, refreshCode, renderer, src, update;
+    src = opts.src;
+    $output = $(opts.output);
+    $code = $(opts.code);
+    $canvas = $("<canvas />");
+    $output.append($canvas);
+    expandCanvas($canvas);
+    ctx = $canvas[0].getContext("experimental-webgl", {
+      premultipliedAlpha: false
+    });
+    renderer = flatRenderer(ctx);
+    draw = function() {
+      renderer.setUniform("time", (Date.now() - startTime) / 1000);
+      return renderer.draw();
+    };
+    errorLines = [];
+    markErrors = function(errors) {
+      var error, line, _i, _j, _len, _len2, _results;
+      for (_i = 0, _len = errorLines.length; _i < _len; _i++) {
+        line = errorLines[_i];
+        cm.setLineClass(line, null, null);
+        cm.clearMarker(line);
+      }
+      errorLines = [];
+      $.fn.tipsy.revalidate();
+      _results = [];
+      for (_j = 0, _len2 = errors.length; _j < _len2; _j++) {
+        error = errors[_j];
+        line = cm.getLineHandle(error.lineNum - 1);
+        errorLines.push(line);
+        cm.setLineClass(line, null, "errorLine");
+        _results.push(cm.setMarker(line, "<div class='errorMessage'>" + error.error + "</div>%N%", "errorMarker"));
+      }
+      return _results;
+    };
+    refreshCode = function() {
+      var err, errors;
+      src = cm.getValue();
+      err = renderer.loadFragmentShader(src);
+      if (err) {
+        errors = require("parse").shaderError(err);
+        return markErrors(errors);
+      } else {
+        markErrors([]);
+        return renderer.link();
+      }
+    };
+    cm = CodeMirror($code[0], {
+      value: src,
+      mode: "text/x-glsl",
+      lineNumbers: true,
+      onChange: refreshCode
+    });
+    refreshCode();
+    update = function() {
+      draw();
+      return requestAnimationFrame(update);
+    };
+    update();
+    return {
+      set: function(newSrc) {
+        return cm.setValue(newSrc);
+      }
+    };
+  };
+
+  $(".errorMarker").tipsy({
+    live: true,
+    gravity: "e",
+    opacity: 1.0,
+    title: function() {
+      return $(this).find(".errorMessage").text();
+    }
+  });
 
   module.exports = makeEditor;
 
