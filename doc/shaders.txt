@@ -744,3 +744,68 @@ void main() {
   
   gl_FragColor = mix(c1, c2, smoothstep(0.49,0.5,color));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+// triangle wave from 0 to 1
+float wrap(float n) {
+	return abs(mod(n, 2.)-1.)*-1. + 1.;
+}
+
+// creates a cosine wave in the plane at a given angle
+float wave(float angle, vec2 point) {
+	float cth = cos(angle);
+	float sth = sin(angle);
+	return (cos (cth*point.x + sth*point.y) + 1.) / 2.;
+}
+
+// sum 7 cosine waves at various interfering angles
+// wrap values when they exceed 1
+float quasi(float interferenceAngle, vec2 point) {
+	float sum = 0.;
+	for (float i = 0.; i < 7.; i++) {
+		sum += wave(3.1416*i*interferenceAngle, point);
+	}
+	return wrap(sum);
+}
+
+void main() {
+  float b = quasi(time*0.01, (position-0.5)*50.);
+  gl_FragColor = vec4(b,b,b,1.);
+}
