@@ -105,7 +105,7 @@
   };
 
   makeEditor = function(opts) {
-    var $canvas, $code, $output, cm, ctx, draw, errorLines, markErrors, refreshCode, renderer, src, update;
+    var $canvas, $code, $output, cm, ctx, draw, drawEveryFrame, errorLines, findUniforms, markErrors, refreshCode, renderer, src, update;
     src = opts.src;
     $output = $(opts.output);
     $code = $(opts.code);
@@ -116,9 +116,25 @@
       premultipliedAlpha: false
     });
     renderer = flatRenderer(ctx);
+    drawEveryFrame = false;
     draw = function() {
       renderer.setUniform("time", (Date.now() - startTime) / 1000);
       return renderer.draw();
+    };
+    findUniforms = function() {
+      var newUniforms, u, _i, _len, _results;
+      newUniforms = require("parse").uniforms(src);
+      drawEveryFrame = false;
+      _results = [];
+      for (_i = 0, _len = newUniforms.length; _i < _len; _i++) {
+        u = newUniforms[_i];
+        if (u.name === "time") {
+          _results.push(drawEveryFrame = true);
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
     };
     errorLines = [];
     markErrors = function(errors) {
@@ -149,7 +165,9 @@
         return markErrors(errors);
       } else {
         markErrors([]);
-        return renderer.link();
+        findUniforms();
+        renderer.link();
+        if (!drawEveryFrame) return draw();
       }
     };
     cm = CodeMirror($code[0], {
@@ -161,7 +179,7 @@
     cm.setSize("100%", $code.innerHeight());
     refreshCode();
     update = function() {
-      draw();
+      if (drawEveryFrame) draw();
       return requestAnimationFrame(update);
     };
     update();

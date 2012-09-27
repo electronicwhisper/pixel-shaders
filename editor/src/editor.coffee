@@ -21,9 +21,18 @@ makeEditor = (opts) ->
   
   renderer = flatRenderer(ctx)
   
+  drawEveryFrame = false
+  
   draw = () ->
     renderer.setUniform("time", (Date.now() - startTime)/1000)
     renderer.draw()
+  
+  findUniforms = () ->
+    newUniforms = require("parse").uniforms(src)
+    drawEveryFrame = false
+    for u in newUniforms
+      if u.name == "time"
+        drawEveryFrame = true
   
   errorLines = []
   markErrors = (errors) ->
@@ -49,8 +58,10 @@ makeEditor = (opts) ->
       markErrors(errors)
     else
       markErrors([])
+      findUniforms()
       renderer.link()
-      # draw()
+      if !drawEveryFrame
+        draw()
   
   
   cm = CodeMirror($code[0], {
@@ -64,7 +75,8 @@ makeEditor = (opts) ->
   refreshCode()
   
   update = () ->
-    draw()
+    if drawEveryFrame
+      draw()
     requestAnimationFrame(update)
   update()
   

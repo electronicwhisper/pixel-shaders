@@ -809,3 +809,43 @@ void main() {
   float b = quasi(time*0.01, (position-0.5)*50.);
   gl_FragColor = vec4(b,b,b,1.);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 c = (position - 0.5)*4.;
+  vec2 z = c;
+  
+  float escape = 0.;
+  const float iter = 30.;
+  for(float i = 0.; i<iter; i++) {
+    escape = i;
+    float x = (z.x * z.x - z.y * z.y) + c.x;
+    float y = (z.y * z.x + z.x * z.y) + c.y;
+	
+    if ((x * x + y * y) > 80.0) break;
+    z.x = x;
+    z.y = y;
+  }
+  
+  float b = escape/iter;
+  
+  gl_FragColor = vec4(b,b,b,1.);
+}

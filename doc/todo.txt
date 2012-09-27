@@ -27,3 +27,6 @@ Textures
 Editor
   Cmd+/ to comment
   (), [], {} around selections
+
+
+Make a re-render flag that updates with raf vs onchange
