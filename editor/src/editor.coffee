@@ -59,6 +59,7 @@ makeEditor = (opts) ->
     lineNumbers: true
     onChange: refreshCode
   })
+  cm.setSize("100%", $code.innerHeight())
   
   refreshCode()
   

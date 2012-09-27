@@ -57,27 +57,34 @@
 
   exercises = [
     {
-      start: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\ngl_FragColor.r = 1.0;\ngl_FragColor.g = 0.0;\ngl_FragColor.b = 0.0;\ngl_FragColor.a = 1.0;\n}",
-      end: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\ngl_FragColor.r = 0.0;\ngl_FragColor.g = 0.0;\ngl_FragColor.b = 1.0;\ngl_FragColor.a = 1.0;\n}"
+      start: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}",
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 0.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}"
     }, {
-      end: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\ngl_FragColor.r = 1.0;\ngl_FragColor.g = 1.0;\ngl_FragColor.b = 0.0;\ngl_FragColor.a = 1.0;\n}"
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 1.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
     }, {
-      end: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\ngl_FragColor.r = 1.0;\ngl_FragColor.g = 0.5;\ngl_FragColor.b = 0.0;\ngl_FragColor.a = 1.0;\n}"
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.5;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
     }
   ];
 
   module.exports = function() {
-    var editor, makeEditor;
+    var editor, loadExercise, makeEditor;
     editor = require("editor")({
       src: exercises[0].start,
       code: $("#code"),
       output: $("#output")
     });
-    return makeEditor = require("editor")({
-      src: exercises[0].end,
+    makeEditor = require("editor")({
+      src: exercises[0].solution,
       code: $("#makeCode"),
       output: $("#makeOutput")
     });
+    return window.loadExercise = loadExercise = function(i) {
+      var exercise;
+      exercise = exercises[i];
+      console.log(exercise);
+      if (exercise.start) editor.set(exercise.start);
+      return makeEditor.set(exercise.solution);
+    };
   };
 
 }).call(this);
@@ -151,6 +158,7 @@
       lineNumbers: true,
       onChange: refreshCode
     });
+    cm.setSize("100%", $code.innerHeight());
     refreshCode();
     update = function() {
       draw();
@@ -280,6 +288,21 @@
   };
 
   module.exports = makeFlatRenderer;
+
+}).call(this);
+}, "fullscreen": function(exports, require, module) {(function() {
+  var simpleSrc;
+
+  simpleSrc = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}";
+
+  module.exports = function() {
+    var editor;
+    return editor = require("editor")({
+      src: simpleSrc,
+      code: $("#code"),
+      output: $("#output")
+    });
+  };
 
 }).call(this);
 }, "parse": function(exports, require, module) {(function() {

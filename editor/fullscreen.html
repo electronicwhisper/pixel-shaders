@@ -42,32 +42,29 @@ canvas {
 
 .tipsy {
   font-size: 13px;
-  font-family: monospace;
+  font-family: arial;
 }
 .tipsy-inner {
   max-width: 270px;
   text-align: left;
 }
+
+#code {
+  opacity: 0.0;
+}
+#code:hover {
+  opacity: 0.6;
+}
 </style>
 </head>
-<body>
+<body style="overflow: hidden">
 
-<div style="overflow: hidden">
-  <div id="output" style="width: 600px; height: 600px; float: left;"></div>
-  <div id="code" style="margin-left: 624px; border: 1px solid #ccc"></div>
-</div>
-
-<div style="overflow: hidden; margin-top: 24px">
-  <div id="makeOutput" style="width: 300px; height: 300px; float: left;"></div>
-  <div id="makeCode" style="display: none"></div>
-  <div style="margin-left: 324px;">
-    &#x2190; Make this
-  </div>
-</div>
+<div id="output" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0"></div>
+<div id="code" style="position: absolute; top: 0; right: 0; width: 500px; bottom: 0; background-color: #fff;"></div>
 
 <script src="compiled/app.js"></script>
 <script>
-require("app")()
+require("fullscreen")()
 </script>
 </body>
 </html>
