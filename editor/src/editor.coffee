@@ -23,6 +23,8 @@ makeEditor = (opts) ->
   
   drawEveryFrame = false
   
+  changeCallback = null
+  
   draw = () ->
     renderer.setUniform("time", (Date.now() - startTime)/1000)
     renderer.draw()
@@ -62,6 +64,8 @@ makeEditor = (opts) ->
       renderer.link()
       if !drawEveryFrame
         draw()
+    if changeCallback
+      changeCallback(src)
   
   
   cm = CodeMirror($code[0], {
@@ -83,6 +87,27 @@ makeEditor = (opts) ->
   return {
     set: (newSrc) ->
       cm.setValue(newSrc)
+    snapshot: (width, height) ->
+      canvas = $canvas[0]
+      # if width is specified, resize the canvas (temporarily)
+      if width
+        oldWidth = canvas.width
+        oldHeight = canvas.height
+        canvas.width = width
+        canvas.height = height
+        ctx.viewport(0, 0, width, height)
+      # take the snapshot
+      draw()
+      data = canvas.toDataURL('image/png')
+      # reset width and height
+      if width
+        canvas.width = oldWidth
+        canvas.height = oldHeight
+        ctx.viewport(0, 0, oldWidth, oldHeight)
+        draw()
+      return data
+    onchange: (callback) ->
+      changeCallback = callback
   }
 
 

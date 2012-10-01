@@ -29,4 +29,14 @@ Editor
   (), [], {} around selections
 
 
-Make a re-render flag that updates with raf vs onchange
+Make a more modular way to do raf
+
+Saving
+
+Exercises
+
+Add full screen to functionality
+On document focus redraw (to prevent glitching)
+Collapse button on full screen code
+
+Graph interface

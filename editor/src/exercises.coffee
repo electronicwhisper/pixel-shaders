@@ -15,7 +15,7 @@ void main() {
 
 
 exercises = [{
-start: """
+workspace: """
 precision mediump float;
 
 varying vec2 position;
@@ -70,13 +70,17 @@ void main() {
 
 
 
+testEqualEditors = (e1, e2) ->
+  e1.snapshot() == e2.snapshot()
+
+
 
 
 
 module.exports = () ->
   
   editor = require("editor")({
-    src: exercises[0].start
+    src: exercises[0].workspace
     code: $("#code")
     output: $("#output")
   })
@@ -88,10 +92,43 @@ module.exports = () ->
     output: $("#makeOutput")
   })
   
+  # window.loadExercise = loadExercise = (i) ->
+  #   exercise = exercises[i]
+  #   if exercise.start
+  #     editor.set(exercise.start)
+  #   makeEditor.set(exercise.solution)
   
-  window.loadExercise = loadExercise = (i) ->
-    exercise = exercises[i]
-    console.log exercise
-    if exercise.start
-      editor.set(exercise.start)
-    makeEditor.set(exercise.solution)
+  exercise = {
+    workspace: ko.observable("")
+    solution: ko.observable("")
+    currentExercise: ko.observable(0)
+    exercises: exercises
+    solved: ko.observable(false)
+    previous: () ->
+      exercise.currentExercise(exercise.currentExercise() - 1)
+    next: () ->
+      exercise.currentExercise(exercise.currentExercise() + 1)
+  }
+  
+  editor.onchange (src) ->
+    exercise.workspace(src)
+  makeEditor.onchange (src) ->
+    exercise.solution(src)
+  
+  ko.computed () ->
+    e = exercises[exercise.currentExercise()]
+    if e.workspace
+      editor.set(e.workspace)
+    makeEditor.set(e.solution)
+  
+  ko.computed () ->
+    exercise.workspace()
+    exercise.solution()
+    exercise.solved(testEqualEditors(editor, makeEditor))
+  
+  ko.computed () ->
+    exercises[exercise.currentExercise()].workspace = exercise.workspace()
+  
+  ko.applyBindings(exercise)
+  
+  
