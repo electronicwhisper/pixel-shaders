@@ -1,17 +1,4 @@
-flatRenderer = require("../flatRenderer")
-
-simpleSrc = """
-precision mediump float;
-
-varying vec2 position;
-
-void main() {
-  gl_FragColor.r = position.x;
-  gl_FragColor.g = position.y;
-  gl_FragColor.b = 1.0;
-  gl_FragColor.a = 1.0;
-}
-"""
+editor = require("../editor")
 
 
 exercises = [{
@@ -92,14 +79,13 @@ testEqualEditors = (e1, e2) ->
 
 module.exports = () ->
   
-  editor = require("../editor")({
+  editorWorkspace = editor({
     src: exercises[0].workspace
     code: $("#code")
     output: $("#output")
   })
-  window.e = editor
   
-  makeEditor = require("../editor")({
+  editorSolution = editor({
     src: exercises[0].solution
     code: $("#makeCode")
     output: $("#makeOutput")
@@ -118,21 +104,19 @@ module.exports = () ->
       exercise.currentExercise(exercise.currentExercise() + 1)
   }
   
-  editor.onchange (src) ->
-    exercise.workspace(src)
-  makeEditor.onchange (src) ->
-    exercise.solution(src)
+  editorWorkspace.onchange (src) -> exercise.workspace(src)
+  editorSolution.onchange (src) -> exercise.solution(src)
   
   ko.computed () ->
     e = exercises[exercise.currentExercise()]
     if e.workspace
-      editor.set(e.workspace)
-    makeEditor.set(e.solution)
+      editorWorkspace.set(e.workspace)
+    editorSolution.set(e.solution)
   
   ko.computed () ->
     exercise.workspace()
     exercise.solution()
-    exercise.solved(testEqualEditors(editor, makeEditor))
+    exercise.solved(testEqualEditors(editorWorkspace, editorSolution))
   
   ko.computed () ->
     exercises[exercise.currentExercise()].workspace = exercise.workspace()

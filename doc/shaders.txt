@@ -849,3 +849,20 @@ void main() {
   
   gl_FragColor = vec4(b,b,b,1.);
 }
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec4 babyblue = vec4(0.0, 0.7, 1.0, 1.0);
+  vec4 purple = vec4(0.5, 0.0, 0.7, 1.0);
+  gl_FragColor = mix(babyblue, purple, position.x);
+}

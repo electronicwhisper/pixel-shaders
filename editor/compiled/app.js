@@ -335,11 +335,9 @@
 
 }).call(this);
 }, "pages/exercises": function(exports, require, module) {(function() {
-  var exercises, flatRenderer, simpleSrc, testEqualEditors;
+  var editor, exercises, testEqualEditors;
 
-  flatRenderer = require("../flatRenderer");
-
-  simpleSrc = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}";
+  editor = require("../editor");
 
   exercises = [
     {
@@ -359,14 +357,13 @@
   };
 
   module.exports = function() {
-    var editor, exercise, makeEditor;
-    editor = require("../editor")({
+    var editorSolution, editorWorkspace, exercise;
+    editorWorkspace = editor({
       src: exercises[0].workspace,
       code: $("#code"),
       output: $("#output")
     });
-    window.e = editor;
-    makeEditor = require("../editor")({
+    editorSolution = editor({
       src: exercises[0].solution,
       code: $("#makeCode"),
       output: $("#makeOutput")
@@ -384,22 +381,22 @@
         return exercise.currentExercise(exercise.currentExercise() + 1);
       }
     };
-    editor.onchange(function(src) {
+    editorWorkspace.onchange(function(src) {
       return exercise.workspace(src);
     });
-    makeEditor.onchange(function(src) {
+    editorSolution.onchange(function(src) {
       return exercise.solution(src);
     });
     ko.computed(function() {
       var e;
       e = exercises[exercise.currentExercise()];
-      if (e.workspace) editor.set(e.workspace);
-      return makeEditor.set(e.solution);
+      if (e.workspace) editorWorkspace.set(e.workspace);
+      return editorSolution.set(e.solution);
     });
     ko.computed(function() {
       exercise.workspace();
       exercise.solution();
-      return exercise.solved(testEqualEditors(editor, makeEditor));
+      return exercise.solved(testEqualEditors(editorWorkspace, editorSolution));
     });
     ko.computed(function() {
       return exercises[exercise.currentExercise()].workspace = exercise.workspace();
