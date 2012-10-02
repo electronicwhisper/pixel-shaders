@@ -50,7 +50,7 @@ void main() {
 """
 
 module.exports = () ->
-  editor = require("editor")({
+  editor = require("../editor")({
     src: quasiSrc
     code: $("#code")
     output: $("#output")

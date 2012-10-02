@@ -1,4 +1,4 @@
-flatRenderer = require("flatRenderer")
+flatRenderer = require("../flatRenderer")
 
 simpleSrc = """
 precision mediump float;
@@ -65,13 +65,26 @@ void main() {
   gl_FragColor.a = 1.0;
 }
 """
+},{
+solution: """
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 0.5;
+  gl_FragColor.g = 0.5;
+  gl_FragColor.b = 0.5;
+  gl_FragColor.a = 1.0;
+}
+"""
 }]
 
 
 
 
 testEqualEditors = (e1, e2) ->
-  e1.snapshot() == e2.snapshot()
+  e1.snapshot(300,300) == e2.snapshot(300,300)
 
 
 
@@ -79,24 +92,19 @@ testEqualEditors = (e1, e2) ->
 
 module.exports = () ->
   
-  editor = require("editor")({
+  editor = require("../editor")({
     src: exercises[0].workspace
     code: $("#code")
     output: $("#output")
   })
   window.e = editor
   
-  makeEditor = require("editor")({
+  makeEditor = require("../editor")({
     src: exercises[0].solution
     code: $("#makeCode")
     output: $("#makeOutput")
   })
   
-  # window.loadExercise = loadExercise = (i) ->
-  #   exercise = exercises[i]
-  #   if exercise.start
-  #     editor.set(exercise.start)
-  #   makeEditor.set(exercise.solution)
   
   exercise = {
     workspace: ko.observable("")

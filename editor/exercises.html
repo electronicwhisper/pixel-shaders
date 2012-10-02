@@ -72,7 +72,7 @@ canvas {
         Make this
       </div>
       <div style="font-size: 48px">
-        <span style="color: #090" data-bind="visible: solved"><i class="icon-ok"></i></span>&nbsp;
+        <span style="color: #090" data-bind="visible: solved"><i class="icon-ok"></i> <span style="font-size: 42px; font-weight: bold">Solved</span></span>&nbsp;
       </div>
       <div>
         <span style="cursor: pointer" data-bind="event: {click: previous}">
@@ -90,7 +90,7 @@ canvas {
 
 <script src="compiled/app.js"></script>
 <script>
-require("exercises")()
+require("pages/exercises")()
 </script>
 </body>
 </html>

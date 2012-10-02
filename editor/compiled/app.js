@@ -228,78 +228,6 @@
   module.exports = makeEditor;
 
 }).call(this);
-}, "exercises": function(exports, require, module) {(function() {
-  var exercises, flatRenderer, simpleSrc, testEqualEditors;
-
-  flatRenderer = require("flatRenderer");
-
-  simpleSrc = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}";
-
-  exercises = [
-    {
-      workspace: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}",
-      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 0.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}"
-    }, {
-      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 1.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
-    }, {
-      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.5;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
-    }
-  ];
-
-  testEqualEditors = function(e1, e2) {
-    return e1.snapshot() === e2.snapshot();
-  };
-
-  module.exports = function() {
-    var editor, exercise, makeEditor;
-    editor = require("editor")({
-      src: exercises[0].workspace,
-      code: $("#code"),
-      output: $("#output")
-    });
-    window.e = editor;
-    makeEditor = require("editor")({
-      src: exercises[0].solution,
-      code: $("#makeCode"),
-      output: $("#makeOutput")
-    });
-    exercise = {
-      workspace: ko.observable(""),
-      solution: ko.observable(""),
-      currentExercise: ko.observable(0),
-      exercises: exercises,
-      solved: ko.observable(false),
-      previous: function() {
-        return exercise.currentExercise(exercise.currentExercise() - 1);
-      },
-      next: function() {
-        return exercise.currentExercise(exercise.currentExercise() + 1);
-      }
-    };
-    editor.onchange(function(src) {
-      return exercise.workspace(src);
-    });
-    makeEditor.onchange(function(src) {
-      return exercise.solution(src);
-    });
-    ko.computed(function() {
-      var e;
-      e = exercises[exercise.currentExercise()];
-      if (e.workspace) editor.set(e.workspace);
-      return makeEditor.set(e.solution);
-    });
-    ko.computed(function() {
-      exercise.workspace();
-      exercise.solution();
-      return exercise.solved(testEqualEditors(editor, makeEditor));
-    });
-    ko.computed(function() {
-      return exercises[exercise.currentExercise()].workspace = exercise.workspace();
-    });
-    return ko.applyBindings(exercise);
-  };
-
-}).call(this);
 }, "flatRenderer": function(exports, require, module) {(function() {
   var bufferAttribute, compileShader, fragmentShaderSource, getShaderError, makeFlatRenderer, vertexShaderSource;
 
@@ -406,7 +334,81 @@
   module.exports = makeFlatRenderer;
 
 }).call(this);
-}, "fullscreen": function(exports, require, module) {(function() {
+}, "pages/exercises": function(exports, require, module) {(function() {
+  var exercises, flatRenderer, simpleSrc, testEqualEditors;
+
+  flatRenderer = require("../flatRenderer");
+
+  simpleSrc = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}";
+
+  exercises = [
+    {
+      workspace: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}",
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 0.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 1.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.5;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 0.5;\n  gl_FragColor.g = 0.5;\n  gl_FragColor.b = 0.5;\n  gl_FragColor.a = 1.0;\n}"
+    }
+  ];
+
+  testEqualEditors = function(e1, e2) {
+    return e1.snapshot(300, 300) === e2.snapshot(300, 300);
+  };
+
+  module.exports = function() {
+    var editor, exercise, makeEditor;
+    editor = require("../editor")({
+      src: exercises[0].workspace,
+      code: $("#code"),
+      output: $("#output")
+    });
+    window.e = editor;
+    makeEditor = require("../editor")({
+      src: exercises[0].solution,
+      code: $("#makeCode"),
+      output: $("#makeOutput")
+    });
+    exercise = {
+      workspace: ko.observable(""),
+      solution: ko.observable(""),
+      currentExercise: ko.observable(0),
+      exercises: exercises,
+      solved: ko.observable(false),
+      previous: function() {
+        return exercise.currentExercise(exercise.currentExercise() - 1);
+      },
+      next: function() {
+        return exercise.currentExercise(exercise.currentExercise() + 1);
+      }
+    };
+    editor.onchange(function(src) {
+      return exercise.workspace(src);
+    });
+    makeEditor.onchange(function(src) {
+      return exercise.solution(src);
+    });
+    ko.computed(function() {
+      var e;
+      e = exercises[exercise.currentExercise()];
+      if (e.workspace) editor.set(e.workspace);
+      return makeEditor.set(e.solution);
+    });
+    ko.computed(function() {
+      exercise.workspace();
+      exercise.solution();
+      return exercise.solved(testEqualEditors(editor, makeEditor));
+    });
+    ko.computed(function() {
+      return exercises[exercise.currentExercise()].workspace = exercise.workspace();
+    });
+    return ko.applyBindings(exercise);
+  };
+
+}).call(this);
+}, "pages/fullscreen": function(exports, require, module) {(function() {
   var quasiSrc, simpleSrc;
 
   simpleSrc = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}";
@@ -415,7 +417,7 @@
 
   module.exports = function() {
     var editor;
-    return editor = require("editor")({
+    return editor = require("../editor")({
       src: quasiSrc,
       code: $("#code"),
       output: $("#output")
