@@ -84,6 +84,9 @@ makeEditor = (opts) ->
     requestAnimationFrame(update)
   update()
   
+  # redraw when the window gains focus (to eliminate glitches)
+  $(window).focus(draw)
+  
   return {
     set: (newSrc) ->
       cm.setValue(newSrc)

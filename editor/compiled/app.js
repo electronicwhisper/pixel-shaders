@@ -186,6 +186,7 @@
       return requestAnimationFrame(update);
     };
     update();
+    $(window).focus(draw);
     return {
       set: function(newSrc) {
         return cm.setValue(newSrc);
@@ -226,6 +227,100 @@
   });
 
   module.exports = makeEditor;
+
+}).call(this);
+}, "evaluate": function(exports, require, module) {(function() {
+  var abs, mod;
+
+  abs = function(x) {
+    return Math.abs(x);
+  };
+
+  mod = function(x, b) {
+    return x % b;
+  };
+
+  module.exports = {
+    direct: function(s) {
+      return eval(s);
+    },
+    functionOfX: function(s) {
+      return eval("(function (x) {return " + s + ";})");
+    }
+  };
+
+}).call(this);
+}, "exercise": function(exports, require, module) {(function() {
+  var editor, template, testEqualEditors;
+
+  editor = require("editor");
+
+  template = "<div style=\"overflow: hidden\" class=\"workspace env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"margin-left: 324px; border: 1px solid #ccc\"></div>\n</div>\n\n<div style=\"overflow: hidden; margin-top: 24px\" class=\"solution env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"display: none\"></div>\n  <div style=\"margin-left: 324px; font-size: 30px; font-family: helvetica; height: 300px\">\n    <div style=\"float: left\">\n      <i class=\"icon-arrow-left\" style=\"font-size: 26px\"></i>\n    </div>\n    <div style=\"margin-left: 30px\">\n      <div>\n        Make this\n      </div>\n      <div style=\"font-size: 48px\">\n        <span style=\"color: #090\" data-bind=\"visible: solved\"><i class=\"icon-ok\"></i> <span style=\"font-size: 42px; font-weight: bold\">Solved</span></span>&nbsp;\n      </div>\n      <div>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onFirst, event: {click: previous}\">&#x2190;</button>\n        <span data-bind=\"text: currentExercise()+1\"></span> of <span data-bind=\"text: exercises.length\"></span>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onLast, event: {click: next}\">&#x2192;</button>\n      </div>\n    </div>\n    \n  </div>\n</div>";
+
+  testEqualEditors = function(e1, e2) {
+    return e1.snapshot(300, 300) === e2.snapshot(300, 300);
+  };
+
+  module.exports = function(opts) {
+    var $div, editorSolution, editorWorkspace, exercise, exercises;
+    exercises = opts.exercises;
+    $div = $(opts.div);
+    $div.html(template);
+    editorWorkspace = editor({
+      src: exercises[0].workspace,
+      code: $div.find(".workspace .code"),
+      output: $div.find(".workspace .output")
+    });
+    editorSolution = editor({
+      src: exercises[0].solution,
+      code: $div.find(".solution .code"),
+      output: $div.find(".solution .output")
+    });
+    exercise = {
+      workspace: ko.observable(""),
+      solution: ko.observable(""),
+      currentExercise: ko.observable(0),
+      exercises: exercises,
+      solved: ko.observable(false),
+      previous: function() {
+        if (!exercise.onFirst()) {
+          return exercise.currentExercise(exercise.currentExercise() - 1);
+        }
+      },
+      next: function() {
+        if (!exercise.onLast()) {
+          return exercise.currentExercise(exercise.currentExercise() + 1);
+        }
+      }
+    };
+    exercise.onFirst = ko.computed(function() {
+      return exercise.currentExercise() === 0;
+    });
+    exercise.onLast = ko.computed(function() {
+      return exercise.currentExercise() === exercise.exercises.length - 1;
+    });
+    editorWorkspace.onchange(function(src) {
+      return exercise.workspace(src);
+    });
+    editorSolution.onchange(function(src) {
+      return exercise.solution(src);
+    });
+    ko.computed(function() {
+      var e;
+      e = exercises[exercise.currentExercise()];
+      if (e.workspace) editorWorkspace.set(e.workspace);
+      return editorSolution.set(e.solution);
+    });
+    ko.computed(function() {
+      exercise.workspace();
+      exercise.solution();
+      return exercise.solved(testEqualEditors(editorWorkspace, editorSolution));
+    });
+    ko.computed(function() {
+      return exercises[exercise.currentExercise()].workspace = exercise.workspace();
+    });
+    return ko.applyBindings(exercise, $div[0]);
+  };
 
 }).call(this);
 }, "flatRenderer": function(exports, require, module) {(function() {
@@ -332,6 +427,66 @@
   };
 
   module.exports = makeFlatRenderer;
+
+}).call(this);
+}, "pages/basics": function(exports, require, module) {(function() {
+  var arithmetic, colors, gradients;
+
+  colors = [
+    {
+      workspace: "precision mediump float;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}",
+      solution: "precision mediump float;\n\nvoid main() {\n  gl_FragColor.r = 0.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 1.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.5;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvoid main() {\n  gl_FragColor.r = 0.5;\n  gl_FragColor.g = 0.5;\n  gl_FragColor.b = 0.5;\n  gl_FragColor.a = 1.0;\n}"
+    }
+  ];
+
+  gradients = [
+    {
+      workspace: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}",
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 0.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = position.y;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.x;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = position.y;\n  gl_FragColor.a = 1.0;\n}"
+    }
+  ];
+
+  arithmetic = [
+    {
+      workspace: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0 - position.x;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}",
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 0.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 1.0 - position.y;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0 - position.x;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = position.x;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = (position.x + position.y) / 2.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
+    }, {
+      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = (position.x + 1.0 - position.y) / 2.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
+    }
+  ];
+
+  module.exports = function() {
+    $("code").each(function() {
+      CodeMirror.runMode($(this).text(), "text/x-glsl", this);
+      return $(this).addClass("cm-s-default");
+    });
+    require("../exercise")({
+      div: $("#exercise-colors"),
+      exercises: colors
+    });
+    require("../exercise")({
+      div: $("#exercise-gradients"),
+      exercises: gradients
+    });
+    return require("../exercise")({
+      div: $("#exercise-arithmetic"),
+      exercises: arithmetic
+    });
+  };
 
 }).call(this);
 }, "pages/exercises": function(exports, require, module) {(function() {
