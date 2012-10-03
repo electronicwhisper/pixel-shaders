@@ -1,12 +1,9 @@
 flatRenderer = require("flatRenderer")
+util = require("util")
 
 
 startTime = Date.now()
 
-
-expandCanvas = (canvas) ->
-  $canvas = $(canvas)
-  $canvas.attr({width: $canvas.innerWidth(), height: $canvas.innerHeight()})
 
 makeEditor = (opts) ->
   
@@ -16,7 +13,7 @@ makeEditor = (opts) ->
   
   $canvas = $("<canvas />")
   $output.append($canvas)
-  expandCanvas($canvas)
+  util.expandCanvas($canvas)
   ctx = $canvas[0].getContext("experimental-webgl", {premultipliedAlpha: false})
   
   renderer = flatRenderer(ctx)

@@ -90,20 +90,13 @@
 
 }).call(this);
 }, "editor": function(exports, require, module) {(function() {
-  var expandCanvas, flatRenderer, makeEditor, startTime;
+  var flatRenderer, makeEditor, startTime, util;
 
   flatRenderer = require("flatRenderer");
 
-  startTime = Date.now();
+  util = require("util");
 
-  expandCanvas = function(canvas) {
-    var $canvas;
-    $canvas = $(canvas);
-    return $canvas.attr({
-      width: $canvas.innerWidth(),
-      height: $canvas.innerHeight()
-    });
-  };
+  startTime = Date.now();
 
   makeEditor = function(opts) {
     var $canvas, $code, $output, changeCallback, cm, ctx, draw, drawEveryFrame, errorLines, findUniforms, markErrors, refreshCode, renderer, src, update;
@@ -112,7 +105,7 @@
     $code = $(opts.code);
     $canvas = $("<canvas />");
     $output.append($canvas);
-    expandCanvas($canvas);
+    util.expandCanvas($canvas);
     ctx = $canvas[0].getContext("experimental-webgl", {
       premultipliedAlpha: false
     });
@@ -230,14 +223,18 @@
 
 }).call(this);
 }, "evaluate": function(exports, require, module) {(function() {
-  var abs, mod;
+  var abs, floor, mod;
 
   abs = function(x) {
     return Math.abs(x);
   };
 
-  mod = function(x, b) {
-    return x % b;
+  mod = function(x, y) {
+    return x - y * Math.floor(x / y);
+  };
+
+  floor = function(x) {
+    return Math.floor(x);
   };
 
   module.exports = {
@@ -429,6 +426,83 @@
   module.exports = makeFlatRenderer;
 
 }).call(this);
+}, "graph": function(exports, require, module) {(function() {
+  var evaluate, util;
+
+  util = require("util");
+
+  evaluate = require("evaluate");
+
+  module.exports = function(opts) {
+    var $canvas, $code, $output, cm, ctx, domain, draw, height, range, refreshCode, src, srcFun, toCanvasCoords, width;
+    src = opts.src;
+    $output = $(opts.output);
+    $code = $(opts.code);
+    domain = opts.domain || [-1.5, 1.5];
+    range = opts.range || [-1.5, 1.5];
+    $canvas = $("<canvas />");
+    $output.append($canvas);
+    util.expandCanvas($canvas);
+    ctx = $canvas[0].getContext("2d");
+    width = $canvas[0].width;
+    height = $canvas[0].height;
+    toCanvasCoords = function(_arg) {
+      var cx, cy, x, y;
+      x = _arg[0], y = _arg[1];
+      cx = (x - domain[0]) / (domain[1] - domain[0]) * width;
+      cy = (y - range[0]) / (range[1] - range[0]) * height;
+      return [cx, height - cy];
+    };
+    srcFun = evaluate.functionOfX(src);
+    draw = function() {
+      var cx, cy, i, origin, resolution, x, y, _ref;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+      origin = toCanvasCoords([0, 0]);
+      ctx.strokeStyle = "#999";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(origin[0], 0);
+      ctx.lineTo(origin[0], height);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, origin[1]);
+      ctx.lineTo(height, origin[1]);
+      ctx.stroke();
+      ctx.strokeStyle = "#006";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      resolution = 0.25;
+      for (i = 0, _ref = width / resolution; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
+        cx = i * resolution;
+        x = (cx / width) * (domain[1] - domain[0]) + domain[0];
+        y = srcFun(x);
+        cy = toCanvasCoords([x, y])[1];
+        ctx.lineTo(cx, cy);
+      }
+      return ctx.stroke();
+    };
+    refreshCode = function() {
+      var worked;
+      src = cm.getValue();
+      worked = true;
+      try {
+        srcFun = evaluate.functionOfX(src);
+      } catch (e) {
+        worked = false;
+      }
+      if (worked) return draw();
+    };
+    cm = CodeMirror($code[0], {
+      value: src,
+      mode: "text/x-glsl",
+      onChange: refreshCode
+    });
+    cm.setSize("100%", $code.innerHeight());
+    return refreshCode();
+  };
+
+}).call(this);
 }, "pages/basics": function(exports, require, module) {(function() {
   var arithmetic, colors, gradients;
 
@@ -489,77 +563,6 @@
   };
 
 }).call(this);
-}, "pages/exercises": function(exports, require, module) {(function() {
-  var editor, exercises, testEqualEditors;
-
-  editor = require("../editor");
-
-  exercises = [
-    {
-      workspace: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}",
-      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 0.0;\n  gl_FragColor.g = 0.0;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}"
-    }, {
-      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 1.0;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
-    }, {
-      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 1.0;\n  gl_FragColor.g = 0.5;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}"
-    }, {
-      solution: "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = 0.5;\n  gl_FragColor.g = 0.5;\n  gl_FragColor.b = 0.5;\n  gl_FragColor.a = 1.0;\n}"
-    }
-  ];
-
-  testEqualEditors = function(e1, e2) {
-    return e1.snapshot(300, 300) === e2.snapshot(300, 300);
-  };
-
-  module.exports = function() {
-    var editorSolution, editorWorkspace, exercise;
-    editorWorkspace = editor({
-      src: exercises[0].workspace,
-      code: $("#code"),
-      output: $("#output")
-    });
-    editorSolution = editor({
-      src: exercises[0].solution,
-      code: $("#makeCode"),
-      output: $("#makeOutput")
-    });
-    exercise = {
-      workspace: ko.observable(""),
-      solution: ko.observable(""),
-      currentExercise: ko.observable(0),
-      exercises: exercises,
-      solved: ko.observable(false),
-      previous: function() {
-        return exercise.currentExercise(exercise.currentExercise() - 1);
-      },
-      next: function() {
-        return exercise.currentExercise(exercise.currentExercise() + 1);
-      }
-    };
-    editorWorkspace.onchange(function(src) {
-      return exercise.workspace(src);
-    });
-    editorSolution.onchange(function(src) {
-      return exercise.solution(src);
-    });
-    ko.computed(function() {
-      var e;
-      e = exercises[exercise.currentExercise()];
-      if (e.workspace) editorWorkspace.set(e.workspace);
-      return editorSolution.set(e.solution);
-    });
-    ko.computed(function() {
-      exercise.workspace();
-      exercise.solution();
-      return exercise.solved(testEqualEditors(editorWorkspace, editorSolution));
-    });
-    ko.computed(function() {
-      return exercises[exercise.currentExercise()].workspace = exercise.workspace();
-    });
-    return ko.applyBindings(exercise);
-  };
-
-}).call(this);
 }, "pages/fullscreen": function(exports, require, module) {(function() {
   var quasiSrc, simpleSrc;
 
@@ -573,6 +576,17 @@
       src: quasiSrc,
       code: $("#code"),
       output: $("#output")
+    });
+  };
+
+}).call(this);
+}, "pages/test": function(exports, require, module) {(function() {
+
+  module.exports = function() {
+    return require("../graph")({
+      output: $("#output"),
+      code: $("#code"),
+      src: "abs(x)"
     });
   };
 
@@ -616,6 +630,20 @@
         });
       });
       return uniforms;
+    }
+  };
+
+}).call(this);
+}, "util": function(exports, require, module) {(function() {
+
+  module.exports = {
+    expandCanvas: function(canvas) {
+      var $canvas;
+      $canvas = $(canvas);
+      return $canvas.attr({
+        width: $canvas.innerWidth(),
+        height: $canvas.innerHeight()
+      });
     }
   };
 
