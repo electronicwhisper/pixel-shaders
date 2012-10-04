@@ -84,7 +84,7 @@ makeEditor = (opts) ->
   # redraw when the window gains focus (to eliminate glitches)
   $(window).focus(draw)
   
-  return {
+  editor = {
     set: (newSrc) ->
       cm.setValue(newSrc)
     snapshot: (width, height) ->
@@ -106,9 +106,15 @@ makeEditor = (opts) ->
         ctx.viewport(0, 0, oldWidth, oldHeight)
         draw()
       return data
+    readPixels: renderer.readPixels
     onchange: (callback) ->
       changeCallback = callback
   }
+  
+  # for debugging
+  $canvas.data("editor", editor)
+  
+  return editor
 
 
 

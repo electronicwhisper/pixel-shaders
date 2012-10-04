@@ -99,7 +99,7 @@
   startTime = Date.now();
 
   makeEditor = function(opts) {
-    var $canvas, $code, $output, changeCallback, cm, ctx, draw, drawEveryFrame, errorLines, findUniforms, markErrors, refreshCode, renderer, src, update;
+    var $canvas, $code, $output, changeCallback, cm, ctx, draw, drawEveryFrame, editor, errorLines, findUniforms, markErrors, refreshCode, renderer, src, update;
     src = opts.src;
     $output = $(opts.output);
     $code = $(opts.code);
@@ -180,7 +180,7 @@
     };
     update();
     $(window).focus(draw);
-    return {
+    editor = {
       set: function(newSrc) {
         return cm.setValue(newSrc);
       },
@@ -204,10 +204,13 @@
         }
         return data;
       },
+      readPixels: renderer.readPixels,
       onchange: function(callback) {
         return changeCallback = callback;
       }
     };
+    $canvas.data("editor", editor);
+    return editor;
   };
 
   $(".errorMarker").tipsy({
@@ -255,7 +258,17 @@
   template = "<div style=\"overflow: hidden\" class=\"workspace env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"margin-left: 324px; border: 1px solid #ccc\"></div>\n</div>\n\n<div style=\"overflow: hidden; margin-top: 24px\" class=\"solution env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"display: none\"></div>\n  <div style=\"margin-left: 324px; font-size: 30px; font-family: helvetica; height: 300px\">\n    <div style=\"float: left\">\n      <i class=\"icon-arrow-left\" style=\"font-size: 26px\"></i>\n    </div>\n    <div style=\"margin-left: 30px\">\n      <div>\n        Make this\n      </div>\n      <div style=\"font-size: 48px\">\n        <span style=\"color: #090\" data-bind=\"visible: solved\"><i class=\"icon-ok\"></i> <span style=\"font-size: 42px; font-weight: bold\">Solved</span></span>&nbsp;\n      </div>\n      <div>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onFirst, event: {click: previous}\">&#x2190;</button>\n        <span data-bind=\"text: currentExercise()+1\"></span> of <span data-bind=\"text: exercises.length\"></span>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onLast, event: {click: next}\">&#x2192;</button>\n      </div>\n    </div>\n    \n  </div>\n</div>";
 
   testEqualEditors = function(e1, e2) {
-    return e1.snapshot(300, 300) === e2.snapshot(300, 300);
+    var diff, equivalent, i, len, location, p1, p2;
+    p1 = e1.readPixels();
+    p2 = e2.readPixels();
+    len = p1.length;
+    equivalent = true;
+    for (i = 0; i < 1000; i++) {
+      location = Math.floor(Math.random() * len);
+      diff = Math.abs(p1[location] - p2[location]);
+      if (diff > 2) equivalent = false;
+    }
+    return equivalent;
   };
 
   module.exports = function(opts) {
@@ -357,7 +370,7 @@
   };
 
   makeFlatRenderer = function(gl) {
-    var program, replaceShader, shaders;
+    var flatRenderer, program, replaceShader, shaders;
     program = gl.createProgram();
     shaders = {};
     shaders[gl.VERTEX_SHADER] = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
@@ -382,7 +395,7 @@
         return null;
       }
     };
-    return {
+    flatRenderer = {
       loadFragmentShader: function(shaderSource) {
         return replaceShader(shaderSource, gl.FRAGMENT_SHADER);
       },
@@ -417,10 +430,20 @@
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         return texture;
       },
+      readPixels: function() {
+        var arr, h, w;
+        flatRenderer.draw();
+        w = gl.drawingBufferWidth;
+        h = gl.drawingBufferHeight;
+        arr = new Uint8Array(w * h * 4);
+        gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, arr);
+        return arr;
+      },
       draw: function() {
         return gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
     };
+    return flatRenderer;
   };
 
   module.exports = makeFlatRenderer;

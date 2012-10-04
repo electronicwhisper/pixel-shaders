@@ -33,7 +33,23 @@ template = """
 
 
 testEqualEditors = (e1, e2) ->
-  e1.snapshot(300,300) == e2.snapshot(300,300)
+  # The following doesn't seem to work if there are minor pixel differences (due to, say, floating point rounding errors)
+  # e1.snapshot(300,300) == e2.snapshot(300,300)
+  
+  p1 = e1.readPixels()
+  p2 = e2.readPixels()
+  
+  len = p1.length
+  
+  # sample 1000 random locations to test equivalence
+  equivalent = true
+  for i in [0...1000]
+    location = Math.floor(Math.random()*len)
+    diff = Math.abs(p1[location] - p2[location])
+    if diff > 2
+      equivalent = false
+  
+  return equivalent
 
 
 module.exports = (opts) ->
