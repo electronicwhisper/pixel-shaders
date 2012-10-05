@@ -11,14 +11,14 @@ Finish writing motivation essay
 
 
 Add some uniforms:
-  X float time
-  vec2 resolution
   vec2 mouse
 Fullscreen
+  For all editors
+  Collapse button
+  Resizeable code
 Make error popup adjust automatically
 Uniforms (custom)
   Parse ranges
-  
 Textures
   Keep track of textures in flatRenderer
   Add images
@@ -27,14 +27,10 @@ Textures
 Editor
   Cmd+/ to comment
   (), [], {} around selections
-
+Saving
 
 Make a more modular way to do raf
 
-Saving
-
-Add full screen to functionality
-Collapse button on full screen code
 
 Make an embeddable format for examples, exercises, evaluates, graphs, graph exercises
 

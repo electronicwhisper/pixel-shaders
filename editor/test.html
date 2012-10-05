@@ -82,14 +82,14 @@ h2 {
 .graph .canvas {
   background: #fff;
   border: 1px solid #ccc;
-  width: 540px;
-  height: 540px;
+  width: 360px;
+  height: 360px;
 }
 .graph .code {
   margin-top: 24px;
   border: 1px solid #ccc;
   height: 30px;
-  width: 540px;
+  width: 360px;
 }
 
 
@@ -127,10 +127,26 @@ canvas {
 </head>
 <body>
 
+  <ul>
+    <li><p>hi<br />
+      <div style="overflow: hidden">
+        <div id="ecode" style="height: 30px; border: 1px solid #ccc; width: 270px; float: left;"></div>
+        <div id="eoutput" style="height: 30px; width: 120px; margin-left: 270px"></div>
+      </div>
+      </p>
+    </li>
+    <li>ok
+    </li>
+  </ul>
+
+<p>hi</p>
+
 <div class="graph">
   <div class="canvas" id="output" style=""></div>
   <div class="code" id="code"></div>
 </div>
+
+
 
 <script src="compiled/app.js"></script>
 <script>

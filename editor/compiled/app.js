@@ -229,18 +229,40 @@
 
 }).call(this);
 }, "evaluate": function(exports, require, module) {(function() {
-  var abs, floor, mod;
+  var abs, ceil, clamp, cos, exp, floor, fract, max, min, mod, pow, sin, sqrt, tan;
 
-  abs = function(x) {
-    return Math.abs(x);
-  };
+  abs = Math.abs;
 
   mod = function(x, y) {
     return x - y * Math.floor(x / y);
   };
 
-  floor = function(x) {
-    return Math.floor(x);
+  floor = Math.floor;
+
+  ceil = Math.ceil;
+
+  sin = Math.sin;
+
+  cos = Math.cos;
+
+  tan = Math.tan;
+
+  min = Math.min;
+
+  max = Math.max;
+
+  clamp = function(x, minVal, maxVal) {
+    return min(max(x, minVal), maxVal);
+  };
+
+  exp = Math.exp;
+
+  pow = Math.pow;
+
+  sqrt = Math.sqrt;
+
+  fract = function(x) {
+    return x - floor(x);
   };
 
   module.exports = {
@@ -250,6 +272,48 @@
     functionOfX: function(s) {
       return eval("(function (x) {return " + s + ";})");
     }
+  };
+
+}).call(this);
+}, "evaluator": function(exports, require, module) {(function() {
+  var evaluate;
+
+  evaluate = require("evaluate");
+
+  module.exports = function(opts) {
+    var $code, $output, cm, outcm, refreshCode, src;
+    src = opts.src;
+    $output = $(opts.output);
+    $code = $(opts.code);
+    refreshCode = function() {
+      var outputValue, worked;
+      src = cm.getValue();
+      worked = true;
+      try {
+        outputValue = evaluate.direct(src);
+        outputValue = parseFloat(outputValue).toFixed(4);
+        if (!isFinite(outputValue)) worked = false;
+      } catch (e) {
+        worked = false;
+      }
+      if (worked) {
+        return outcm.setValue(" = " + outputValue);
+      } else {
+        return outcm.setValue("");
+      }
+    };
+    cm = CodeMirror($code[0], {
+      value: src,
+      mode: "text/x-glsl",
+      onChange: refreshCode
+    });
+    cm.setSize("100%", $code.innerHeight());
+    outcm = CodeMirror($output[0], {
+      mode: "text/x-glsl",
+      readOnly: true
+    });
+    outcm.setSize(null, $output.innerHeight());
+    return refreshCode();
   };
 
 }).call(this);
@@ -466,12 +530,14 @@
   evaluate = require("evaluate");
 
   module.exports = function(opts) {
-    var $canvas, $code, $output, cm, ctx, domain, draw, height, range, refreshCode, src, srcFun, toCanvasCoords, width;
+    var $canvas, $code, $output, cm, ctx, domain, draw, fromCanvasCoords, height, label, labelSize, range, refreshCode, src, srcFun, toCanvasCoords, width;
     src = opts.src;
     $output = $(opts.output);
     $code = $(opts.code);
-    domain = opts.domain || [-1.5, 1.5];
-    range = opts.range || [-1.5, 1.5];
+    domain = opts.domain || [-1.6, 1.6];
+    range = opts.range || [-1.6, 1.6];
+    label = opts.label || 0.5;
+    labelSize = 5;
     $canvas = $("<canvas />");
     $output.append($canvas);
     util.expandCanvas($canvas);
@@ -485,14 +551,21 @@
       cy = (y - range[0]) / (range[1] - range[0]) * height;
       return [cx, height - cy];
     };
+    fromCanvasCoords = function(_arg) {
+      var cx, cy, x, y;
+      cx = _arg[0], cy = _arg[1];
+      x = (cx / width) * (domain[1] - domain[0]) + domain[0];
+      y = ((height - cy) / height) * (range[1] - range[0]) + range[0];
+      return [x, y];
+    };
     srcFun = evaluate.functionOfX(src);
     draw = function() {
-      var cx, cy, i, origin, resolution, x, y, _ref;
+      var cx, cy, i, origin, resolution, x, xi, xmax, xmin, y, yi, ymax, ymin, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, width, height);
       origin = toCanvasCoords([0, 0]);
       ctx.strokeStyle = "#999";
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 0.5;
       ctx.beginPath();
       ctx.moveTo(origin[0], 0);
       ctx.lineTo(origin[0], height);
@@ -501,13 +574,43 @@
       ctx.moveTo(0, origin[1]);
       ctx.lineTo(height, origin[1]);
       ctx.stroke();
+      ctx.font = "12px verdana";
+      ctx.fillStyle = "#666";
+      _ref = fromCanvasCoords([0, height]), xmin = _ref[0], ymin = _ref[1];
+      _ref2 = fromCanvasCoords([width, 0]), xmax = _ref2[0], ymax = _ref2[1];
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      for (xi = _ref3 = Math.ceil(xmin / label), _ref4 = Math.floor(xmax / label); _ref3 <= _ref4 ? xi <= _ref4 : xi >= _ref4; _ref3 <= _ref4 ? xi++ : xi--) {
+        if (xi !== 0) {
+          x = xi * label;
+          _ref5 = toCanvasCoords([x, 0]), cx = _ref5[0], cy = _ref5[1];
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - labelSize);
+          ctx.lineTo(cx, cy + labelSize);
+          ctx.stroke();
+          ctx.fillText("" + x, cx, cy + labelSize * 1.5);
+        }
+      }
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      for (yi = _ref6 = Math.ceil(ymin / label), _ref7 = Math.floor(ymax / label); _ref6 <= _ref7 ? yi <= _ref7 : yi >= _ref7; _ref6 <= _ref7 ? yi++ : yi--) {
+        if (yi !== 0) {
+          y = yi * label;
+          _ref8 = toCanvasCoords([0, y]), cx = _ref8[0], cy = _ref8[1];
+          ctx.beginPath();
+          ctx.moveTo(cx - labelSize, cy);
+          ctx.lineTo(cx + labelSize, cy);
+          ctx.stroke();
+          ctx.fillText("" + y, cx + labelSize * 1.5, cy);
+        }
+      }
       ctx.strokeStyle = "#006";
       ctx.lineWidth = 2;
       ctx.beginPath();
       resolution = 0.25;
-      for (i = 0, _ref = width / resolution; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
+      for (i = 0, _ref9 = width / resolution; 0 <= _ref9 ? i <= _ref9 : i >= _ref9; 0 <= _ref9 ? i++ : i--) {
         cx = i * resolution;
-        x = (cx / width) * (domain[1] - domain[0]) + domain[0];
+        x = fromCanvasCoords([cx, 0])[0];
         y = srcFun(x);
         cy = toCanvasCoords([x, y])[1];
         ctx.lineTo(cx, cy);
@@ -619,10 +722,15 @@
 }, "pages/test": function(exports, require, module) {(function() {
 
   module.exports = function() {
-    return require("../graph")({
+    require("../graph")({
       output: $("#output"),
       code: $("#code"),
       src: "abs(x)"
+    });
+    return require("../evaluator")({
+      output: $("#eoutput"),
+      code: $("#ecode"),
+      src: "3. + 5."
     });
   };
 
