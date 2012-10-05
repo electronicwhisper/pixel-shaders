@@ -927,3 +927,414 @@ void main() {
   vec4 c2 = vec4(0.5,0.8,1.4,1.);
   gl_FragColor = mix(c1,c2,b);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+void main() {
+  
+  gl_FragColor.g = (sin(time*0.4+position.y/3.)+1.)/2.;
+  gl_FragColor.b = (sin(time*0.14+position.y)+1.)/2.;
+  
+  gl_FragColor.r = smoothstep(0.3,0.31,length(position-0.5));
+  
+  gl_FragColor.a = 1.0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+float hash(float n) {
+  return fract(sin(n)*23942.234);
+}
+
+float noise(vec3 p) {
+  vec3 w = floor(p);
+  vec3 k = fract(p);
+  k = k*k*(3.-2.*k);
+  
+  float n = w.x + w.y*23. + w.z*47.;
+  
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+23.);
+  float d = hash(n+24.);
+  float e = hash(n+47.);
+  float f = hash(n+48.);
+  float g = hash(n+70.);
+  float h = hash(n+71.);
+  
+  return mix(
+    mix(
+      mix(a, b, k.x),
+      mix(c, d, k.x),
+      k.y),
+    mix(
+      mix(e, f, k.x),
+      mix(g, h, k.x),
+      k.y),
+    k.z);
+}
+
+void main() {
+  float b = noise(vec3(position*60., time));
+  vec3 col = vec3(b);
+  gl_FragColor = vec4(col, 1.);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+float noise(vec3 p) {
+  vec3 w = floor(p);
+  vec3 k = fract(p);
+  k = k*k*(3.-2.*k);
+  
+  float n = w.x + w.y*57. + w.z*113.;
+  
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+57.);
+  float d = hash(n+58.);
+  float e = hash(n+113.);
+  float f = hash(n+114.);
+  float g = hash(n+170.);
+  float h = hash(n+171.);
+  
+  return mix(
+    mix(
+      mix(a, b, k.x),
+      mix(c, d, k.x),
+      k.y),
+    mix(
+      mix(e, f, k.x),
+      mix(g, h, k.x),
+      k.y),
+    k.z);
+}
+
+float fbm(vec3 p) {
+  float f = 0.;
+  f += 0.5000*noise(p); p *= 2.02;
+  f += 0.2500*noise(p); p *= 2.01;
+  f += 0.1250*noise(p); p *= 2.03;
+  f += 0.0625*noise(p);
+  f /= 0.9375;
+  return f;
+}
+
+void main() {
+  vec3 p = vec3(position*5., time);
+  
+  vec3 a = vec3(fbm(p), fbm(p+8.1), fbm(p+2.));
+  vec3 b = vec3(fbm(p + a*4. + 3.1), fbm(p + a*4. + 1.1), fbm(p + a*4. + 2.9));
+  
+  vec3 col = mix(b, vec3(0.2,0.6,0.8), 0.6);
+  gl_FragColor = vec4(col, 1.);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+mat2 m = mat2(0.6,0.8,-0.8,0.6);
+
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+float noise(vec2 p) {
+  vec2 w = floor(p);
+  vec2 k = fract(p);
+  k = k*k*(3.-2.*k);
+  
+  float n = w.x + w.y*57.;
+  
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+57.);
+  float d = hash(n+58.);
+  
+  return mix(
+    mix(a, b, k.x),
+    mix(c, d, k.x),
+    k.y);
+}
+
+float fbm(vec2 p) {
+  float f = 0.;
+  f += 0.5000*noise(p); p *= 2.02*m;
+  f += 0.2500*noise(p); p *= 2.01*m;
+  f += 0.1250*noise(p); p *= 2.03*m;
+  f += 0.0625*noise(p);
+  f /= 0.9375;
+  return f;
+}
+
+void main() {
+  vec2 p = vec2(position*6.);
+  float t = time * .005;
+  
+  vec2 a = vec2(fbm(p+t), fbm(p-t*2.+8.1));
+  vec2 b = vec2(fbm(p+t*3. + a*7. + 53.1), fbm(p-t + a*7. + 91.1));
+  float c = fbm(b*9. + t*2.);
+  
+  vec3 col = vec3(c);
+  col.rb += b*0.15;
+  gl_FragColor = vec4(col, 1.);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform vec2 resolution;
+
+mat2 m = mat2(0.6,0.8,-0.8,0.6);
+
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+float noise(vec2 p) {
+  vec2 w = floor(p);
+  vec2 k = fract(p);
+  k = k*k*(3.-2.*k);
+  
+  float n = w.x + w.y*57.;
+  
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+57.);
+  float d = hash(n+58.);
+  
+  return mix(
+    mix(a, b, k.x),
+    mix(c, d, k.x),
+    k.y);
+}
+
+float fbm(vec2 p) {
+  float f = 0.;
+  f += 0.5000*noise(p); p *= 2.02*m;
+  f += 0.2500*noise(p); p *= 2.01*m;
+  f += 0.1250*noise(p); p *= 2.03*m;
+  f += 0.0625*noise(p);
+  f /= 0.9375;
+  return f;
+}
+
+void main() {
+  vec2 p = vec2(position*6.)*vec2(resolution.x/resolution.y, 1.);
+  float t = time * .008;
+  
+  vec2 a = vec2(fbm(p+t*3.), fbm(p-t*3.+8.1));
+  vec2 b = vec2(fbm(p+t*4. + a*7. + 3.1), fbm(p-t*4. + a*7. + 91.1));
+  float c = fbm(b*9. + t*20.);
+  
+  c = smoothstep(0.1,0.98,c);
+  
+  vec3 col = vec3(c);
+  col.rb += b*0.15;
+  gl_FragColor = vec4(col, 1.);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform vec2 resolution;
+
+mat2 m = mat2(0.6,0.8,-0.8,0.6);
+
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+float noise(vec2 p) {
+  vec2 w = floor(p);
+  vec2 k = fract(p);
+  k = k*k*(3.-2.*k);
+  
+  float n = w.x + w.y*57.;
+  
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+57.);
+  float d = hash(n+58.);
+  
+  return mix(
+    mix(a, b, k.x),
+    mix(c, d, k.x),
+    k.y);
+}
+
+float fbm(vec2 p) {
+  float f = 0.;
+  f += 0.5000*noise(p); p *= 2.02*m;
+  f += 0.2500*noise(p); p *= 2.01*m;
+  f += 0.1250*noise(p); p *= 2.03*m;
+  f += 0.0625*noise(p);
+  f /= 0.9375;
+  return f;
+}
+
+void main() {
+  vec2 p = vec2(position*6.)*vec2(resolution.x/resolution.y, 1.);
+  float t = time * .009;
+  
+  vec2 a = vec2(fbm(p+t*3.), fbm(p-t*3.+8.1));
+  vec2 b = vec2(fbm(p+t*4. + a*7. + 3.1), fbm(p-t*4. + a*7. + 91.1));
+  float c = fbm(b*9. + t*20.);
+  
+  c = smoothstep(0.1,0.98,c);
+  
+  vec3 col = vec3(c);
+  col.rb += b*0.17;
+  gl_FragColor = vec4(col, 1.);
+}

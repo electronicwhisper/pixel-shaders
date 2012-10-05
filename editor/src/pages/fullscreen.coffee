@@ -1,17 +1,4 @@
-simpleSrc = """
-precision mediump float;
-
-varying vec2 position;
-
-void main() {
-  gl_FragColor.r = position.x;
-  gl_FragColor.g = position.y;
-  gl_FragColor.b = 1.0;
-  gl_FragColor.a = 1.0;
-}
-"""
-
-quasiSrc = """
+src = {quasi: """
 precision mediump float;
 
 varying vec2 position;
@@ -48,10 +35,72 @@ void main() {
   gl_FragColor = mix(c1,c2,b);
 }
 """
+warp: """
+// inspired by http://www.iquilezles.org/www/articles/warp/warp.htm
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform vec2 resolution;
+
+mat2 m = mat2(0.6,0.8,-0.8,0.6);
+
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+float noise(vec2 p) {
+  vec2 w = floor(p);
+  vec2 k = fract(p);
+  k = k*k*(3.-2.*k);
+  
+  float n = w.x + w.y*57.;
+  
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+57.);
+  float d = hash(n+58.);
+  
+  return mix(
+    mix(a, b, k.x),
+    mix(c, d, k.x),
+    k.y);
+}
+
+float fbm(vec2 p) {
+  float f = 0.;
+  f += 0.5000*noise(p); p *= 2.02*m;
+  f += 0.2500*noise(p); p *= 2.01*m;
+  f += 0.1250*noise(p); p *= 2.03*m;
+  f += 0.0625*noise(p);
+  f /= 0.9375;
+  return f;
+}
+
+void main() {
+  vec2 p = vec2(position*6.)*vec2(resolution.x/resolution.y, 1.);
+  float t = time * .009;
+  
+  vec2 a = vec2(fbm(p+t*3.), fbm(p-t*3.+8.1));
+  vec2 b = vec2(fbm(p+t*4. + a*7. + 3.1), fbm(p-t*4. + a*7. + 91.1));
+  float c = fbm(b*9. + t*20.);
+  
+  c = smoothstep(0.15,0.98,c);
+  
+  vec3 col = vec3(c);
+  col.rb += b*0.17;
+  gl_FragColor = vec4(col, 1.);
+}
+"""}
 
 module.exports = () ->
+  hash = location.hash.substr(1)
+  hash = "quasi" if hash == ""
+  hash = "quasi" if !src[hash]
+  
   editor = require("../editor")({
-    src: quasiSrc
+    src: src[hash]
     code: $("#code")
     output: $("#output")
   })

@@ -94,17 +94,17 @@ makeFlatRenderer = (gl) ->
       # TODO check for errors
       return null
     
-    setUniform: (name, value, size) ->
-      location = gl.getUniformLocation(program, name)
-      if typeof value == "number"
-        value = [value]
-      if !size
-        size = value.length
-      switch size
-        when 1 then gl.uniform1fv(location, value)
-        when 2 then gl.uniform2fv(location, value)
-        when 3 then gl.uniform3fv(location, value)
-        when 4 then gl.uniform4fv(location, value)
+    # setUniform: (name, value, size) ->
+    #   location = gl.getUniformLocation(program, name)
+    #   if typeof value == "number"
+    #     value = [value]
+    #   if !size
+    #     size = value.length
+    #   switch size
+    #     when 1 then gl.uniform1fv(location, value)
+    #     when 2 then gl.uniform2fv(location, value)
+    #     when 3 then gl.uniform3fv(location, value)
+    #     when 4 then gl.uniform4fv(location, value)
     
     createTexture: (image) ->
       texture = gl.createTexture()
@@ -115,7 +115,7 @@ makeFlatRenderer = (gl) ->
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-
+      
       # Upload the image into the texture.
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
       
@@ -129,7 +129,19 @@ makeFlatRenderer = (gl) ->
       gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, arr)
       return arr
     
-    draw: () ->
+    draw: (uniforms={}) ->
+      # set uniforms
+      for own name, value of uniforms
+        location = gl.getUniformLocation(program, name)
+        if typeof value == "number"
+          value = [value]
+        switch value.length
+          when 1 then gl.uniform1fv(location, value)
+          when 2 then gl.uniform2fv(location, value)
+          when 3 then gl.uniform3fv(location, value)
+          when 4 then gl.uniform4fv(location, value)
+      
+      # draw
       gl.drawArrays(gl.TRIANGLES, 0, 6)
   }
   

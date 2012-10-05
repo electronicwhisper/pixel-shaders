@@ -12,6 +12,7 @@ makeEditor = (opts) ->
   $code = $(opts.code)
   
   $canvas = $("<canvas />")
+  canvas = $canvas[0]
   $output.append($canvas)
   util.expandCanvas($canvas)
   ctx = $canvas[0].getContext("experimental-webgl", {premultipliedAlpha: false})
@@ -23,8 +24,10 @@ makeEditor = (opts) ->
   changeCallback = null
   
   draw = () ->
-    renderer.setUniform("time", (Date.now() - startTime)/1000)
-    renderer.draw()
+    renderer.draw({
+      time: (Date.now() - startTime)/1000
+      resolution: [canvas.width, canvas.height]
+    })
   
   findUniforms = () ->
     newUniforms = require("parse").uniforms(src)

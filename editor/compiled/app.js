@@ -99,11 +99,12 @@
   startTime = Date.now();
 
   makeEditor = function(opts) {
-    var $canvas, $code, $output, changeCallback, cm, ctx, draw, drawEveryFrame, editor, errorLines, findUniforms, markErrors, refreshCode, renderer, src, update;
+    var $canvas, $code, $output, canvas, changeCallback, cm, ctx, draw, drawEveryFrame, editor, errorLines, findUniforms, markErrors, refreshCode, renderer, src, update;
     src = opts.src;
     $output = $(opts.output);
     $code = $(opts.code);
     $canvas = $("<canvas />");
+    canvas = $canvas[0];
     $output.append($canvas);
     util.expandCanvas($canvas);
     ctx = $canvas[0].getContext("experimental-webgl", {
@@ -113,8 +114,10 @@
     drawEveryFrame = false;
     changeCallback = null;
     draw = function() {
-      renderer.setUniform("time", (Date.now() - startTime) / 1000);
-      return renderer.draw();
+      return renderer.draw({
+        time: (Date.now() - startTime) / 1000,
+        resolution: [canvas.width, canvas.height]
+      });
     };
     findUniforms = function() {
       var newUniforms, u, _i, _len, _results;
@@ -185,7 +188,7 @@
         return cm.setValue(newSrc);
       },
       snapshot: function(width, height) {
-        var canvas, data, oldHeight, oldWidth;
+        var data, oldHeight, oldWidth;
         canvas = $canvas[0];
         if (width) {
           oldWidth = canvas.width;
@@ -334,7 +337,8 @@
 
 }).call(this);
 }, "flatRenderer": function(exports, require, module) {(function() {
-  var bufferAttribute, compileShader, fragmentShaderSource, getShaderError, makeFlatRenderer, vertexShaderSource;
+  var bufferAttribute, compileShader, fragmentShaderSource, getShaderError, makeFlatRenderer, vertexShaderSource,
+    __hasProp = Object.prototype.hasOwnProperty;
 
   vertexShaderSource = "precision mediump float;\n\nattribute vec3 vertexPosition;\nvarying vec2 position;\n\nvoid main() {\n  gl_Position = vec4(vertexPosition, 1.0);\n  position = (vertexPosition.xy + 1.0) * 0.5;\n}";
 
@@ -403,22 +407,6 @@
         gl.linkProgram(program);
         return null;
       },
-      setUniform: function(name, value, size) {
-        var location;
-        location = gl.getUniformLocation(program, name);
-        if (typeof value === "number") value = [value];
-        if (!size) size = value.length;
-        switch (size) {
-          case 1:
-            return gl.uniform1fv(location, value);
-          case 2:
-            return gl.uniform2fv(location, value);
-          case 3:
-            return gl.uniform3fv(location, value);
-          case 4:
-            return gl.uniform4fv(location, value);
-        }
-      },
       createTexture: function(image) {
         var texture;
         texture = gl.createTexture();
@@ -439,7 +427,28 @@
         gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, arr);
         return arr;
       },
-      draw: function() {
+      draw: function(uniforms) {
+        var location, name, value;
+        if (uniforms == null) uniforms = {};
+        for (name in uniforms) {
+          if (!__hasProp.call(uniforms, name)) continue;
+          value = uniforms[name];
+          location = gl.getUniformLocation(program, name);
+          if (typeof value === "number") value = [value];
+          switch (value.length) {
+            case 1:
+              gl.uniform1fv(location, value);
+              break;
+            case 2:
+              gl.uniform2fv(location, value);
+              break;
+            case 3:
+              gl.uniform3fv(location, value);
+              break;
+            case 4:
+              gl.uniform4fv(location, value);
+          }
+        }
         return gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
     };
@@ -587,16 +596,20 @@
 
 }).call(this);
 }, "pages/fullscreen": function(exports, require, module) {(function() {
-  var quasiSrc, simpleSrc;
+  var src;
 
-  simpleSrc = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}";
-
-  quasiSrc = "precision mediump float;\n\nvarying vec2 position;\nuniform float time;\n\nconst float waves = 19.;\n\n// triangle wave from 0 to 1\nfloat wrap(float n) {\n  return abs(mod(n, 2.)-1.)*-1. + 1.;\n}\n\n// creates a cosine wave in the plane at a given angle\nfloat wave(float angle, vec2 point) {\n  float cth = cos(angle);\n  float sth = sin(angle);\n  return (cos (cth*point.x + sth*point.y) + 1.) / 2.;\n}\n\n// sum cosine waves at various interfering angles\n// wrap values when they exceed 1\nfloat quasi(float interferenceAngle, vec2 point) {\n  float sum = 0.;\n  for (float i = 0.; i < waves; i++) {\n    sum += wave(3.1416*i*interferenceAngle, point);\n  }\n  return wrap(sum);\n}\n\nvoid main() {\n  float b = quasi(time*0.002, (position-0.5)*200.);\n  vec4 c1 = vec4(0.0,0.,0.2,1.);\n  vec4 c2 = vec4(1.5,0.7,0.,1.);\n  gl_FragColor = mix(c1,c2,b);\n}";
+  src = {
+    quasi: "precision mediump float;\n\nvarying vec2 position;\nuniform float time;\n\nconst float waves = 19.;\n\n// triangle wave from 0 to 1\nfloat wrap(float n) {\n  return abs(mod(n, 2.)-1.)*-1. + 1.;\n}\n\n// creates a cosine wave in the plane at a given angle\nfloat wave(float angle, vec2 point) {\n  float cth = cos(angle);\n  float sth = sin(angle);\n  return (cos (cth*point.x + sth*point.y) + 1.) / 2.;\n}\n\n// sum cosine waves at various interfering angles\n// wrap values when they exceed 1\nfloat quasi(float interferenceAngle, vec2 point) {\n  float sum = 0.;\n  for (float i = 0.; i < waves; i++) {\n    sum += wave(3.1416*i*interferenceAngle, point);\n  }\n  return wrap(sum);\n}\n\nvoid main() {\n  float b = quasi(time*0.002, (position-0.5)*200.);\n  vec4 c1 = vec4(0.0,0.,0.2,1.);\n  vec4 c2 = vec4(1.5,0.7,0.,1.);\n  gl_FragColor = mix(c1,c2,b);\n}",
+    warp: "// inspired by http://www.iquilezles.org/www/articles/warp/warp.htm\n\nprecision mediump float;\n\nvarying vec2 position;\nuniform float time;\nuniform vec2 resolution;\n\nmat2 m = mat2(0.6,0.8,-0.8,0.6);\n\nfloat hash(float n) {\n  return fract(sin(n)*93942.234);\n}\n\nfloat noise(vec2 p) {\n  vec2 w = floor(p);\n  vec2 k = fract(p);\n  k = k*k*(3.-2.*k);\n  \n  float n = w.x + w.y*57.;\n  \n  float a = hash(n);\n  float b = hash(n+1.);\n  float c = hash(n+57.);\n  float d = hash(n+58.);\n  \n  return mix(\n    mix(a, b, k.x),\n    mix(c, d, k.x),\n    k.y);\n}\n\nfloat fbm(vec2 p) {\n  float f = 0.;\n  f += 0.5000*noise(p); p *= 2.02*m;\n  f += 0.2500*noise(p); p *= 2.01*m;\n  f += 0.1250*noise(p); p *= 2.03*m;\n  f += 0.0625*noise(p);\n  f /= 0.9375;\n  return f;\n}\n\nvoid main() {\n  vec2 p = vec2(position*6.)*vec2(resolution.x/resolution.y, 1.);\n  float t = time * .009;\n  \n  vec2 a = vec2(fbm(p+t*3.), fbm(p-t*3.+8.1));\n  vec2 b = vec2(fbm(p+t*4. + a*7. + 3.1), fbm(p-t*4. + a*7. + 91.1));\n  float c = fbm(b*9. + t*20.);\n  \n  c = smoothstep(0.15,0.98,c);\n  \n  vec3 col = vec3(c);\n  col.rb += b*0.17;\n  gl_FragColor = vec4(col, 1.);\n}"
+  };
 
   module.exports = function() {
-    var editor;
+    var editor, hash;
+    hash = location.hash.substr(1);
+    if (hash === "") hash = "quasi";
+    if (!src[hash]) hash = "quasi";
     return editor = require("../editor")({
-      src: quasiSrc,
+      src: src[hash],
       code: $("#code"),
       output: $("#output")
     });
