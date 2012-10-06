@@ -28,6 +28,7 @@ Editor
   Cmd+/ to comment
   (), [], {} around selections
 Saving
+Reset (time)
 
 Make a more modular way to do raf
 

@@ -71,7 +71,7 @@ float noise(vec2 p) {
 // rotation matrix
 mat2 m = mat2(0.6,0.8,-0.8,0.6);
 
-// fractal brownian motion (i.e. photoshop clouds)
+// fractional brownian motion (i.e. photoshop clouds)
 float fbm(vec2 p) {
   float f = 0.;
   f += 0.5000*noise(p); p *= 2.02*m;
