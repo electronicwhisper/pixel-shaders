@@ -1,4 +1,4 @@
-src = {quasi: """
+sources = {quasi: """
 precision mediump float;
 
 varying vec2 position;
@@ -105,11 +105,19 @@ void main() {
 
 module.exports = () ->
   hash = location.hash.substr(1)
-  hash = "quasi" if hash == ""
-  hash = "quasi" if !src[hash]
+  
+  if sources[hash]
+    src = sources[hash]
+  else
+    src = require("storage").loadLast()
+    if !src
+      src = sources["quasi"]
   
   editor = require("../editor")({
-    src: src[hash]
+    src: src
     code: $("#code")
     output: $("#output")
   })
+  
+  editor.onchange () ->
+    require("storage").saveLast(editor.get())

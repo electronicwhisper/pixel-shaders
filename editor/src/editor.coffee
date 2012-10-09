@@ -88,6 +88,7 @@ makeEditor = (opts) ->
   $(window).focus(draw)
   
   editor = {
+    get: () -> src
     set: (newSrc) ->
       cm.setValue(newSrc)
     snapshot: (width, height) ->

@@ -22,6 +22,7 @@ body {
   font-family: georgia;
   font-size: 16px;
   line-height: 1.5;
+  color: #333;
 }
 canvas {
   width: 100%;
@@ -49,18 +50,34 @@ canvas {
   text-align: left;
 }
 
-#code {
-  opacity: 0.0;
+
+#code-drawer {
+  left: 100%;
+  -webkit-transition-property: left;
+  -webkit-transition-duration: 0.3s;
+  opacity: .97;
 }
-#code:hover {
-  opacity: 1.0;
+.show-code #code-drawer {
+  left: 50%;
 }
+
+
 </style>
 </head>
 <body style="overflow: hidden">
 
-<div id="output" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0"></div>
-<div id="code" style="position: absolute; top: 0; right: 0; left: 50%; bottom: 0; background-color: #fff;"></div>
+<div id="fullscreen">
+  <div id="output" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0"></div>
+  <div id="code-drawer" style="position: absolute; top: 0; width: 50%; bottom: 0; border-left: 1px solid #ccc; ">
+    
+    <div id="code" style="position: absolute; top: 0; left: 0px; bottom: 0; right: 0; background-color: #fff"></div>
+    <div style="position: absolute; top: 6px; right: 24px;">
+      <button>Save</button>
+      <button>Share</button>
+    </div>
+    <div style="position: absolute; top: 0; left: 0; margin-left: -57px; margin-top: 32px; width: 90px; height: 24px; background-color: #f7f7f7; border: 1px solid #ccc; border-bottom-color: transparent; border-top-left-radius: 8px; -webkit-transform: rotate(-90deg); -moz-transform: rotate(-90deg); text-align: center; font-family: helvetica; cursor: pointer" onclick="$('#fullscreen').toggleClass('show-code')">code</div>
+  </div>
+</div>
 
 <script src="compiled/app.js"></script>
 <script>

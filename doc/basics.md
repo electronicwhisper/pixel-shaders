@@ -37,9 +37,9 @@ As we saw with the colors, GLSL tends to represent values in fractional amounts,
 
 We've seen how to make solid colors, but how do we make more interesting images--images with variation?
 
-A pixel shader works by running your program *for every pixel* in the outputted image. The examples we've been working with have a resolution of 300 by 300, so that means the pixel shader gets run 900 separate times (300 times 300).
+A pixel shader works by running your program *for every pixel* in the outputted image. The examples we've been working with have a resolution of 300 by 300, so that means the pixel shader gets run 90,000 separate times (300 times 300).
 
-But since the same program is run 900 times, every time it runs it outputs the same color. So we just end up with solid color images.
+But since the same program is run 90,000 times, every time it runs it outputs the same color. So we just end up with solid color images.
 
 To make the program output different colors for different pixels, we can introduce `position` which will *vary* across the image. That is, it will take on a different value depending on which pixel the shader is computing. We can use `position` to figure out the *coordinates* of our pixel and compute the appropriate color with our program.
 

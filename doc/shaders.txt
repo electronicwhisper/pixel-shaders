@@ -1413,3 +1413,226 @@ void main() {
   
   gl_FragColor = vec4(col, 1.);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+uniform float time;
+varying vec2 position;
+
+void main() {
+  vec2 p = position - 0.5;
+  float t = sin(time)*300.;
+  
+  gl_FragColor.r = fract(t*p.y);
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = fract(t*p.x);
+  gl_FragColor.a = 1.0;
+}
+
+
+
+
+
+
+
+
+
+
+// inspired by http://www.iquilezles.org/www/articles/warp/warp.htm
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform vec2 resolution;
+
+// makes a pseudorandom number between 0 and 1
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+// smoothsteps a grid of random numbers at the integers
+float noise(vec2 p) {
+  vec2 w = floor(p);
+  vec2 k = fract(p);
+  k = k*k*(3.-2.*k); // smooth it
+  
+  float z = 57.;
+  
+  float n = w.x + w.y*z;
+  
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+z);
+  float d = hash(n+z+1.);
+  
+  return mix(
+    mix(a, b, k.x),
+    mix(c, d, k.x),
+    k.y);
+}
+
+// rotation matrix
+mat2 m = mat2(1.,0.,0.,1.);
+
+// fractional brownian motion (i.e. photoshop clouds)
+float fbm(vec2 p) {
+  float f = 0.;
+  f += 0.5000*noise(p); p *= 2.02*m;
+  f += 0.2500*noise(p); p *= 2.01*m;
+  f += 0.1250*noise(p); p *= 2.03*m;
+  f += 0.0625*noise(p);
+  f /= 0.9375;
+  return f;
+}
+
+void main() {
+  // relative coordinates
+  vec2 p = vec2(position*5.)*vec2(resolution.x/resolution.y, 1.);
+  //float ang = 3.14159/4.;
+  //p *= mat2(cos(ang), sin(ang), -sin(ang), cos(ang));
+  
+  //p.y += time*.3;
+  
+  float t = time * .295;
+  
+  // calling fbm on itself
+  vec2 a = vec2(fbm(p), fbm(p+8.1));
+  vec2 b = vec2(fbm(p*.1 + a*7. + 3.1), fbm(p*.1+t + a*7. + 91.1));
+  float c = fbm(b*10. + t*9.);
+  
+  // increase contrast
+  c = smoothstep(0.15,0.98,c);
+  
+  // mix in some color
+  vec3 col = vec3(c*0.0);
+  col.rg += b*0.87;
+  col.rb += a*0.81;
+  
+  gl_FragColor = vec4(col, 1.);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// inspired by http://www.iquilezles.org/www/articles/warp/warp.htm
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform vec2 resolution;
+
+// makes a pseudorandom number between 0 and 1
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+// smoothsteps a grid of random numbers at the integers
+float noise(vec2 p) {
+  vec2 w = floor(p);
+  vec2 k = fract(p);
+  k = k*k*(3.-2.*k); // smooth it
+  
+  float z = 57.;
+  
+  float n = w.x + w.y*z;
+  
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+z);
+  float d = hash(n+z+1.);
+  
+  return mix(
+    mix(a, b, k.x),
+    mix(c, d, k.x),
+    k.y);
+}
+
+// rotation matrix
+mat2 m = mat2(1.,0.,0.,1.);
+
+// fractional brownian motion (i.e. photoshop clouds)
+float fbm(vec2 p) {
+  float f = 0.;
+  f += 0.5000*noise(p); p *= 2.02*m;
+  f += 0.2500*noise(p); p *= 2.01*m;
+  f += 0.1250*noise(p); p *= 2.03*m;
+  f += 0.0625*noise(p);
+  f /= 0.9375;
+  return f;
+}
+
+void main() {
+  // relative coordinates
+  vec2 p = vec2((position-.5)*8.)*vec2(resolution.x/resolution.y, 1.);
+  //float ang = 3.14159/4.;
+  float ang = time;
+  //p *= mat2(cos(ang), sin(ang), -sin(ang), cos(ang));
+  
+  //p *= cos(time)*.1 + 2.;
+  
+  float t = time * 1.9;  
+  float amount = 0.1;
+  
+  // calling fbm on itself
+  vec2 a = vec2(fbm(p+t*.01), fbm(p+8.1));
+  vec2 b = vec2(fbm(p*.1+cos(t)*amount + a*7. + 3.1), fbm(p*.1+sin(t)*amount + a*7. + 91.1));
+  float c = fbm(b*10. + t*9.);
+  
+  // increase contrast
+  c = smoothstep(0.15,0.98,c);
+  
+  // mix in some color
+  vec3 col = vec3(c*0.);
+  col.rgb += vec3(b,b.x*1.25)*0.97;
+  col.brg += vec3(a,a.x*.1)*.5;
+  col.b /= 1.2;
+  col -= .3;
+  col.r += col.g;
+  col.g /= 1.4;
+  
+  //col = smoothstep(0.4, 1.0, col);
+  
+  gl_FragColor = vec4(col, 1.);
+}
