@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+  <script src="vendor/CodeMirror-2.33/lib/codemirror.js"></script>
+  <script src="vendor/glsl.js"></script>
+  <script src="vendor/numeric-1.2.2.min.js"></script>
+  <script src="vendor/jquery-1.8.1.min.js"></script>
+  <script src="vendor/underscore-min.js"></script>
+  <script src="vendor/xregexp-min.js"></script>
+  <script src="vendor/jquery.tipsy.js"></script>
+  <script src="vendor/rAF.js"></script>
+  <script src="vendor/lzma/lzma.js"></script>
+
+  <link rel="stylesheet" href="vendor/CodeMirror-2.33/lib/codemirror.css">
+  <link rel="stylesheet" href="vendor/tipsy.css">
+
   <title>An Interactive Introduction to Graphics Programming</title>
   <link rel="stylesheet" href="vendor/ContrailOne/ContrailOne.css">
   
@@ -30,40 +44,78 @@
   h1, h2 {
     font-family: 'Contrail One';
     color: #000;
+    font-weight: normal;
   }
   
   h1 {
     font-size: 42px;
     margin-bottom: 30px;
   }
+  .big, .sub, .byline {
+    font-family: 'Contrail One';
+/*    font-weight: bold;*/
+    line-height: 1.2;
+  }
+  .big {
+    font-size: 84px;
+  }
+  .sub {
+    font-size: 36px;
+    color: #666;
+  }
+  .red {
+    color: #b00;
+  }
+  .byline {
+/*    margin-top: -30px;
+    margin-bottom: 30px;*/
+    margin-top: 12px;
+    font-size: 18px;
+/*    font-weight: normal;*/
+    
+  }
+  .title {
+    width: 540px;
+/*    text-align: center;*/
+    margin: 90px 0px 60px 0px;
+  }
+  
   h2 {
     font-size: 30px;
     margin-top: 48px;
     margin-bottom: 24px;
   }
-  .red {
-    color: #b00;
+
+  canvas {
+    width: 100%;
+    height: 100%;
   }
-  
-  .byline {
-    margin-top: -30px;
-    margin-bottom: 30px;
-    font-size: 18px;
-    font-family: 'Contrail One';
-    margin-left: 144px;
-  }
-  
 
   </style>
 </head>
 <body>
 
-
-
-  <h1 id="an_interactive_introductionto_graphics_programming">An <span class="red">Interactive Introduction</span><br />to Graphics Programming</h1>
-  <div class="byline">by <a href="http://tobyschachman.com/">Toby Schachman</a></div>
   
-  <p>This is the future home for an interactive book about programming the graphics processor.</p>
+  <div id="logo" style="position: absolute; width: 210px; height: 210px; top: 102px; left: 114px;"></div>
+  <div id="logo-code" style="display: none"></div>
+  
+  <div class="title">
+    <div class="big">Pixel Shaders</div>
+    <div class="sub">An <span class="red">Interactive Introduction</span><br />to Graphics Programming</div>
+    <div class="byline">by <a href="http://tobyschachman.com/">Toby Schachman</a></div>
+  </div>
+  
+  <h2><a href="proposal/">Proposal</a></h2>
+  <p>Describes the project and serves as a proof of concept for an <em>interactive book</em>.</p>
+  
+  <h2><a href="editor/basics.html">Sample Chapter</a></h2>
+  <p>Covers the basics of pixel shaders. Features an experimental exercises interface where the reader is asked to create specific pictures in response to the material.</p>
+  
+  <h2><a href="editor/fullscreen.html">Shader Editor</a></h2>
+  <p>A fullscreen editor interface featuring a gallery of advanced shader topics that will be covered in the book.</p>
+  
+  
+  <!-- <p>This is the future home for an interactive book about programming the graphics processor.</p>
   
   <ul>
     <li><p>
@@ -86,7 +138,13 @@
       <a href="external.html">External Resources</a><br />
       In case the above material has inspired an insatiable appetite for shader knowledge, here's a compiled list of further resources.
     </p></li>
-  </ul>
-  
+  </ul> -->
+
+
+<script src="editor/compiled/app.js"></script>
+<script>
+require("pages/homepage")()
+</script>
+
 </body>
 </html>

@@ -777,6 +777,21 @@
   };
 
 }).call(this);
+}, "pages/homepage": function(exports, require, module) {(function() {
+  var src;
+
+  src = "precision mediump float;\n\nvarying vec2 position;\nuniform float time;\n\nconst float waves = 11.;\n\n// triangle wave from 0 to 1\nfloat wrap(float n) {\n  return abs(mod(n, 2.)-1.)*-1. + 1.;\n}\n\n// creates a cosine wave in the plane at a given angle\nfloat wave(float angle, vec2 point) {\n  float cth = cos(angle);\n  float sth = sin(angle);\n  return (cos (cth*point.x + sth*point.y) + 1.) / 2.;\n}\n\n// sum cosine waves at various interfering angles\n// wrap values when they exceed 1\nfloat quasi(float interferenceAngle, vec2 point) {\n  float sum = 0.;\n  for (float i = 0.; i < waves; i++) {\n    sum += wave(3.1416*i*interferenceAngle, point);\n  }\n  return wrap(sum);\n}\n\nvoid main() {\n  vec2 p = position - 0.5;\n  float b = quasi(time*0.016, p*40.);\n  \n  b *= 1.2;\n  b += .1;\n  \n  vec3 col = vec3(b);\n  \n  gl_FragColor = vec4(col, 1.0);\n  gl_FragColor.a *= 1. - smoothstep(0.44, 0.495, length(p));\n}";
+
+  module.exports = function() {
+    var editor;
+    return editor = require("../editor")({
+      src: src,
+      code: $("#logo-code"),
+      output: $("#logo")
+    });
+  };
+
+}).call(this);
 }, "pages/test": function(exports, require, module) {(function() {
 
   module.exports = function() {
