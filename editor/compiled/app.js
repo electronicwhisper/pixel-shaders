@@ -702,7 +702,7 @@
 
 }).call(this);
 }, "pages/fullscreen": function(exports, require, module) {(function() {
-  var clickTab, load, selectTab, sources, storage;
+  var clickTab, editor, load, selectTab, sources, storage;
 
   sources = {
     blank: "precision mediump float;\n\nvarying vec2 position;\nuniform float time;\nuniform vec2 resolution;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}",
@@ -712,8 +712,9 @@
 
   storage = require("../storage");
 
+  editor = null;
+
   load = function(src) {
-    var editor;
     $("#share-button").click(function() {
       return storage.serialize(editor.get(), function(hash) {
         var url;
@@ -733,6 +734,11 @@
     return editor.onchange(function() {
       return storage.saveLast(editor.get());
     });
+  };
+
+  window.selectShader = function(name) {
+    selectTab("code");
+    return editor.set(sources[name]);
   };
 
   clickTab = function() {

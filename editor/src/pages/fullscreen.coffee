@@ -125,6 +125,8 @@ void main() {
 
 storage = require("../storage")
 
+editor = null
+
 load = (src) ->
   
   $("#share-button").click () ->
@@ -146,6 +148,10 @@ load = (src) ->
   
   editor.onchange () ->
     storage.saveLast(editor.get())
+
+window.selectShader = (name) ->
+  selectTab("code")
+  editor.set(sources[name])
 
 clickTab = () ->
   tab = $(this).attr("data-tab")

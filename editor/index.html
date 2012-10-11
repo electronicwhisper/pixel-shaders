@@ -59,7 +59,7 @@ canvas {
   -webkit-transition-duration: 0.3s;
   -moz-transition-property: left;
   -moz-transition-duration: 0.3s;
-  opacity: .97;
+/*  opacity: .97;*/
 }
 .show-drawer #drawer {
   left: 50%;
@@ -111,12 +111,16 @@ canvas {
     
     <section data-tab="gallery">
       <div style="position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-color: #f7f7f7;">
-        
+        <ul>
+          <li><a href="javascript:selectShader('blank')">Basic Gradient</a></li>
+          <li><a href="javascript:selectShader('quasi')">Quasicrystal</a></li>
+          <li><a href="javascript:selectShader('warp')">Domain Distortion</a></li>
+        </ul>
       </div>
     </section>
     
-    <div style="position: absolute; right: 100%; bottom: 100%; -webkit-transform-origin: bottom right; -moz-transform-origin: bottom right; -webkit-transform: rotate(-90deg); -moz-transform: rotate(-90deg); width: 90px">
-      <!-- <div class="tab" data-tab="gallery">Gallery</div> -->
+    <div style="position: absolute; right: 100%; bottom: 100%; -webkit-transform-origin: bottom right; -moz-transform-origin: bottom right; -webkit-transform: rotate(-90deg); -moz-transform: rotate(-90deg); width: 180px">
+      <div class="tab" data-tab="gallery">Gallery</div>
       <div class="tab" data-tab="code">Code</div>
     </div>
   </div>
