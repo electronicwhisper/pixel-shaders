@@ -42,6 +42,7 @@ h1, h2, p, body > ul, body > ol {
 h1, h2 {
   font-family: 'Contrail One';
   color: #000;
+  font-weight: normal;
 }
 
 h1 {
@@ -154,9 +155,9 @@ canvas {
 
   <p>We&#8217;ve seen how to make solid colors, but how do we make more interesting images&#8212;images with variation?</p>
 
-  <p>A pixel shader works by running your program <em>for every pixel</em> in the outputted image. The examples we&#8217;ve been working with have a resolution of 300 by 300, so that means the pixel shader gets run 900 separate times (300 times 300).</p>
+  <p>A pixel shader works by running your program <em>for every pixel</em> in the outputted image. The examples we&#8217;ve been working with have a resolution of 300 by 300, so that means the pixel shader gets run 90,000 separate times (300 times 300).</p>
 
-  <p>But since the same program is run 900 times, every time it runs it outputs the same color. So we just end up with solid color images.</p>
+  <p>But since the same program is run 90,000 times, every time it runs it outputs the same color. So we just end up with solid color images.</p>
 
   <p>To make the program output different colors for different pixels, we can introduce <code>position</code> which will <em>vary</em> across the image. That is, it will take on a different value depending on which pixel the shader is computing. We can use <code>position</code> to figure out the <em>coordinates</em> of our pixel and compute the appropriate color with our program.</p>
 
@@ -183,6 +184,15 @@ canvas {
   </ul>
 
   <div id="exercise-arithmetic"></div>
+
+  <h2 id="feedback">Feedback</h2>
+
+  <p><em>
+  This chapter is about halfway done. If you&#8217;ve gotten this far, I&#8217;d love to hear your thoughts. Did it make sense? Did the exercises feel in flow with the content? How is the pacing? <a href="mailto:tqs@alum.mit.edu">Send me an email</a>. Thanks!</p>
+
+  <p>Toby
+  </em></p>
+
 
 
 

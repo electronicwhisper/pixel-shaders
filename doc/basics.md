@@ -62,3 +62,11 @@ You'll also need to use parentheses to group terms. Contrast these:
 * `(1.0 + 1.0) * 3.0 = 6.0`
 
 <div id="exercise-arithmetic"></div>
+
+## Feedback
+
+<em>
+This chapter is about halfway done. If you've gotten this far, I'd love to hear your thoughts. Did it make sense? Did the exercises feel in flow with the content? How is the pacing? [Send me an email](mailto:tqs@alum.mit.edu). Thanks!
+
+Toby
+</em>
