@@ -66,7 +66,7 @@ canvas {
 }
 
 #drawer .tab {
-  float: left;
+  float: right;
   width: 90px;
   height: 24px;
   text-align: center;
@@ -78,7 +78,7 @@ canvas {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
-#drawer .tab:last-child {
+#drawer .tab:first-child {
   border-top-right-radius: 0;
 }
 #drawer .selected {
@@ -119,14 +119,14 @@ canvas {
       </div>
     </section>
     
-    <div style="position: absolute; right: 100%; bottom: 100%; -webkit-transform-origin: bottom right; -moz-transform-origin: bottom right; -webkit-transform: rotate(-90deg); -moz-transform: rotate(-90deg); width: 180px">
-      <div class="tab" data-tab="gallery">Gallery</div>
+    <div style="position: absolute; right: 100%; bottom: 100%; -webkit-transform-origin: bottom right; -moz-transform-origin: bottom right; -webkit-transform: rotate(-90deg); -moz-transform: rotate(-90deg); width: 220px">
       <div class="tab" data-tab="code">Code</div>
+      <div class="tab" data-tab="gallery">Gallery</div>
     </div>
   </div>
 </div>
 
-<div id="popup" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: none">
+<div id="popup" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: none; z-index: 2000">
   <div style="position: absolute; top:0; left:0; right:0; bottom: 0; background-color: rgba(255,255,255,0.4); " onclick="$('#popup').hide()"></div>
   <div style="background-color: #fff; border: 1px solid #ccc; box-shadow: 0px 3px 8px rgba(0,0,0,0.4); width: 420px; height: 90px; position: absolute; top: 50%; left: 50%; margin-left: -210px; margin-top: -45px; padding: 12px">
     Share URL<br />
