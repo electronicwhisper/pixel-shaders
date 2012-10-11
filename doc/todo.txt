@@ -39,6 +39,12 @@ Graph interface
 Evaluate interface
 
 
+flatRenderer
+  keep track of all state
+  reload when gl context lost
+  activate/deactivate
+
+
 Colors
 Gradients
 Arithmetic

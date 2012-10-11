@@ -1,4 +1,18 @@
-sources = {quasi: """
+sources = {blank: """
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform vec2 resolution;
+
+void main() {
+  gl_FragColor.r = position.x;
+  gl_FragColor.g = position.y;
+  gl_FragColor.b = 1.0;
+  gl_FragColor.a = 1.0;
+}
+"""
+quasi: """
 precision mediump float;
 
 varying vec2 position;
@@ -36,7 +50,11 @@ void main() {
 }
 """
 warp: """
-// inspired by http://www.iquilezles.org/www/articles/warp/warp.htm
+/*
+Iterated Fractional Brownian Motion
+Based on:
+  http://www.iquilezles.org/www/articles/warp/warp.htm
+*/
 
 precision mediump float;
 
@@ -103,15 +121,22 @@ void main() {
 }
 """}
 
-module.exports = () ->
-  hash = location.hash.substr(1)
+
+
+storage = require("../storage")
+
+load = (src) ->
   
-  if sources[hash]
-    src = sources[hash]
-  else
-    src = require("storage").loadLast()
-    if !src
-      src = sources["quasi"]
+  $("#share-button").click () ->
+    storage.serialize(editor.get(), (hash) ->
+      url = location.href.split("#")[0] + "#" + hash
+      $("#popup").show()
+      $("#share-url").val(url)
+      $("#share-url").select()
+    )
+  
+  selectTab("code")
+  $('#drawer .tab').click(clickTab)
   
   editor = require("../editor")({
     src: src
@@ -120,4 +145,40 @@ module.exports = () ->
   })
   
   editor.onchange () ->
-    require("storage").saveLast(editor.get())
+    storage.saveLast(editor.get())
+
+clickTab = () ->
+  tab = $(this).attr("data-tab")
+  selectedTab = $("#drawer").attr("data-selected")
+  if tab == selectedTab
+    $('#fullscreen').toggleClass('show-drawer')
+  else
+    $('#fullscreen').addClass('show-drawer')
+  selectTab(tab)
+
+selectTab = (tab) ->
+  $('#drawer').attr("data-selected", tab)
+  $('#drawer .tab').removeClass("selected")
+  $("#drawer .tab[data-tab='#{tab}']").addClass("selected")
+  $('#drawer section').removeClass("selected")
+  $("#drawer section[data-tab='#{tab}']").addClass("selected")
+  
+
+module.exports = () ->
+  hash = location.hash.substr(1)
+  
+  if hash
+    if sources[hash]
+      load(sources[hash])
+    else
+      storage.unserialize(hash, load)
+  else
+    $('#fullscreen').addClass('show-drawer')
+    src = storage.loadLast()
+    if src
+      load(src)
+    else
+      load(sources["blank"])
+  
+  history.replaceState("","",location.pathname)
+  
