@@ -1,5 +1,7 @@
 evaluate = require("evaluate")
 
+
+
 module.exports = (opts) ->
   src = opts.src
   $output = $(opts.output)
@@ -8,13 +10,16 @@ module.exports = (opts) ->
   refreshCode = () ->
     src = cm.getValue()
     worked = true
-    try
-      outputValue = evaluate.direct(src)
-      outputValue = parseFloat(outputValue).toFixed(4)
-      if !isFinite(outputValue)
-        worked = false
-    catch e
+    if evaluate.hasIntegers(src)
       worked = false
+    else
+      try
+        outputValue = evaluate.direct(src)
+        outputValue = parseFloat(outputValue).toFixed(4)
+        if !isFinite(outputValue)
+          worked = false
+      catch e
+        worked = false
     if worked
       outcm.setValue(" = #{outputValue}")
     else

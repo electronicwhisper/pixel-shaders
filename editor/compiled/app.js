@@ -274,6 +274,16 @@
     },
     functionOfX: function(s) {
       return eval("(function (x) {return " + s + ";})");
+    },
+    hasIntegers: function(s) {
+      var ret;
+      ret = false;
+      XRegExp.forEach(s, /([0-9]*\.[0-9]*)|[0-9]+/, function(match) {
+        var number;
+        number = match[0];
+        if (number.indexOf(".") === -1) return ret = true;
+      });
+      return ret;
     }
   };
 
@@ -292,12 +302,16 @@
       var outputValue, worked;
       src = cm.getValue();
       worked = true;
-      try {
-        outputValue = evaluate.direct(src);
-        outputValue = parseFloat(outputValue).toFixed(4);
-        if (!isFinite(outputValue)) worked = false;
-      } catch (e) {
+      if (evaluate.hasIntegers(src)) {
         worked = false;
+      } else {
+        try {
+          outputValue = evaluate.direct(src);
+          outputValue = parseFloat(outputValue).toFixed(4);
+          if (!isFinite(outputValue)) worked = false;
+        } catch (e) {
+          worked = false;
+        }
       }
       if (worked) {
         return outcm.setValue(" = " + outputValue);

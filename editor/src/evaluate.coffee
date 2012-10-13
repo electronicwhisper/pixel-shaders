@@ -19,4 +19,13 @@ module.exports = {
   direct: (s) -> eval(s)
   functionOfX: (s) ->
     eval("(function (x) {return #{s};})")
+  hasIntegers: (s) ->
+    # for simulating errors on non-floating point numbers
+    ret = false
+    XRegExp.forEach(s, /([0-9]*\.[0-9]*)|[0-9]+/, (match) ->
+      number = match[0]
+      if number.indexOf(".") == -1
+        ret = true
+    )
+    return ret
 }
