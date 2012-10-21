@@ -1,23 +1,22 @@
-Make set of examples
-Add in support for image textures
-Regular expression parse out uniform's
-Make uniforms generate interface to set them
-Finish writing motivation essay
 
 
 
 
 
+Refactor css to stylus
+Move editor/src to /src
+Make compile bundle all the vendor script
 
 
 Add some uniforms:
   vec2 mouse
 Fullscreen
   For all editors
-  Collapse button
   Resizeable code
-Make error popup adjust automatically
+Make error tooltip adjust automatically
 Uniforms (custom)
+  Generate interface to view them
+  Interface to set them
   Parse ranges
 Textures
   Keep track of textures in flatRenderer
@@ -30,10 +29,10 @@ Editor
 Saving
 Reset (time)
 
-Make a more modular way to do raf
 
 
 Make an embeddable format for examples, exercises, evaluates, graphs, graph exercises
+Auto-generate html from markdown
 
 Graph interface
 Evaluate interface
@@ -44,13 +43,7 @@ flatRenderer
   reload when gl context lost
   activate/deactivate
 
-
-Colors
-Gradients
-Arithmetic
-Signals
-Mix, vectors
-
+check Chromium
 
 
 
