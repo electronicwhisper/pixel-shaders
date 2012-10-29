@@ -119,7 +119,98 @@ void main() {
   
   gl_FragColor = vec4(col, 1.);
 }
-"""}
+"""
+webcamIdentity: """
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  gl_FragColor = texture2D(webcam, position);
+}
+"""
+webcamInvert: """
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  vec4 color = texture2D(webcam, p);
+  color.rgb = 1.0 - color.rgb;
+  gl_FragColor = color;
+}
+"""
+webcamStreak: """
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  p.y = 0.5; // only sample from a horizontal strip through the center
+  vec4 color = texture2D(webcam, p);
+  gl_FragColor = color;
+}
+"""
+webcamPinch: """
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  // normalize to the center
+  vec2 p = position - 0.5;
+  
+  // cartesian to polar coordinates
+  float r = length(p);
+  float a = atan(p.y, p.x);
+  
+  // distort
+  r = sqrt(r); // pinch
+  //r = r*r; // bulge
+  
+  // polar to cartesian coordinates
+  p = r * vec2(cos(a), sin(a));
+  
+  // sample the webcam
+  vec4 color = texture2D(webcam, p + 0.5);
+  gl_FragColor = color;
+}
+"""
+webcamKaleidoscope: """
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  // normalize to the center
+  vec2 p = position - 0.5;
+  
+  // cartesian to polar coordinates
+  float r = length(p);
+  float a = atan(p.y, p.x);
+  
+  // kaleidoscope
+  float sides = 6.;
+  float tau = 2. * 3.1416;
+  a = mod(a, tau/sides);
+  a = abs(a - tau/sides/2.);
+  
+  // polar to cartesian coordinates
+  p = r * vec2(cos(a), sin(a));
+  
+  // sample the webcam
+  vec4 color = texture2D(webcam, p + 0.5);
+  gl_FragColor = color;
+}
+"""
+}
 
 
 

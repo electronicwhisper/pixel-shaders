@@ -786,7 +786,12 @@
   sources = {
     blank: "precision mediump float;\n\nvarying vec2 position;\nuniform float time;\nuniform vec2 resolution;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 1.0;\n  gl_FragColor.a = 1.0;\n}",
     quasi: "precision mediump float;\n\nvarying vec2 position;\nuniform float time;\n\nconst float waves = 19.;\n\n// triangle wave from 0 to 1\nfloat wrap(float n) {\n  return abs(mod(n, 2.)-1.)*-1. + 1.;\n}\n\n// creates a cosine wave in the plane at a given angle\nfloat wave(float angle, vec2 point) {\n  float cth = cos(angle);\n  float sth = sin(angle);\n  return (cos (cth*point.x + sth*point.y) + 1.) / 2.;\n}\n\n// sum cosine waves at various interfering angles\n// wrap values when they exceed 1\nfloat quasi(float interferenceAngle, vec2 point) {\n  float sum = 0.;\n  for (float i = 0.; i < waves; i++) {\n    sum += wave(3.1416*i*interferenceAngle, point);\n  }\n  return wrap(sum);\n}\n\nvoid main() {\n  float b = quasi(time*0.002, (position-0.5)*200.);\n  vec4 c1 = vec4(0.0,0.,0.2,1.);\n  vec4 c2 = vec4(1.5,0.7,0.,1.);\n  gl_FragColor = mix(c1,c2,b);\n}",
-    warp: "/*\nIterated Fractional Brownian Motion\nBased on:\n  http://www.iquilezles.org/www/articles/warp/warp.htm\n*/\n\nprecision mediump float;\n\nvarying vec2 position;\nuniform float time;\nuniform vec2 resolution;\n\n// makes a pseudorandom number between 0 and 1\nfloat hash(float n) {\n  return fract(sin(n)*93942.234);\n}\n\n// smoothsteps a grid of random numbers at the integers\nfloat noise(vec2 p) {\n  vec2 w = floor(p);\n  vec2 k = fract(p);\n  k = k*k*(3.-2.*k); // smooth it\n  \n  float n = w.x + w.y*57.;\n  \n  float a = hash(n);\n  float b = hash(n+1.);\n  float c = hash(n+57.);\n  float d = hash(n+58.);\n  \n  return mix(\n    mix(a, b, k.x),\n    mix(c, d, k.x),\n    k.y);\n}\n\n// rotation matrix\nmat2 m = mat2(0.6,0.8,-0.8,0.6);\n\n// fractional brownian motion (i.e. photoshop clouds)\nfloat fbm(vec2 p) {\n  float f = 0.;\n  f += 0.5000*noise(p); p *= 2.02*m;\n  f += 0.2500*noise(p); p *= 2.01*m;\n  f += 0.1250*noise(p); p *= 2.03*m;\n  f += 0.0625*noise(p);\n  f /= 0.9375;\n  return f;\n}\n\nvoid main() {\n  // relative coordinates\n  vec2 p = vec2(position*6.)*vec2(resolution.x/resolution.y, 1.);\n  float t = time * .009;\n  \n  // calling fbm on itself\n  vec2 a = vec2(fbm(p+t*3.), fbm(p-t*3.+8.1));\n  vec2 b = vec2(fbm(p+t*4. + a*7. + 3.1), fbm(p-t*4. + a*7. + 91.1));\n  float c = fbm(b*9. + t*20.);\n  \n  // increase contrast\n  c = smoothstep(0.15,0.98,c);\n  \n  // mix in some color\n  vec3 col = vec3(c);\n  col.rb += b*0.17;\n  \n  gl_FragColor = vec4(col, 1.);\n}"
+    warp: "/*\nIterated Fractional Brownian Motion\nBased on:\n  http://www.iquilezles.org/www/articles/warp/warp.htm\n*/\n\nprecision mediump float;\n\nvarying vec2 position;\nuniform float time;\nuniform vec2 resolution;\n\n// makes a pseudorandom number between 0 and 1\nfloat hash(float n) {\n  return fract(sin(n)*93942.234);\n}\n\n// smoothsteps a grid of random numbers at the integers\nfloat noise(vec2 p) {\n  vec2 w = floor(p);\n  vec2 k = fract(p);\n  k = k*k*(3.-2.*k); // smooth it\n  \n  float n = w.x + w.y*57.;\n  \n  float a = hash(n);\n  float b = hash(n+1.);\n  float c = hash(n+57.);\n  float d = hash(n+58.);\n  \n  return mix(\n    mix(a, b, k.x),\n    mix(c, d, k.x),\n    k.y);\n}\n\n// rotation matrix\nmat2 m = mat2(0.6,0.8,-0.8,0.6);\n\n// fractional brownian motion (i.e. photoshop clouds)\nfloat fbm(vec2 p) {\n  float f = 0.;\n  f += 0.5000*noise(p); p *= 2.02*m;\n  f += 0.2500*noise(p); p *= 2.01*m;\n  f += 0.1250*noise(p); p *= 2.03*m;\n  f += 0.0625*noise(p);\n  f /= 0.9375;\n  return f;\n}\n\nvoid main() {\n  // relative coordinates\n  vec2 p = vec2(position*6.)*vec2(resolution.x/resolution.y, 1.);\n  float t = time * .009;\n  \n  // calling fbm on itself\n  vec2 a = vec2(fbm(p+t*3.), fbm(p-t*3.+8.1));\n  vec2 b = vec2(fbm(p+t*4. + a*7. + 3.1), fbm(p-t*4. + a*7. + 91.1));\n  float c = fbm(b*9. + t*20.);\n  \n  // increase contrast\n  c = smoothstep(0.15,0.98,c);\n  \n  // mix in some color\n  vec3 col = vec3(c);\n  col.rb += b*0.17;\n  \n  gl_FragColor = vec4(col, 1.);\n}",
+    webcamIdentity: "precision mediump float;\n\nvarying vec2 position;\nuniform sampler2D webcam;\n\nvoid main() {\n  gl_FragColor = texture2D(webcam, position);\n}",
+    webcamInvert: "precision mediump float;\n\nvarying vec2 position;\nuniform sampler2D webcam;\n\nvoid main() {\n  vec2 p = position;\n  vec4 color = texture2D(webcam, p);\n  color.rgb = 1.0 - color.rgb;\n  gl_FragColor = color;\n}",
+    webcamStreak: "precision mediump float;\n\nvarying vec2 position;\nuniform sampler2D webcam;\n\nvoid main() {\n  vec2 p = position;\n  p.y = 0.5; // only sample from a horizontal strip through the center\n  vec4 color = texture2D(webcam, p);\n  gl_FragColor = color;\n}",
+    webcamPinch: "precision mediump float;\n\nvarying vec2 position;\nuniform sampler2D webcam;\n\nvoid main() {\n  // normalize to the center\n  vec2 p = position - 0.5;\n  \n  // cartesian to polar coordinates\n  float r = length(p);\n  float a = atan(p.y, p.x);\n  \n  // distort\n  r = sqrt(r); // pinch\n  //r = r*r; // bulge\n  \n  // polar to cartesian coordinates\n  p = r * vec2(cos(a), sin(a));\n  \n  // sample the webcam\n  vec4 color = texture2D(webcam, p + 0.5);\n  gl_FragColor = color;\n}",
+    webcamKaleidoscope: "precision mediump float;\n\nvarying vec2 position;\nuniform sampler2D webcam;\n\nvoid main() {\n  // normalize to the center\n  vec2 p = position - 0.5;\n  \n  // cartesian to polar coordinates\n  float r = length(p);\n  float a = atan(p.y, p.x);\n  \n  // kaleidoscope\n  float sides = 6.;\n  float tau = 2. * 3.1416;\n  a = mod(a, tau/sides);\n  a = abs(a - tau/sides/2.);\n  \n  // polar to cartesian coordinates\n  p = r * vec2(cos(a), sin(a));\n  \n  // sample the webcam\n  vec4 color = texture2D(webcam, p + 0.5);\n  gl_FragColor = color;\n}"
   };
 
   storage = require("../storage");
@@ -1002,37 +1007,41 @@ function convertBytesToHex( byteArray ) {
 
 }).call(this);
 }, "webcam": function(exports, require, module) {(function() {
-  var streaming, video;
+  var askForCam, streaming, video;
 
   video = null;
 
   streaming = false;
 
-  module.exports = function() {
+  askForCam = function() {
     var error, success;
+    success = function(stream) {
+      console.log("received stream");
+      if (navigator.mozGetUserMedia !== void 0) {
+        video.src = stream;
+      } else {
+        video.src = window.URL.createObjectURL(stream);
+      }
+      video.play();
+      return streaming = true;
+    };
+    error = function(err) {
+      alert('Webcam required');
+      return console.log(err);
+    };
+    return navigator.getUserMedia({
+      video: true
+    }, success, error);
+  };
+
+  module.exports = function() {
     window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
     if (!video) {
       video = document.createElement('video');
       video.width = 640;
       video.height = 480;
-      success = function(stream) {
-        console.log("received stream");
-        if (navigator.mozGetUserMedia !== void 0) {
-          video.src = stream;
-        } else {
-          video.src = window.URL.createObjectURL(stream);
-        }
-        video.play();
-        return streaming = true;
-      };
-      error = function(err) {
-        alert('Webcam required');
-        return console.log(err);
-      };
-      navigator.getUserMedia({
-        video: true
-      }, success, error);
+      setTimeout(askForCam, 200);
     }
     if (streaming && video.readyState === 4) {
       return video;

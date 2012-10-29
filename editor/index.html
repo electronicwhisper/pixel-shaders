@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Pixel Shaders Editor</title>
 <script src="../vendor/CodeMirror-2.33/lib/codemirror.js"></script>
 <script src="../vendor/glsl.js"></script>
 <script src="../vendor/numeric-1.2.2.min.js"></script>
@@ -115,6 +116,15 @@ canvas {
           <li><a href="javascript:selectShader('blank')">Basic Gradient</a></li>
           <li><a href="javascript:selectShader('quasi')">Quasicrystal</a></li>
           <li><a href="javascript:selectShader('warp')">Domain Distortion</a></li>
+          <li>Webcam Examples (Chrome only)
+            <ul>
+              <li><a href="javascript:selectShader('webcamIdentity')">Basic Webcam</a></li>
+              <li><a href="javascript:selectShader('webcamInvert')">Invert Colors</a></li>
+              <li><a href="javascript:selectShader('webcamStreak')">Vertical Streak</a></li>
+              <li><a href="javascript:selectShader('webcamPinch')">Pinch / Bulge</a></li>
+              <li><a href="javascript:selectShader('webcamKaleidoscope')">Kaleidoscope</a></li>
+            </ul>
+          </li>
         </ul>
       </div>
     </section>
