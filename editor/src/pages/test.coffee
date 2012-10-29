@@ -1,5 +1,5 @@
 module.exports = () ->
-  require("../graph")({
+  require("../graphEditor")({
     output: $("#output")
     code: $("#code")
     src: "abs(x)"

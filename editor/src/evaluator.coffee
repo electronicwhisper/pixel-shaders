@@ -9,21 +9,31 @@ module.exports = (opts) ->
   
   refreshCode = () ->
     src = cm.getValue()
-    worked = true
-    if evaluate.hasIntegers(src)
-      worked = false
-    else
-      try
-        outputValue = evaluate.direct(src)
-        outputValue = parseFloat(outputValue).toFixed(4)
-        if !isFinite(outputValue)
-          worked = false
-      catch e
-        worked = false
-    if worked
+    
+    outputValue = evaluate.direct(src)
+    
+    if !outputValue.err && isFinite(outputValue)
+      outputValue = parseFloat(outputValue).toFixed(4)
       outcm.setValue(" = #{outputValue}")
     else
       outcm.setValue("")
+    
+    # worked = true
+    # if evaluate.hasIntegers(src)
+    #   worked = false
+    # else
+    #   try
+    #     outputValue = evaluate.direct(src)
+    #     outputValue = parseFloat(outputValue).toFixed(4)
+    #     if !isFinite(outputValue)
+    #       worked = false
+    #   catch e
+    #     console.log "caught"
+    #     worked = false
+    # if worked
+    #   outcm.setValue(" = #{outputValue}")
+    # else
+    #   outcm.setValue("")
   
   
   cm = CodeMirror($code[0], {

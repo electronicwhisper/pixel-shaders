@@ -1,35 +1,27 @@
-util = require("util")
-evaluate = require("evaluate")
-
-module.exports = (opts) ->
-  src = opts.src
-  $output = $(opts.output)
-  $code = $(opts.code)
-  domain = opts.domain || [-1.6, 1.6]
-  range = opts.range || [-1.6, 1.6]
-  label = opts.label || 0.5
+module.exports = (ctx, opts) ->
+  o = _.extend({
+    equations: []
+    domain: [-1.6, 1.6]
+    range: [-1.6, 1.6]
+    label: 0.5
+    labelSize: 5
+  }, opts)
   
-  labelSize = 5
   
-  $canvas = $("<canvas />")
-  $output.append($canvas)
-  util.expandCanvas($canvas)
-  ctx = $canvas[0].getContext("2d")
-  
-  width = $canvas[0].width
-  height = $canvas[0].height
+  canvas = ctx.canvas
+  width = canvas.width
+  height = canvas.height
   
   toCanvasCoords = ([x, y]) ->
-    cx = (x - domain[0]) / (domain[1] - domain[0]) * width
-    cy = (y - range[0]) / (range[1] - range[0]) * height
+    cx = (x - o.domain[0]) / (o.domain[1] - o.domain[0]) * width
+    cy = (y - o.range[0]) / (o.range[1] - o.range[0]) * height
     [cx, height - cy]
   
   fromCanvasCoords = ([cx, cy]) ->
-    x = (cx / width) * (domain[1] - domain[0]) + domain[0]
-    y = ((height-cy) / height) * (range[1] - range[0]) + range[0]
+    x = (cx / width) * (o.domain[1] - o.domain[0]) + o.domain[0]
+    y = ((height-cy) / height) * (o.range[1] - o.range[0]) + o.range[0]
     [x, y]
   
-  srcFun = evaluate.functionOfX(src)
   
   draw = () ->
     # reset
@@ -57,68 +49,61 @@ module.exports = (opts) ->
     
     ctx.textAlign = "center"
     ctx.textBaseline = "top"
-    for xi in [Math.ceil(xmin/label) .. Math.floor(xmax/label)]
+    for xi in [Math.ceil(xmin/o.label) .. Math.floor(xmax/o.label)]
       if xi != 0
-        x = xi * label
+        x = xi * o.label
         [cx, cy] = toCanvasCoords([x, 0])
         ctx.beginPath()
-        ctx.moveTo(cx, cy-labelSize)
-        ctx.lineTo(cx, cy+labelSize)
+        ctx.moveTo(cx, cy-o.labelSize)
+        ctx.lineTo(cx, cy+o.labelSize)
         ctx.stroke()
-        ctx.fillText(""+x, cx, cy+labelSize*1.5)
+        ctx.fillText(""+x, cx, cy+o.labelSize*1.5)
     
     ctx.textAlign = "left"
     ctx.textBaseline = "middle"
-    for yi in [Math.ceil(ymin/label) .. Math.floor(ymax/label)]
+    for yi in [Math.ceil(ymin/o.label) .. Math.floor(ymax/o.label)]
       if yi != 0
-        y = yi * label
+        y = yi * o.label
         [cx, cy] = toCanvasCoords([0, y])
         ctx.beginPath()
-        ctx.moveTo(cx-labelSize, cy)
-        ctx.lineTo(cx+labelSize, cy)
+        ctx.moveTo(cx-o.labelSize, cy)
+        ctx.lineTo(cx+o.labelSize, cy)
         ctx.stroke()
-        ctx.fillText(""+y, cx+labelSize*1.5, cy)
+        ctx.fillText(""+y, cx+o.labelSize*1.5, cy)
     
     
     # console.log xmin, ymin, xmax, ymax
     
     # draw graph
-    ctx.strokeStyle = "#006"
     ctx.lineWidth = 2
-    ctx.beginPath()
-    # ctx.moveTo(-100, 0)
     
-    resolution = 0.25
-    for i in [0..(width/resolution)]
-      cx = i * resolution
-      x = fromCanvasCoords([cx, 0])[0]
-      # x = (cx / width) * (domain[1] - domain[0]) + domain[0]
-      y = srcFun(x)
-      cy = toCanvasCoords([x, y])[1]
-      ctx.lineTo(cx, cy)
-    
-    ctx.stroke()
+    for equation in o.equations
+      ctx.strokeStyle = equation.color
+      f = equation.f
+      
+      ctx.beginPath()
+      
+      resolution = 0.25
+      for i in [0..(width/resolution)]
+        cx = i * resolution
+        x = fromCanvasCoords([cx, 0])[0]
+        y = f(x)
+        cy = toCanvasCoords([x, y])[1]
+        ctx.lineTo(cx, cy)
+      
+      ctx.stroke()
   
-  refreshCode = () ->
-    src = cm.getValue()
-    worked = true
-    try
-      srcFun = evaluate.functionOfX(src)
-    catch e
-      worked = false
-    if worked
+  
+  
+  
+  
+  
+  return {
+    draw: (opts) ->
+      o = _.extend(o, opts)
       draw()
-  
-  
-  cm = CodeMirror($code[0], {
-    value: src
-    mode: "text/x-glsl"
-    # lineNumbers: true
-    onChange: refreshCode
-  })
-  cm.setSize("100%", $code.innerHeight())
-  
-  refreshCode()
+  }
+
 
 
 

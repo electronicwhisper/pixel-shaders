@@ -143,6 +143,11 @@ makeFlatRenderer = (gl) ->
       
       # draw
       gl.drawArrays(gl.TRIANGLES, 0, 6)
+    
+    #
+    hackSetUniformInt: (name, value) ->
+      location = gl.getUniformLocation(program, name)
+      gl.uniform1i(location, value)
   }
   
   return flatRenderer

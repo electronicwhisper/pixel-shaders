@@ -99,7 +99,7 @@
   startTime = Date.now();
 
   makeEditor = function(opts) {
-    var $canvas, $code, $output, canvas, changeCallback, cm, ctx, draw, drawEveryFrame, editor, errorLines, findUniforms, markErrors, refreshCode, renderer, src, update;
+    var $canvas, $code, $output, canvas, changeCallback, cm, ctx, draw, drawEveryFrame, editor, errorLines, findUniforms, gl, markErrors, refreshCode, renderer, src, texture, uniforms, update, updateWebcam;
     src = opts.src;
     $output = $(opts.output);
     $code = $(opts.code);
@@ -113,7 +113,29 @@
     renderer = flatRenderer(ctx);
     drawEveryFrame = false;
     changeCallback = null;
+    uniforms = {};
+    gl = ctx;
+    texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    updateWebcam = function() {
+      var webcamVideo;
+      webcamVideo = require("webcam")();
+      if (webcamVideo) {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        return gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, webcamVideo);
+      }
+    };
     draw = function() {
+      if (uniforms.webcam) {
+        updateWebcam();
+        renderer.hackSetUniformInt("webcam", 0);
+      }
       return renderer.draw({
         time: (Date.now() - startTime) / 1000,
         resolution: [canvas.width, canvas.height]
@@ -121,12 +143,14 @@
     };
     findUniforms = function() {
       var newUniforms, u, _i, _len, _results;
+      uniforms = {};
       newUniforms = require("parse").uniforms(src);
       drawEveryFrame = false;
       _results = [];
       for (_i = 0, _len = newUniforms.length; _i < _len; _i++) {
         u = newUniforms[_i];
-        if (u.name === "time") {
+        uniforms[u.name] = u.type;
+        if (u.name === "time" || u.name === "webcam") {
           _results.push(drawEveryFrame = true);
         } else {
           _results.push(void 0);
@@ -232,59 +256,68 @@
 
 }).call(this);
 }, "evaluate": function(exports, require, module) {(function() {
-  var abs, ceil, clamp, cos, exp, floor, fract, max, min, mod, pow, sin, sqrt, tan;
+  var errorValue, evalInContext, hasIntegers;
 
-  abs = Math.abs;
+  evalInContext = (function() {
+    var abs, ceil, clamp, cos, exp, floor, fract, max, min, mod, pow, sin, sqrt, tan;
+    abs = Math.abs;
+    mod = function(x, y) {
+      return x - y * Math.floor(x / y);
+    };
+    floor = Math.floor;
+    ceil = Math.ceil;
+    sin = Math.sin;
+    cos = Math.cos;
+    tan = Math.tan;
+    min = Math.min;
+    max = Math.max;
+    clamp = function(x, minVal, maxVal) {
+      return min(max(x, minVal), maxVal);
+    };
+    exp = Math.exp;
+    pow = Math.pow;
+    sqrt = Math.sqrt;
+    fract = function(x) {
+      return x - floor(x);
+    };
+    return function(s) {
+      return eval(s);
+    };
+  })();
 
-  mod = function(x, y) {
-    return x - y * Math.floor(x / y);
+  hasIntegers = function(s) {
+    var ret;
+    ret = false;
+    XRegExp.forEach(s, /([0-9]*\.[0-9]*)|[0-9]+/, function(match) {
+      var number;
+      number = match[0];
+      if (number.indexOf(".") === -1) return ret = true;
+    });
+    return ret;
   };
 
-  floor = Math.floor;
-
-  ceil = Math.ceil;
-
-  sin = Math.sin;
-
-  cos = Math.cos;
-
-  tan = Math.tan;
-
-  min = Math.min;
-
-  max = Math.max;
-
-  clamp = function(x, minVal, maxVal) {
-    return min(max(x, minVal), maxVal);
-  };
-
-  exp = Math.exp;
-
-  pow = Math.pow;
-
-  sqrt = Math.sqrt;
-
-  fract = function(x) {
-    return x - floor(x);
+  errorValue = {
+    err: true
   };
 
   module.exports = {
     direct: function(s) {
-      return eval(s);
+      var outputValue;
+      outputValue = errorValue;
+      if (!hasIntegers(s)) {
+        try {
+          outputValue = evalInContext(s);
+        } catch (e) {
+
+        }
+      }
+      return outputValue;
     },
     functionOfX: function(s) {
-      return eval("(function (x) {return " + s + ";})");
+      if (hasIntegers(s)) return errorValue;
+      return evalInContext("(function (x) {return " + s + ";})");
     },
-    hasIntegers: function(s) {
-      var ret;
-      ret = false;
-      XRegExp.forEach(s, /([0-9]*\.[0-9]*)|[0-9]+/, function(match) {
-        var number;
-        number = match[0];
-        if (number.indexOf(".") === -1) return ret = true;
-      });
-      return ret;
-    }
+    hasIntegers: hasIntegers
   };
 
 }).call(this);
@@ -299,21 +332,11 @@
     $output = $(opts.output);
     $code = $(opts.code);
     refreshCode = function() {
-      var outputValue, worked;
+      var outputValue;
       src = cm.getValue();
-      worked = true;
-      if (evaluate.hasIntegers(src)) {
-        worked = false;
-      } else {
-        try {
-          outputValue = evaluate.direct(src);
-          outputValue = parseFloat(outputValue).toFixed(4);
-          if (!isFinite(outputValue)) worked = false;
-        } catch (e) {
-          worked = false;
-        }
-      }
-      if (worked) {
+      outputValue = evaluate.direct(src);
+      if (!outputValue.err && isFinite(outputValue)) {
+        outputValue = parseFloat(outputValue).toFixed(4);
         return outcm.setValue(" = " + outputValue);
       } else {
         return outcm.setValue("");
@@ -531,6 +554,11 @@
           }
         }
         return gl.drawArrays(gl.TRIANGLES, 0, 6);
+      },
+      hackSetUniformInt: function(name, value) {
+        var location;
+        location = gl.getUniformLocation(program, name);
+        return gl.uniform1i(location, value);
       }
     };
     return flatRenderer;
@@ -540,44 +568,35 @@
 
 }).call(this);
 }, "graph": function(exports, require, module) {(function() {
-  var evaluate, util;
 
-  util = require("util");
-
-  evaluate = require("evaluate");
-
-  module.exports = function(opts) {
-    var $canvas, $code, $output, cm, ctx, domain, draw, fromCanvasCoords, height, label, labelSize, range, refreshCode, src, srcFun, toCanvasCoords, width;
-    src = opts.src;
-    $output = $(opts.output);
-    $code = $(opts.code);
-    domain = opts.domain || [-1.6, 1.6];
-    range = opts.range || [-1.6, 1.6];
-    label = opts.label || 0.5;
-    labelSize = 5;
-    $canvas = $("<canvas />");
-    $output.append($canvas);
-    util.expandCanvas($canvas);
-    ctx = $canvas[0].getContext("2d");
-    width = $canvas[0].width;
-    height = $canvas[0].height;
+  module.exports = function(ctx, opts) {
+    var canvas, draw, fromCanvasCoords, height, o, toCanvasCoords, width;
+    o = _.extend({
+      equations: [],
+      domain: [-1.6, 1.6],
+      range: [-1.6, 1.6],
+      label: 0.5,
+      labelSize: 5
+    }, opts);
+    canvas = ctx.canvas;
+    width = canvas.width;
+    height = canvas.height;
     toCanvasCoords = function(_arg) {
       var cx, cy, x, y;
       x = _arg[0], y = _arg[1];
-      cx = (x - domain[0]) / (domain[1] - domain[0]) * width;
-      cy = (y - range[0]) / (range[1] - range[0]) * height;
+      cx = (x - o.domain[0]) / (o.domain[1] - o.domain[0]) * width;
+      cy = (y - o.range[0]) / (o.range[1] - o.range[0]) * height;
       return [cx, height - cy];
     };
     fromCanvasCoords = function(_arg) {
       var cx, cy, x, y;
       cx = _arg[0], cy = _arg[1];
-      x = (cx / width) * (domain[1] - domain[0]) + domain[0];
-      y = ((height - cy) / height) * (range[1] - range[0]) + range[0];
+      x = (cx / width) * (o.domain[1] - o.domain[0]) + o.domain[0];
+      y = ((height - cy) / height) * (o.range[1] - o.range[0]) + o.range[0];
       return [x, y];
     };
-    srcFun = evaluate.functionOfX(src);
     draw = function() {
-      var cx, cy, i, origin, resolution, x, xi, xmax, xmin, y, yi, ymax, ymin, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+      var cx, cy, equation, f, i, origin, resolution, x, xi, xmax, xmin, y, yi, ymax, ymin, _i, _len, _ref, _ref10, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, width, height);
       origin = toCanvasCoords([0, 0]);
@@ -597,53 +616,99 @@
       _ref2 = fromCanvasCoords([width, 0]), xmax = _ref2[0], ymax = _ref2[1];
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
-      for (xi = _ref3 = Math.ceil(xmin / label), _ref4 = Math.floor(xmax / label); _ref3 <= _ref4 ? xi <= _ref4 : xi >= _ref4; _ref3 <= _ref4 ? xi++ : xi--) {
+      for (xi = _ref3 = Math.ceil(xmin / o.label), _ref4 = Math.floor(xmax / o.label); _ref3 <= _ref4 ? xi <= _ref4 : xi >= _ref4; _ref3 <= _ref4 ? xi++ : xi--) {
         if (xi !== 0) {
-          x = xi * label;
+          x = xi * o.label;
           _ref5 = toCanvasCoords([x, 0]), cx = _ref5[0], cy = _ref5[1];
           ctx.beginPath();
-          ctx.moveTo(cx, cy - labelSize);
-          ctx.lineTo(cx, cy + labelSize);
+          ctx.moveTo(cx, cy - o.labelSize);
+          ctx.lineTo(cx, cy + o.labelSize);
           ctx.stroke();
-          ctx.fillText("" + x, cx, cy + labelSize * 1.5);
+          ctx.fillText("" + x, cx, cy + o.labelSize * 1.5);
         }
       }
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
-      for (yi = _ref6 = Math.ceil(ymin / label), _ref7 = Math.floor(ymax / label); _ref6 <= _ref7 ? yi <= _ref7 : yi >= _ref7; _ref6 <= _ref7 ? yi++ : yi--) {
+      for (yi = _ref6 = Math.ceil(ymin / o.label), _ref7 = Math.floor(ymax / o.label); _ref6 <= _ref7 ? yi <= _ref7 : yi >= _ref7; _ref6 <= _ref7 ? yi++ : yi--) {
         if (yi !== 0) {
-          y = yi * label;
+          y = yi * o.label;
           _ref8 = toCanvasCoords([0, y]), cx = _ref8[0], cy = _ref8[1];
           ctx.beginPath();
-          ctx.moveTo(cx - labelSize, cy);
-          ctx.lineTo(cx + labelSize, cy);
+          ctx.moveTo(cx - o.labelSize, cy);
+          ctx.lineTo(cx + o.labelSize, cy);
           ctx.stroke();
-          ctx.fillText("" + y, cx + labelSize * 1.5, cy);
+          ctx.fillText("" + y, cx + o.labelSize * 1.5, cy);
         }
       }
-      ctx.strokeStyle = "#006";
       ctx.lineWidth = 2;
-      ctx.beginPath();
-      resolution = 0.25;
-      for (i = 0, _ref9 = width / resolution; 0 <= _ref9 ? i <= _ref9 : i >= _ref9; 0 <= _ref9 ? i++ : i--) {
-        cx = i * resolution;
-        x = fromCanvasCoords([cx, 0])[0];
-        y = srcFun(x);
-        cy = toCanvasCoords([x, y])[1];
-        ctx.lineTo(cx, cy);
+      _ref9 = o.equations;
+      _results = [];
+      for (_i = 0, _len = _ref9.length; _i < _len; _i++) {
+        equation = _ref9[_i];
+        ctx.strokeStyle = equation.color;
+        f = equation.f;
+        ctx.beginPath();
+        resolution = 0.25;
+        for (i = 0, _ref10 = width / resolution; 0 <= _ref10 ? i <= _ref10 : i >= _ref10; 0 <= _ref10 ? i++ : i--) {
+          cx = i * resolution;
+          x = fromCanvasCoords([cx, 0])[0];
+          y = f(x);
+          cy = toCanvasCoords([x, y])[1];
+          ctx.lineTo(cx, cy);
+        }
+        _results.push(ctx.stroke());
       }
-      return ctx.stroke();
+      return _results;
     };
+    return {
+      draw: function(opts) {
+        o = _.extend(o, opts);
+        return draw();
+      }
+    };
+  };
+
+}).call(this);
+}, "graphEditor": function(exports, require, module) {(function() {
+  var evaluate, util;
+
+  util = require("util");
+
+  evaluate = require("evaluate");
+
+  module.exports = function(opts) {
+    var $canvas, $code, $output, cm, ctx, graph, o, refreshCode, src, srcFun;
+    o = opts;
+    $output = $(o.output);
+    $canvas = $("<canvas />");
+    $output.append($canvas);
+    util.expandCanvas($canvas);
+    ctx = $canvas[0].getContext("2d");
+    graph = require("graph")(ctx, opts);
+    src = o.src;
+    $code = $(o.code);
+    srcFun = evaluate.functionOfX(src);
     refreshCode = function() {
-      var worked;
+      var equations, worked;
       src = cm.getValue();
       worked = true;
       try {
         srcFun = evaluate.functionOfX(src);
+        srcFun(0);
       } catch (e) {
         worked = false;
       }
-      if (worked) return draw();
+      if (worked) {
+        equations = [
+          {
+            color: "#006",
+            f: srcFun
+          }
+        ];
+        return graph.draw({
+          equations: equations
+        });
+      }
     };
     cm = CodeMirror($code[0], {
       value: src,
@@ -815,7 +880,7 @@
 }, "pages/test": function(exports, require, module) {(function() {
 
   module.exports = function() {
-    require("../graph")({
+    require("../graphEditor")({
       output: $("#output"),
       code: $("#code"),
       src: "abs(x)"
@@ -932,6 +997,47 @@ function convertBytesToHex( byteArray ) {
         width: $canvas.innerWidth(),
         height: $canvas.innerHeight()
       });
+    }
+  };
+
+}).call(this);
+}, "webcam": function(exports, require, module) {(function() {
+  var streaming, video;
+
+  video = null;
+
+  streaming = false;
+
+  module.exports = function() {
+    var error, success;
+    window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    if (!video) {
+      video = document.createElement('video');
+      video.width = 640;
+      video.height = 480;
+      success = function(stream) {
+        console.log("received stream");
+        if (navigator.mozGetUserMedia !== void 0) {
+          video.src = stream;
+        } else {
+          video.src = window.URL.createObjectURL(stream);
+        }
+        video.play();
+        return streaming = true;
+      };
+      error = function(err) {
+        alert('Webcam required');
+        return console.log(err);
+      };
+      navigator.getUserMedia({
+        video: true
+      }, success, error);
+    }
+    if (streaming && video.readyState === 4) {
+      return video;
+    } else {
+      return false;
     }
   };
 

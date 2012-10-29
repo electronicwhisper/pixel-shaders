@@ -23,17 +23,57 @@ makeEditor = (opts) ->
   
   changeCallback = null
   
+  uniforms = {}
+  
+  
+  
+  
+  
+  # hacked in
+  gl = ctx
+  texture = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_2D, texture)
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+  # Set the parameters so we can render any size image.
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+  
+  updateWebcam = () ->
+    webcamVideo = require("webcam")()
+    if webcamVideo
+      # Upload the image into the texture.
+      gl.activeTexture(gl.TEXTURE0)
+      gl.bindTexture(gl.TEXTURE_2D, texture)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, webcamVideo)
+  
+  
+  
+  
+  
+  
+  
   draw = () ->
+    
+    if uniforms.webcam
+      # hack
+      updateWebcam()
+      renderer.hackSetUniformInt("webcam", 0)
+    
+    
     renderer.draw({
       time: (Date.now() - startTime)/1000
       resolution: [canvas.width, canvas.height]
     })
   
   findUniforms = () ->
+    uniforms = {}
     newUniforms = require("parse").uniforms(src)
     drawEveryFrame = false
     for u in newUniforms
-      if u.name == "time"
+      uniforms[u.name] = u.type
+      if u.name == "time" || u.name == "webcam"
         drawEveryFrame = true
   
   errorLines = []
