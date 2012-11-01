@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Transforms, Inverse Transforms, and Glitch</title>
+
+<script src="../../vendor/CodeMirror-2.33/lib/codemirror.js"></script>
+<script src="../../vendor/CodeMirror-2.33/lib/util/runmode.js"></script>
+<script src="../../vendor/glsl.js"></script>
+<script src="../../vendor/numeric-1.2.2.min.js"></script>
+<script src="../../vendor/jquery-1.8.1.min.js"></script>
+<script src="../../vendor/underscore-min.js"></script>
+<script src="../../vendor/xregexp-min.js"></script>
+<script src="../../vendor/jquery.tipsy.js"></script>
+<script src="../../vendor/rAF.js"></script>
+<script src="../../vendor/knockout-2.1.0.js"></script>
+
+<link rel="stylesheet" href="../../vendor/font/font-awesome.css">
+<link rel="stylesheet" href="../../vendor/ContrailOne/ContrailOne.css">
+<link rel="stylesheet" href="../../vendor/CodeMirror-2.33/lib/codemirror.css">
+<link rel="stylesheet" href="../../vendor/tipsy.css">
+
+<style type="text/css">
+
+img {
+  width: 540px;
+}
+.book-shader {
+  white-space: pre;
+}
+
+
+
+body {
+  font-family: georgia;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #282828;
+  margin: 96px 48px 144px 372px;
+}
+a {
+  color: #900;
+}
+a:hover {
+  color: #d00;
+}
+
+h1, h2, p, body > ul, body > ol {
+  width: 540px;
+}
+
+h1, h2 {
+  font-family: 'Contrail One';
+  color: #000;
+  font-weight: normal;
+}
+
+h1 {
+  font-size: 60px;
+}
+h2 {
+  font-size: 42px;
+  margin-top: 72px;
+}
+
+
+.env {
+  overflow: hidden;
+  font-family: monospace;
+  margin-left: -324px;
+}
+.env .canvas {
+  float: left;
+  width: 300px;
+  height: 300px;
+  background: url(checker.png);
+  cursor: crosshair;
+}
+.env .canvas canvas {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+}
+.env .code {
+  border: 1px solid #ccc;
+  margin-left: 324px;
+}
+
+
+
+* {
+  box-sizing: border-box;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+}
+
+
+.errorLine {
+  background: #fee !important;
+  margin: 0px -7px -1px -6px !important;
+}
+.errorMarker {
+  color: #900 !important;
+}
+.errorMessage {
+  display: none;
+}
+
+.tipsy {
+  font-size: 13px;
+  font-family: monospace;
+}
+.tipsy-inner {
+  max-width: 270px;
+  text-align: left;
+}
+</style>
+</head>
+<body>
+
+
+
+
+
+
+
+<h1 id="tranformsinverse_transformsand_glitch">Tranforms,<br />Inverse Transforms,<br />and Glitch</h1>
+
+<p>When you do a transform and follow it with its inverse transform, nothing happens. That is, you get the <em>identity</em> transform, by definition.</p>
+
+<p>Here&#8217;s an example. I&#8217;m going to transform cartesian coordinates into polar coordinates, and then do the inverse transform:</p>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  // starting with position in cartesian coordinates
+  vec2 p = position;
+
+  // convert cartesian to polar
+  float radius = length(p-0.5);
+  float angle = atan(p.y-0.5, p.x-0.5);
+
+  // convert polar to cartesian
+  float x = cos(angle)*radius+0.5;
+  float y = sin(angle)*radius+0.5;
+  p = vec2(x, y);
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+<p>However, when you make a change <em>in between</em> the transform and its inverse&#8212;when you <em>glitch</em> that particular identity&#8212;you get interesting results which reveal the nature of the transform and its inverse. Here&#8217;s an example:</p>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  // starting with position in cartesian coordinates
+  vec2 p = position;
+
+  // convert cartesian to polar
+  float radius = length(p-0.5);
+  float angle = atan(p.y-0.5, p.x-0.5);
+
+  // &#8220;glitch&#8221; it in between the transform and its inverse
+  // try other glitches!
+  radius = radius - 0.2;
+
+  // convert polar to cartesian
+  float x = cos(angle)*radius+0.5;
+  float y = sin(angle)*radius+0.5;
+  p = vec2(x, y);
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+<h2 id="identity_bending">Identity Bending</h2>
+
+<p>My hypothesis is that glitch art is centered on exploring the nature of identity transformations in our world.</p>
+
+<p>For example, when we take a digital photo, we point a camera at the world, and the camera transforms what it sees into a digital artifact (say, a JPEG file). When we view a digital photo, we do the inverse transform: our computer transforms the digital artifact into lit up pixels which we can look at. In a way, this process aims to be an identity transformation, bringing the space-time captured by the photograph faithfully to the space-time when the photograph is viewed. However, we can glitch this process&#8212;say by mangling the bits of the JPEG. In doing so, we reveal something about the nature of this &#8220;identity&#8221;, and the technologies we use to transmit information &#8220;faithfully&#8221;.</p>
+
+<p>Data bending a JPEG:</p>
+
+<p><a href="http://www.flickr.com/photos/71156563@N00/4464020133/"><img src="http://farm5.staticflickr.com/4012/4464020133_75253b99fc_z.jpg?zz=1" /></a></p>
+
+<p>Circuit bending a digital camera, by Phil Stearns:</p>
+
+<p><a href="http://yearoftheglitch.tumblr.com/post/34633766095/302-of-366-dcp-0028-made-using-a-prepared-kodak"><img src="http://24.media.tumblr.com/tumblr_mch1o761jg1r9uwqao1_1280.jpg" /></a></p>
+
+<h2 id="iterated_identity">Iterated Identity</h2>
+
+<p>Another form of glitch art takes what are supposed to be identities, then applies them many times to magnify the subtle distortions of the identity.</p>
+
+<p>Applying JPEG compression 275 times, by Benjamin Baker-Smith:</p>
+
+<p><a href="https://secure.flickr.com/photos/37634994@N05/3471426989/"><img src="https://farm4.staticflickr.com/3589/3471426989_53e2a70b2e_z.jpg?zz=1" /></a></p>
+
+<p>Google &#8220;Search by Image&#8221; applied recursively, by Sebastian Schmieg:</p>
+
+<iframe src="http://player.vimeo.com/video/34949864?title=0&amp;byline=0&amp;portrait=0&amp;badge=0" width="540" height="405" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+
+<p>An analog of this in sound is Alvin Lucier&#8217;s <a href="http://www.ubu.com/sound/lucier.html">&#8220;I am Sitting in a Room&#8221;</a> (1969).</p>
+
+<p>Most these examples were pulled from Kyle McDonald&#8217;s <a href="https://github.com/kylemcdonald/AppropriatingNewTechnologies/wiki/Week-4">class notes on Glitch</a>.</p>
+
+
+
+
+
+
+
+<script src="../../editor/compiled/app.js"></script>
+<script>
+require("pages/book")()
+</script>
+</body>
+</html>

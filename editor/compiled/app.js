@@ -780,6 +780,32 @@
   };
 
 }).call(this);
+}, "pages/book": function(exports, require, module) {(function() {
+  var shaderTemplate;
+
+  shaderTemplate = "<div style=\"overflow: hidden\" class=\"workspace env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"margin-left: 324px; border: 1px solid #ccc\"></div>\n</div>";
+
+  module.exports = function() {
+    $("code").each(function() {
+      CodeMirror.runMode($(this).text(), "text/x-glsl", this);
+      return $(this).addClass("cm-s-default");
+    });
+    return $(".book-shader").each(function() {
+      var $div, $shaderDiv, src;
+      $div = $(this);
+      src = $div.text();
+      src = src.trim();
+      $shaderDiv = $(shaderTemplate);
+      $div.replaceWith($shaderDiv);
+      return require("../editor")({
+        src: src,
+        output: $shaderDiv.find(".output"),
+        code: $shaderDiv.find(".code")
+      });
+    });
+  };
+
+}).call(this);
 }, "pages/fullscreen": function(exports, require, module) {(function() {
   var clickTab, editor, load, selectTab, sources, storage;
 
