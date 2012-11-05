@@ -22,23 +22,26 @@ module.exports = (opts) ->
   src = o.src
   $code = $(o.code)
   srcFun = evaluate.functionOfX(src)
-  
+  compiled = true
   
   
   refreshCode = () ->
     src = cm.getValue()
-    worked = true
+    compiled = true
     try
       srcFun = evaluate.functionOfX(src)
       srcFun(0); # test it once while in try-catch land
     catch e
-      worked = false
-    if worked
+      compiled = false
+    if compiled
+      $code.removeClass("error")
       equations = [{
         color: "#006"
         f: srcFun
       }]
       graph.draw({equations: equations})
+    else
+      $code.addClass("error")
   
   cm = CodeMirror($code[0], {
     value: src
@@ -49,3 +52,13 @@ module.exports = (opts) ->
   cm.setSize("100%", $code.innerHeight())
   
   refreshCode()
+  
+  return {
+    graph: graph
+    get: () -> src
+    compiled: () -> compiled
+    substitute: (x) ->
+      src.replace(/\bx\b/g, x)
+    valueAt: (x) ->
+      srcFun(x)
+  }

@@ -256,7 +256,7 @@
 
 }).call(this);
 }, "evaluate": function(exports, require, module) {(function() {
-  var errorValue, evalInContext, hasIntegers;
+  var errorValue, evalInContext, evaluate, hasIntegers;
 
   evalInContext = (function() {
     var abs, ceil, clamp, cos, exp, floor, fract, max, min, mod, pow, sin, sqrt, tan;
@@ -300,7 +300,7 @@
     err: true
   };
 
-  module.exports = {
+  evaluate = {
     direct: function(s) {
       var outputValue;
       outputValue = errorValue;
@@ -317,8 +317,58 @@
       if (hasIntegers(s)) return errorValue;
       return evalInContext("(function (x) {return " + s + ";})");
     },
-    hasIntegers: hasIntegers
+    hasIntegers: hasIntegers,
+    stepped: function(s, precision) {
+      var ast, pad, ret, step;
+      if (precision == null) precision = 4;
+      ast = require("parsing/expression").parse(s);
+      pad = function(s, length) {
+        var n, spaces;
+        spaces = function(n) {
+          var _i, _results;
+          return (function() {
+            _results = [];
+            for (var _i = 0; 0 <= n ? _i < n : _i > n; 0 <= n ? _i++ : _i--){ _results.push(_i); }
+            return _results;
+          }).apply(this).map(function() {
+            return " ";
+          }).join("");
+        };
+        n = length - s.length;
+        return s + spaces(n);
+      };
+      step = function(tree) {
+        var didReduction, evaled, joined, node, ret, _i, _len;
+        ret = [];
+        didReduction = false;
+        for (_i = 0, _len = tree.length; _i < _len; _i++) {
+          node = tree[_i];
+          if (!didReduction && _.isArray(node)) {
+            ret.push(step(node));
+            didReduction = true;
+          } else {
+            ret.push(node);
+          }
+        }
+        if (!didReduction) {
+          joined = tree.join("");
+          evaled = evalInContext(joined).toFixed(precision);
+          return evaled;
+        } else {
+          return ret;
+        }
+      };
+      ret = [];
+      while (_.isArray(ast)) {
+        ret.push(_.flatten(ast).join(""));
+        ast = step(ast);
+      }
+      ret.push(ast.toString());
+      return ret;
+    }
   };
+
+  module.exports = evaluate;
 
 }).call(this);
 }, "evaluator": function(exports, require, module) {(function() {
@@ -596,7 +646,7 @@
       return [x, y];
     };
     draw = function() {
-      var cx, cy, equation, f, i, origin, resolution, x, xi, xmax, xmin, y, yi, ymax, ymin, _i, _len, _ref, _ref10, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
+      var cx, cy, equation, f, i, origin, resolution, x, xi, xmax, xmin, y, yi, ymax, ymin, _i, _j, _len, _len2, _ref, _ref10, _ref11, _ref12, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, width, height);
       origin = toCanvasCoords([0, 0]);
@@ -642,7 +692,6 @@
       }
       ctx.lineWidth = 2;
       _ref9 = o.equations;
-      _results = [];
       for (_i = 0, _len = _ref9.length; _i < _len; _i++) {
         equation = _ref9[_i];
         ctx.strokeStyle = equation.color;
@@ -656,11 +705,38 @@
           cy = toCanvasCoords([x, y])[1];
           ctx.lineTo(cx, cy);
         }
-        _results.push(ctx.stroke());
+        ctx.stroke();
       }
-      return _results;
+      if (o.hint || o.hint === 0) {
+        ctx.lineWidth = 0.25;
+        _ref11 = o.equations;
+        _results = [];
+        for (_j = 0, _len2 = _ref11.length; _j < _len2; _j++) {
+          equation = _ref11[_j];
+          x = o.hint;
+          y = equation.f(o.hint);
+          _ref12 = toCanvasCoords([x, y]), cx = _ref12[0], cy = _ref12[1];
+          ctx.strokeStyle = "#000";
+          ctx.beginPath();
+          ctx.moveTo.apply(ctx, toCanvasCoords([x, 0]));
+          ctx.lineTo(cx, cy);
+          ctx.stroke();
+          ctx.strokeStyle = equation.color;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo.apply(ctx, toCanvasCoords([0, y]));
+          ctx.stroke();
+          ctx.fillStyle = equation.color;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 3, 0, Math.PI * 2, false);
+          _results.push(ctx.fill());
+        }
+        return _results;
+      }
     };
     return {
+      toCanvasCoords: toCanvasCoords,
+      fromCanvasCoords: fromCanvasCoords,
       draw: function(opts) {
         o = _.extend(o, opts);
         return draw();
@@ -677,7 +753,7 @@
   evaluate = require("evaluate");
 
   module.exports = function(opts) {
-    var $canvas, $code, $output, cm, ctx, graph, o, refreshCode, src, srcFun;
+    var $canvas, $code, $output, cm, compiled, ctx, graph, o, refreshCode, src, srcFun;
     o = opts;
     $output = $(o.output);
     $canvas = $("<canvas />");
@@ -688,17 +764,19 @@
     src = o.src;
     $code = $(o.code);
     srcFun = evaluate.functionOfX(src);
+    compiled = true;
     refreshCode = function() {
-      var equations, worked;
+      var equations;
       src = cm.getValue();
-      worked = true;
+      compiled = true;
       try {
         srcFun = evaluate.functionOfX(src);
         srcFun(0);
       } catch (e) {
-        worked = false;
+        compiled = false;
       }
-      if (worked) {
+      if (compiled) {
+        $code.removeClass("error");
         equations = [
           {
             color: "#006",
@@ -708,6 +786,8 @@
         return graph.draw({
           equations: equations
         });
+      } else {
+        return $code.addClass("error");
       }
     };
     cm = CodeMirror($code[0], {
@@ -716,7 +796,22 @@
       onChange: refreshCode
     });
     cm.setSize("100%", $code.innerHeight());
-    return refreshCode();
+    refreshCode();
+    return {
+      graph: graph,
+      get: function() {
+        return src;
+      },
+      compiled: function() {
+        return compiled;
+      },
+      substitute: function(x) {
+        return src.replace(/\bx\b/g, x);
+      },
+      valueAt: function(x) {
+        return srcFun(x);
+      }
+    };
   };
 
 }).call(this);
@@ -911,16 +1006,41 @@
 }, "pages/test": function(exports, require, module) {(function() {
 
   module.exports = function() {
-    require("../graphEditor")({
+    var cm, defaultValue, graphEditor, precision;
+    graphEditor = require("../graphEditor")({
       output: $("#output"),
       code: $("#code"),
       src: "abs(x)"
     });
-    return require("../evaluator")({
-      output: $("#eoutput"),
-      code: $("#ecode"),
-      src: "3. + 5."
+    cm = CodeMirror($("#substitution")[0], {
+      value: "",
+      mode: "text/x-glsl",
+      readOnly: true
     });
+    cm.setSize(null, $("#substitution").innerHeight());
+    precision = 2;
+    require("../util").relativeMouseMove($("#output"), function(position, size) {
+      var p, simplification, sub, x;
+      if (graphEditor.compiled()) {
+        p = graphEditor.graph.fromCanvasCoords(position);
+        x = p[0];
+        x = x.toFixed(precision);
+        sub = graphEditor.substitute(x);
+        simplification = require("evaluate").stepped(sub, precision);
+        simplification = simplification.join("\n\n");
+        cm.setValue(simplification);
+        return graphEditor.graph.draw({
+          hint: +x
+        });
+      }
+    });
+    defaultValue = function() {
+      cm.setValue("");
+      return graphEditor.graph.draw({
+        hint: null
+      });
+    };
+    return $("#output").mouseout(defaultValue);
   };
 
 }).call(this);
@@ -967,7 +1087,737 @@
   };
 
 }).call(this);
-}, "storage": function(exports, require, module) {(function() {
+}, "parsing/expression": function(exports, require, module) {module.exports = (function(){
+  /*
+   * Generated by PEG.js 0.7.0.
+   *
+   * http://pegjs.majda.cz/
+   */
+  
+  function quote(s) {
+    /*
+     * ECMA-262, 5th ed., 7.8.4: All characters may appear literally in a
+     * string literal except for the closing quote character, backslash,
+     * carriage return, line separator, paragraph separator, and line feed.
+     * Any character may appear in the form of an escape sequence.
+     *
+     * For portability, we also escape escape all control and non-ASCII
+     * characters. Note that "\0" and "\v" escape sequences are not used
+     * because JSHint does not like the first and IE the second.
+     */
+     return '"' + s
+      .replace(/\\/g, '\\\\')  // backslash
+      .replace(/"/g, '\\"')    // closing quote character
+      .replace(/\x08/g, '\\b') // backspace
+      .replace(/\t/g, '\\t')   // horizontal tab
+      .replace(/\n/g, '\\n')   // line feed
+      .replace(/\f/g, '\\f')   // form feed
+      .replace(/\r/g, '\\r')   // carriage return
+      .replace(/[\x00-\x07\x0B\x0E-\x1F\x80-\uFFFF]/g, escape)
+      + '"';
+  }
+  
+  var result = {
+    /*
+     * Parses the input with a generated parser. If the parsing is successfull,
+     * returns a value explicitly or implicitly specified by the grammar from
+     * which the parser was generated (see |PEG.buildParser|). If the parsing is
+     * unsuccessful, throws |PEG.parser.SyntaxError| describing the error.
+     */
+    parse: function(input, startRule) {
+      var parseFunctions = {
+        "start": parse_start,
+        "_": parse__,
+        "add_op": parse_add_op,
+        "mul_op": parse_mul_op,
+        "unary_op": parse_unary_op,
+        "func_name": parse_func_name,
+        "additive": parse_additive,
+        "multiplicative": parse_multiplicative,
+        "func_call": parse_func_call,
+        "primary": parse_primary,
+        "number": parse_number
+      };
+      
+      if (startRule !== undefined) {
+        if (parseFunctions[startRule] === undefined) {
+          throw new Error("Invalid rule name: " + quote(startRule) + ".");
+        }
+      } else {
+        startRule = "start";
+      }
+      
+      var pos = 0;
+      var reportFailures = 0;
+      var rightmostFailuresPos = 0;
+      var rightmostFailuresExpected = [];
+      
+      function padLeft(input, padding, length) {
+        var result = input;
+        
+        var padLength = length - input.length;
+        for (var i = 0; i < padLength; i++) {
+          result = padding + result;
+        }
+        
+        return result;
+      }
+      
+      function escape(ch) {
+        var charCode = ch.charCodeAt(0);
+        var escapeChar;
+        var length;
+        
+        if (charCode <= 0xFF) {
+          escapeChar = 'x';
+          length = 2;
+        } else {
+          escapeChar = 'u';
+          length = 4;
+        }
+        
+        return '\\' + escapeChar + padLeft(charCode.toString(16).toUpperCase(), '0', length);
+      }
+      
+      function matchFailed(failure) {
+        if (pos < rightmostFailuresPos) {
+          return;
+        }
+        
+        if (pos > rightmostFailuresPos) {
+          rightmostFailuresPos = pos;
+          rightmostFailuresExpected = [];
+        }
+        
+        rightmostFailuresExpected.push(failure);
+      }
+      
+      function parse_start() {
+        var result0, result1, result2;
+        var pos0, pos1;
+        
+        pos0 = pos;
+        pos1 = pos;
+        result0 = parse__();
+        result0 = result0 !== null ? result0 : "";
+        if (result0 !== null) {
+          result1 = parse_additive();
+          if (result1 !== null) {
+            result2 = parse__();
+            result2 = result2 !== null ? result2 : "";
+            if (result2 !== null) {
+              result0 = [result0, result1, result2];
+            } else {
+              result0 = null;
+              pos = pos1;
+            }
+          } else {
+            result0 = null;
+            pos = pos1;
+          }
+        } else {
+          result0 = null;
+          pos = pos1;
+        }
+        if (result0 !== null) {
+          result0 = (function(offset, exp) { return exp; })(pos0, result0[1]);
+        }
+        if (result0 === null) {
+          pos = pos0;
+        }
+        return result0;
+      }
+      
+      function parse__() {
+        var result0, result1;
+        var pos0;
+        
+        pos0 = pos;
+        result0 = [];
+        if (input.charCodeAt(pos) === 32) {
+          result1 = " ";
+          pos++;
+        } else {
+          result1 = null;
+          if (reportFailures === 0) {
+            matchFailed("\" \"");
+          }
+        }
+        while (result1 !== null) {
+          result0.push(result1);
+          if (input.charCodeAt(pos) === 32) {
+            result1 = " ";
+            pos++;
+          } else {
+            result1 = null;
+            if (reportFailures === 0) {
+              matchFailed("\" \"");
+            }
+          }
+        }
+        if (result0 !== null) {
+          result0 = (function(offset, ws) { return ws.join(""); })(pos0, result0);
+        }
+        if (result0 === null) {
+          pos = pos0;
+        }
+        return result0;
+      }
+      
+      function parse_add_op() {
+        var result0;
+        
+        if (input.charCodeAt(pos) === 43) {
+          result0 = "+";
+          pos++;
+        } else {
+          result0 = null;
+          if (reportFailures === 0) {
+            matchFailed("\"+\"");
+          }
+        }
+        if (result0 === null) {
+          if (input.charCodeAt(pos) === 45) {
+            result0 = "-";
+            pos++;
+          } else {
+            result0 = null;
+            if (reportFailures === 0) {
+              matchFailed("\"-\"");
+            }
+          }
+        }
+        return result0;
+      }
+      
+      function parse_mul_op() {
+        var result0;
+        
+        if (input.charCodeAt(pos) === 42) {
+          result0 = "*";
+          pos++;
+        } else {
+          result0 = null;
+          if (reportFailures === 0) {
+            matchFailed("\"*\"");
+          }
+        }
+        if (result0 === null) {
+          if (input.charCodeAt(pos) === 47) {
+            result0 = "/";
+            pos++;
+          } else {
+            result0 = null;
+            if (reportFailures === 0) {
+              matchFailed("\"/\"");
+            }
+          }
+        }
+        return result0;
+      }
+      
+      function parse_unary_op() {
+        var result0;
+        
+        if (input.charCodeAt(pos) === 43) {
+          result0 = "+";
+          pos++;
+        } else {
+          result0 = null;
+          if (reportFailures === 0) {
+            matchFailed("\"+\"");
+          }
+        }
+        if (result0 === null) {
+          if (input.charCodeAt(pos) === 45) {
+            result0 = "-";
+            pos++;
+          } else {
+            result0 = null;
+            if (reportFailures === 0) {
+              matchFailed("\"-\"");
+            }
+          }
+        }
+        return result0;
+      }
+      
+      function parse_func_name() {
+        var result0, result1;
+        var pos0;
+        
+        pos0 = pos;
+        if (/^[a-zA-Z]/.test(input.charAt(pos))) {
+          result1 = input.charAt(pos);
+          pos++;
+        } else {
+          result1 = null;
+          if (reportFailures === 0) {
+            matchFailed("[a-zA-Z]");
+          }
+        }
+        if (result1 !== null) {
+          result0 = [];
+          while (result1 !== null) {
+            result0.push(result1);
+            if (/^[a-zA-Z]/.test(input.charAt(pos))) {
+              result1 = input.charAt(pos);
+              pos++;
+            } else {
+              result1 = null;
+              if (reportFailures === 0) {
+                matchFailed("[a-zA-Z]");
+              }
+            }
+          }
+        } else {
+          result0 = null;
+        }
+        if (result0 !== null) {
+          result0 = (function(offset, name) { return name.join(""); })(pos0, result0);
+        }
+        if (result0 === null) {
+          pos = pos0;
+        }
+        return result0;
+      }
+      
+      function parse_additive() {
+        var result0, result1, result2, result3, result4;
+        var pos0;
+        
+        pos0 = pos;
+        result0 = parse_multiplicative();
+        if (result0 !== null) {
+          result1 = parse__();
+          result1 = result1 !== null ? result1 : "";
+          if (result1 !== null) {
+            result2 = parse_add_op();
+            if (result2 !== null) {
+              result3 = parse__();
+              result3 = result3 !== null ? result3 : "";
+              if (result3 !== null) {
+                result4 = parse_additive();
+                if (result4 !== null) {
+                  result0 = [result0, result1, result2, result3, result4];
+                } else {
+                  result0 = null;
+                  pos = pos0;
+                }
+              } else {
+                result0 = null;
+                pos = pos0;
+              }
+            } else {
+              result0 = null;
+              pos = pos0;
+            }
+          } else {
+            result0 = null;
+            pos = pos0;
+          }
+        } else {
+          result0 = null;
+          pos = pos0;
+        }
+        if (result0 === null) {
+          result0 = parse_multiplicative();
+        }
+        return result0;
+      }
+      
+      function parse_multiplicative() {
+        var result0, result1, result2, result3, result4;
+        var pos0;
+        
+        pos0 = pos;
+        result0 = parse_func_call();
+        if (result0 !== null) {
+          result1 = parse__();
+          result1 = result1 !== null ? result1 : "";
+          if (result1 !== null) {
+            result2 = parse_mul_op();
+            if (result2 !== null) {
+              result3 = parse__();
+              result3 = result3 !== null ? result3 : "";
+              if (result3 !== null) {
+                result4 = parse_multiplicative();
+                if (result4 !== null) {
+                  result0 = [result0, result1, result2, result3, result4];
+                } else {
+                  result0 = null;
+                  pos = pos0;
+                }
+              } else {
+                result0 = null;
+                pos = pos0;
+              }
+            } else {
+              result0 = null;
+              pos = pos0;
+            }
+          } else {
+            result0 = null;
+            pos = pos0;
+          }
+        } else {
+          result0 = null;
+          pos = pos0;
+        }
+        if (result0 === null) {
+          result0 = parse_func_call();
+        }
+        return result0;
+      }
+      
+      function parse_func_call() {
+        var result0, result1, result2, result3, result4, result5;
+        var pos0;
+        
+        pos0 = pos;
+        result0 = parse_func_name();
+        if (result0 !== null) {
+          if (input.charCodeAt(pos) === 40) {
+            result1 = "(";
+            pos++;
+          } else {
+            result1 = null;
+            if (reportFailures === 0) {
+              matchFailed("\"(\"");
+            }
+          }
+          if (result1 !== null) {
+            result2 = parse__();
+            result2 = result2 !== null ? result2 : "";
+            if (result2 !== null) {
+              result3 = parse_additive();
+              if (result3 !== null) {
+                result4 = parse__();
+                result4 = result4 !== null ? result4 : "";
+                if (result4 !== null) {
+                  if (input.charCodeAt(pos) === 41) {
+                    result5 = ")";
+                    pos++;
+                  } else {
+                    result5 = null;
+                    if (reportFailures === 0) {
+                      matchFailed("\")\"");
+                    }
+                  }
+                  if (result5 !== null) {
+                    result0 = [result0, result1, result2, result3, result4, result5];
+                  } else {
+                    result0 = null;
+                    pos = pos0;
+                  }
+                } else {
+                  result0 = null;
+                  pos = pos0;
+                }
+              } else {
+                result0 = null;
+                pos = pos0;
+              }
+            } else {
+              result0 = null;
+              pos = pos0;
+            }
+          } else {
+            result0 = null;
+            pos = pos0;
+          }
+        } else {
+          result0 = null;
+          pos = pos0;
+        }
+        if (result0 === null) {
+          result0 = parse_primary();
+        }
+        return result0;
+      }
+      
+      function parse_primary() {
+        var result0, result1, result2, result3, result4;
+        var pos0;
+        
+        result0 = parse_number();
+        if (result0 === null) {
+          pos0 = pos;
+          if (input.charCodeAt(pos) === 40) {
+            result0 = "(";
+            pos++;
+          } else {
+            result0 = null;
+            if (reportFailures === 0) {
+              matchFailed("\"(\"");
+            }
+          }
+          if (result0 !== null) {
+            result1 = parse__();
+            result1 = result1 !== null ? result1 : "";
+            if (result1 !== null) {
+              result2 = parse_additive();
+              if (result2 !== null) {
+                result3 = parse__();
+                result3 = result3 !== null ? result3 : "";
+                if (result3 !== null) {
+                  if (input.charCodeAt(pos) === 41) {
+                    result4 = ")";
+                    pos++;
+                  } else {
+                    result4 = null;
+                    if (reportFailures === 0) {
+                      matchFailed("\")\"");
+                    }
+                  }
+                  if (result4 !== null) {
+                    result0 = [result0, result1, result2, result3, result4];
+                  } else {
+                    result0 = null;
+                    pos = pos0;
+                  }
+                } else {
+                  result0 = null;
+                  pos = pos0;
+                }
+              } else {
+                result0 = null;
+                pos = pos0;
+              }
+            } else {
+              result0 = null;
+              pos = pos0;
+            }
+          } else {
+            result0 = null;
+            pos = pos0;
+          }
+        }
+        return result0;
+      }
+      
+      function parse_number() {
+        var result0, result1, result2, result3, result4;
+        var pos0, pos1;
+        
+        pos0 = pos;
+        pos1 = pos;
+        result0 = parse_unary_op();
+        result0 = result0 !== null ? result0 : "";
+        if (result0 !== null) {
+          result1 = [];
+          if (/^[0-9]/.test(input.charAt(pos))) {
+            result2 = input.charAt(pos);
+            pos++;
+          } else {
+            result2 = null;
+            if (reportFailures === 0) {
+              matchFailed("[0-9]");
+            }
+          }
+          while (result2 !== null) {
+            result1.push(result2);
+            if (/^[0-9]/.test(input.charAt(pos))) {
+              result2 = input.charAt(pos);
+              pos++;
+            } else {
+              result2 = null;
+              if (reportFailures === 0) {
+                matchFailed("[0-9]");
+              }
+            }
+          }
+          if (result1 !== null) {
+            if (input.charCodeAt(pos) === 46) {
+              result2 = ".";
+              pos++;
+            } else {
+              result2 = null;
+              if (reportFailures === 0) {
+                matchFailed("\".\"");
+              }
+            }
+            if (result2 !== null) {
+              result3 = [];
+              if (/^[0-9]/.test(input.charAt(pos))) {
+                result4 = input.charAt(pos);
+                pos++;
+              } else {
+                result4 = null;
+                if (reportFailures === 0) {
+                  matchFailed("[0-9]");
+                }
+              }
+              while (result4 !== null) {
+                result3.push(result4);
+                if (/^[0-9]/.test(input.charAt(pos))) {
+                  result4 = input.charAt(pos);
+                  pos++;
+                } else {
+                  result4 = null;
+                  if (reportFailures === 0) {
+                    matchFailed("[0-9]");
+                  }
+                }
+              }
+              if (result3 !== null) {
+                result0 = [result0, result1, result2, result3];
+              } else {
+                result0 = null;
+                pos = pos1;
+              }
+            } else {
+              result0 = null;
+              pos = pos1;
+            }
+          } else {
+            result0 = null;
+            pos = pos1;
+          }
+        } else {
+          result0 = null;
+          pos = pos1;
+        }
+        if (result0 !== null) {
+          result0 = (function(offset, u, d1, d2) { return u + d1.join("") + "." + d2.join("")})(pos0, result0[0], result0[1], result0[3]);
+        }
+        if (result0 === null) {
+          pos = pos0;
+        }
+        return result0;
+      }
+      
+      
+      function cleanupExpected(expected) {
+        expected.sort();
+        
+        var lastExpected = null;
+        var cleanExpected = [];
+        for (var i = 0; i < expected.length; i++) {
+          if (expected[i] !== lastExpected) {
+            cleanExpected.push(expected[i]);
+            lastExpected = expected[i];
+          }
+        }
+        return cleanExpected;
+      }
+      
+      function computeErrorPosition() {
+        /*
+         * The first idea was to use |String.split| to break the input up to the
+         * error position along newlines and derive the line and column from
+         * there. However IE's |split| implementation is so broken that it was
+         * enough to prevent it.
+         */
+        
+        var line = 1;
+        var column = 1;
+        var seenCR = false;
+        
+        for (var i = 0; i < Math.max(pos, rightmostFailuresPos); i++) {
+          var ch = input.charAt(i);
+          if (ch === "\n") {
+            if (!seenCR) { line++; }
+            column = 1;
+            seenCR = false;
+          } else if (ch === "\r" || ch === "\u2028" || ch === "\u2029") {
+            line++;
+            column = 1;
+            seenCR = true;
+          } else {
+            column++;
+            seenCR = false;
+          }
+        }
+        
+        return { line: line, column: column };
+      }
+      
+      
+      var result = parseFunctions[startRule]();
+      
+      /*
+       * The parser is now in one of the following three states:
+       *
+       * 1. The parser successfully parsed the whole input.
+       *
+       *    - |result !== null|
+       *    - |pos === input.length|
+       *    - |rightmostFailuresExpected| may or may not contain something
+       *
+       * 2. The parser successfully parsed only a part of the input.
+       *
+       *    - |result !== null|
+       *    - |pos < input.length|
+       *    - |rightmostFailuresExpected| may or may not contain something
+       *
+       * 3. The parser did not successfully parse any part of the input.
+       *
+       *   - |result === null|
+       *   - |pos === 0|
+       *   - |rightmostFailuresExpected| contains at least one failure
+       *
+       * All code following this comment (including called functions) must
+       * handle these states.
+       */
+      if (result === null || pos !== input.length) {
+        var offset = Math.max(pos, rightmostFailuresPos);
+        var found = offset < input.length ? input.charAt(offset) : null;
+        var errorPosition = computeErrorPosition();
+        
+        throw new this.SyntaxError(
+          cleanupExpected(rightmostFailuresExpected),
+          found,
+          offset,
+          errorPosition.line,
+          errorPosition.column
+        );
+      }
+      
+      return result;
+    },
+    
+    /* Returns the parser source code. */
+    toSource: function() { return this._source; }
+  };
+  
+  /* Thrown when a parser encounters a syntax error. */
+  
+  result.SyntaxError = function(expected, found, offset, line, column) {
+    function buildMessage(expected, found) {
+      var expectedHumanized, foundHumanized;
+      
+      switch (expected.length) {
+        case 0:
+          expectedHumanized = "end of input";
+          break;
+        case 1:
+          expectedHumanized = expected[0];
+          break;
+        default:
+          expectedHumanized = expected.slice(0, expected.length - 1).join(", ")
+            + " or "
+            + expected[expected.length - 1];
+      }
+      
+      foundHumanized = found ? quote(found) : "end of input";
+      
+      return "Expected " + expectedHumanized + " but " + foundHumanized + " found.";
+    }
+    
+    this.name = "SyntaxError";
+    this.expected = expected;
+    this.found = found;
+    this.message = buildMessage(expected, found);
+    this.offset = offset;
+    this.line = line;
+    this.column = column;
+  };
+  
+  result.SyntaxError.prototype = Error.prototype;
+  
+  return result;
+})();}, "storage": function(exports, require, module) {(function() {
   function convertHexToBytes( text ) {
   var tmpHex, array = [];
   for ( var i = 0; i < text.length; i += 2 ) {
@@ -1027,6 +1877,17 @@ function convertBytesToHex( byteArray ) {
       return $canvas.attr({
         width: $canvas.innerWidth(),
         height: $canvas.innerHeight()
+      });
+    },
+    relativeMouseMove: function(div, callback) {
+      var $div;
+      $div = $(div);
+      return $div.mousemove(function(e) {
+        var offset, position, size;
+        offset = $div.offset();
+        position = [e.clientX - offset.left, e.clientY - offset.top];
+        size = [$div.width(), $div.height()];
+        return callback(position, size);
       });
     }
   };

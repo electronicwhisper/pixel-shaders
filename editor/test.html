@@ -62,7 +62,7 @@ h2 {
   float: left;
   width: 300px;
   height: 300px;
-  background: url(checker.png);
+/*  background: url(checker.png);*/
   cursor: crosshair;
 }
 .env .canvas canvas {
@@ -73,6 +73,10 @@ h2 {
 .env .code {
   border: 1px solid #ccc;
   margin-left: 324px;
+}
+
+.env .code.error {
+  background-color: #fee;
 }
 
 
@@ -127,7 +131,7 @@ canvas {
 </head>
 <body>
 
-  <ul>
+  <ul style="display: none">
     <li><p>hi<br />
       <div style="overflow: hidden">
         <div id="ecode" style="height: 30px; border: 1px solid #ccc; width: 270px; float: left;"></div>
@@ -139,11 +143,13 @@ canvas {
     </li>
   </ul>
 
-<p>hi</p>
+<p>Here's a graph of it:</p>
 
-<div class="graph">
+
+<div class="env">
   <div class="canvas" id="output" style=""></div>
-  <div class="code" id="code"></div>
+  <div class="code" id="code" style="width: 540px; height: 30px"></div>
+  <div id="substitution" style="margin-left: 324px; width: 540px; height: 210px; opacity: 0.95; margin-top: 12px"></div>
 </div>
 
 

@@ -92,6 +92,30 @@ module.exports = (ctx, opts) ->
         ctx.lineTo(cx, cy)
       
       ctx.stroke()
+    
+    if o.hint || o.hint == 0
+      ctx.lineWidth = 0.25
+      for equation in o.equations
+        x = o.hint
+        y = equation.f(o.hint)
+        [cx, cy] = toCanvasCoords([x, y])
+        
+        ctx.strokeStyle = "#000"
+        ctx.beginPath()
+        ctx.moveTo(toCanvasCoords([x, 0])...)
+        ctx.lineTo(cx, cy)
+        ctx.stroke()
+        
+        ctx.strokeStyle = equation.color
+        ctx.beginPath()
+        ctx.moveTo(cx, cy)
+        ctx.lineTo(toCanvasCoords([0, y])...)
+        ctx.stroke()
+        
+        ctx.fillStyle = equation.color
+        ctx.beginPath()
+        ctx.arc(cx, cy, 3, 0, Math.PI*2, false)
+        ctx.fill()
   
   
   
@@ -99,6 +123,8 @@ module.exports = (ctx, opts) ->
   
   
   return {
+    toCanvasCoords: toCanvasCoords
+    fromCanvasCoords: fromCanvasCoords
     draw: (opts) ->
       o = _.extend(o, opts)
       draw()
