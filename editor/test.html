@@ -127,6 +127,78 @@ canvas {
   max-width: 270px;
   text-align: left;
 }
+
+
+
+
+
+
+ul.tree {
+  overflow-x: auto;
+  white-space: nowrap;  
+}
+ul.tree,
+ul.tree ul {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+ul.tree li {
+  display: block;
+  width: auto;
+  float: left;
+  vertical-align: top;
+  padding: 0;
+  margin: 0;
+}
+/*ul.tree ul li {
+  background-image: url(data:image/gif;base64,R0lGODdhAQABAIABAAAAAP///ywAAAAAAQABAAACAkQBADs=);
+  background-repeat: repeat-x;
+  background-position: left top;
+}*/
+ul.tree li .node {
+  cursor: default;
+  display: block;
+  padding: 4px 8px;
+  margin-right: 24px;
+/*  width: 5em;*/
+  /*
+    uncomment to fix levels
+    height: 1.5em;
+  */
+/*  margin: 0 auto;*/
+  /*text-align: center;*/
+  white-space: normal;
+  letter-spacing: normal;
+}
+ul.tree li .node:hover {
+  background-color: #ccc;
+}
+/*ul.tree ul li:last-child {
+  background-repeat: no-repeat;
+  background-size:50% 1px;
+  background-position: left top;
+}
+ul.tree ul li:first-child {
+  background-repeat: no-repeat;
+  background-size: 50% 1px;
+  background-position: right top;
+}
+ul.tree ul li:first-child:last-child {
+  background: none;
+}
+ul.tree ul li span {
+  background: url(data:image/gif;base64,R0lGODdhAQABAIABAAAAAP///ywAAAAAAQABAAACAkQBADs=) no-repeat 50% top;
+  background-size: 1px 0.8em;
+  padding-top: 1.2em;
+}
+ul.tree ul {
+  background: url(data:image/gif;base64,R0lGODdhAQABAIABAAAAAP///ywAAAAAAQABAAACAkQBADs=) no-repeat 50% top;
+  background-size: 1px 0.8em;
+  margin-top: 0.2ex;
+  padding-top: 0.8em;
+}*/
 </style>
 </head>
 <body>
@@ -143,13 +215,13 @@ canvas {
     </li>
   </ul>
 
-<p>Here's a graph of it:</p>
+<!-- <p>Here's a graph of it:</p> -->
 
 
 <div class="env">
   <div class="canvas" id="output" style=""></div>
   <div class="code" id="code" style="width: 540px; height: 30px"></div>
-  <div id="substitution" style="margin-left: 324px; width: 540px; height: 210px; opacity: 0.95; margin-top: 12px"></div>
+  <div id="substitution" style="margin-left: 324px; width: 540px; height: 210px; margin-top: 12px"></div>
 </div>
 
 

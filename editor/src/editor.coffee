@@ -112,6 +112,7 @@ makeEditor = (opts) ->
     value: src
     mode: "text/x-glsl"
     lineNumbers: true
+    matchBrackets: true
     onChange: refreshCode
   })
   cm.setSize("100%", $code.innerHeight())

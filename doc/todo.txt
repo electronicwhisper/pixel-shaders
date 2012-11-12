@@ -1,4 +1,8 @@
-Fix comma in grammar for mod(x, 2.)
+
+
+Pan and zoom graph
+pan and zoom shader
+graph on top of shader?
 
 
 
@@ -29,7 +33,6 @@ Textures
   Keep track of textures in flatRenderer
   Add images
   Add video
-  Add webcam
 Editor
   Cmd+/ to comment
   (), [], {} around selections

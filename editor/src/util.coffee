@@ -9,4 +9,11 @@ module.exports = {
       position = [e.clientX - offset.left, e.clientY - offset.top]
       size = [$div.width(), $div.height()]
       callback(position, size)
+  syntaxHighlight: (div) ->
+    $div = $(div)
+    $div.each () ->
+      CodeMirror.runMode($(this).text(), "text/x-glsl", this)
+      $(this).addClass("cm-s-default")
+  
+
 }

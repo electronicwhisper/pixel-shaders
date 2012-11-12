@@ -1,9 +1,9 @@
 module.exports = (ctx, opts) ->
   o = _.extend({
     equations: []
-    domain: [-1.6, 1.6]
-    range: [-1.6, 1.6]
-    label: 0.5
+    domain: [-2.6, 2.6]
+    range: [-2.6, 2.6]
+    label: 1
     labelSize: 5
   }, opts)
   

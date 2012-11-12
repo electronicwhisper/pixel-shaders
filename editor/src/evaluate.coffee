@@ -31,6 +31,15 @@ hasIntegers = (s) ->
 errorValue = {err: true}
 
 
+hasX = (tree) ->
+  if _.isArray(tree)
+    return _.any(tree, hasX)
+  else
+    return tree == "x"
+
+
+
+
 evaluate = {
   direct: (s) ->
     outputValue = errorValue
@@ -82,6 +91,58 @@ evaluate = {
     ret.push(ast.toString())
     
     return ret
+  
+  findSubExpression: (s, cStart, cEnd) ->
+    # Take an expression and a character or selection, find the smallest subexpression that contains x and that selection
+    # returns the start character and length of the subexpression
+    tree = require("parsing/expression").parse(s)
+    
+    
+    sum = (a) ->
+      _.reduce(a, ((memo, num) -> memo + num), 0)
+    
+    length = (tree) ->
+      if _.isArray(tree)
+        return sum(_.map(tree, length))
+      else
+        return tree.length
+    
+    find = (tree, start=0) ->
+      s = start
+      found = [s, length(tree)]
+      for node in tree
+        if s > cStart
+          # gone too far
+          break
+        if s + length(node) < cEnd
+          # too short, keep looking
+          s += length(node)
+        else
+          # ok, we contain cStart and cEnd
+          if _.isArray(node) && hasX(node)
+            # we found a good subexpression, recurse
+            found = find(node, s)
+          else
+            # we've gone too deep
+            break
+      return found
+    
+    return find(tree)
+  
+  findAllSubExpressions: (s) ->
+    tree = require("parsing/expression").parse(s)
+    
+    subExprs = []
+    
+    spider = (tree) ->
+      if _.isArray(tree)
+        if hasX(tree)
+          subExprs.push(tree)
+        for node in tree
+          spider(node)
+    spider(tree)
+    
+    return subExprs
 }
 
 module.exports = evaluate

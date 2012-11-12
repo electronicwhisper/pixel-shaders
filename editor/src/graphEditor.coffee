@@ -35,19 +35,35 @@ module.exports = (opts) ->
       compiled = false
     if compiled
       $code.removeClass("error")
-      equations = [{
-        color: "#006"
-        f: srcFun
-      }]
-      graph.draw({equations: equations})
+      # equations = [{
+      #   color: "#006"
+      #   f: srcFun
+      # }]
+      # equations = evaluate.findAllSubExpressions(src).map (expr) ->
+      #   s = _.flatten(expr).join("")
+      #   f = evaluate.functionOfX(s)
+      #   return {
+      #     f: f
+      #     color: "rgba(0, 0, 100, 0.05)"
+      #   }
+      # equations.push({
+      #   f: srcFun
+      #   color: "rgba(0, 0, 100, 1.0)"
+      # })
+      # graph.draw({equations: equations})
     else
       $code.addClass("error")
+  
+  changeCallbacks = [refreshCode]
+  fireChangeCallbacks = (args...) ->
+    for c in changeCallbacks
+      c(args...)
   
   cm = CodeMirror($code[0], {
     value: src
     mode: "text/x-glsl"
     # lineNumbers: true
-    onChange: refreshCode
+    onChange: fireChangeCallbacks
   })
   cm.setSize("100%", $code.innerHeight())
   
@@ -55,6 +71,8 @@ module.exports = (opts) ->
   
   return {
     graph: graph
+    cm: cm
+    change: (c) -> changeCallbacks.push(c)
     get: () -> src
     compiled: () -> compiled
     substitute: (x) ->

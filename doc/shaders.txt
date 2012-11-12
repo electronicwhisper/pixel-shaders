@@ -1636,3 +1636,65 @@ void main() {
   
   gl_FragColor = vec4(col, 1.);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform vec2 resolution;
+
+float sample(vec2 p) {
+  //return p.x.;
+  //return cos(p.x)-.9;
+  //return atan(p.y, p.x) - 2.;
+  return length(p) - .2;
+}
+
+void main() {
+  vec2 p = position - 0.5;
+  p.x *= resolution.x/resolution.y;
+  
+  float threshold = 0.001;
+  
+  const float steps = 3.;
+  float res = 1./steps/resolution.x;
+  
+  float total = 0.0;
+  for (float xi = -steps/2.; xi <= steps/2.; xi++) {
+    for (float yi = -steps/2.; yi <= steps/2.; yi++) {
+      vec2 offset = vec2(xi, yi) * res;
+      float s = sample(p + offset);
+      if (abs(s) < threshold) {
+        total++;
+      }
+    }
+  }
+  float samples = (steps+1.)*(steps+1.);
+  
+  float b = total/samples;
+  
+  vec3 col = vec3(b);
+  gl_FragColor = vec4(col, 1.);
+}
