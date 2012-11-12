@@ -1,3 +1,16 @@
+editor
+  1 line vs multiple lines
+  how it marks errors
+  how it figures out errors (i.e. compile in gpu vs compile in js)
+  displaying errors (e.g. with tipsy)
+
+display
+  graph, shader
+  set bounds: zoom in and out, pan
+
+
+
+
 
 
 Pan and zoom graph
