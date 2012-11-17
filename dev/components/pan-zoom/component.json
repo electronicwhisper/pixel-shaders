@@ -1,0 +1,8 @@
+{
+  "name": "pan-zoom",
+  "dependencies": {
+    "component/jquery": "*",
+    "component/emitter": "*"
+  },
+  "scripts": ["index.js"]
+}

@@ -1,0 +1,17 @@
+.tip {
+  position: absolute;
+  padding: 5px;
+  z-index: 1000;
+}
+
+/* effects */
+
+.tip.fade {
+  transition: opacity 100ms;
+  -moz-transition: opacity 100ms;
+  -webkit-transition: opacity 100ms;
+}
+
+.tip-hide {
+  opacity: 0;
+}

@@ -1,0 +1,16 @@
+{
+  "name": "boot",
+  "dependencies": {
+    "component/jquery": "*",
+    "component/underscore": "*",
+    
+    "component/tip": "*",
+    "component/aurora-tip": "*"
+    
+  },
+  "local": [
+    "shader",
+    "pan-zoom"
+  ],
+  "scripts": ["index.js"]
+}
