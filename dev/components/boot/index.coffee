@@ -1,14 +1,14 @@
 $ = require('jquery')
 
-tt = $("#tt")
-
-Tip = require('tip')
-tip = new Tip(tt)
-tip.attach('#mylink')
-
-setInterval(() ->
-  tt.text(Math.random())
-, 1000)
+# tt = $("#tt")
+# 
+# Tip = require('tip')
+# tip = new Tip(tt)
+# tip.attach('#mylink')
+# 
+# setInterval(() ->
+#   tt.text(Math.random())
+# , 1000)
 
 
 vertexShaderSource = """
@@ -71,7 +71,9 @@ void main() {
   
   float b = escape/iter;
   
-  gl_FragColor = vec4(b,b,b,1.);
+  vec3 col = vec3(0.5,0.8,1.0);
+  
+  gl_FragColor = vec4(col*b,1.);
 }
 """
 
@@ -93,8 +95,10 @@ shader = require("shader")({
 shader.draw()
 
 
+
+
 pz = require("pan-zoom")({
-  element: $("canvas")[0]
+  element: $("#main")[0]
   minX: 0
   maxX: 1
   minY: 0
@@ -102,14 +106,32 @@ pz = require("pan-zoom")({
   flipY: true
 })
 
-pz.on("update", () ->
+
+ctx = $("#c2")[0].getContext("2d")
+
+update = () ->
   shader.draw({
     uniforms: {
       boundsMin: [pz.minX, pz.minY]
       boundsMax: [pz.maxX, pz.maxY]
     }
   })
-)
+  
+  ctx.clearRect(0, 0, 1000, 1000)
+  require("graph-grid")({
+    ctx: ctx
+    minX: pz.minX
+    maxX: pz.maxX
+    minY: pz.minY
+    maxY: pz.maxY
+    flipY: true
+  })
+
+pz.on("update", update)
+update()
+
+
+
 
 
 

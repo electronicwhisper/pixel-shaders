@@ -74,7 +74,7 @@ Options:
     };
     down = function(e) {
       var downX, downY, move, up, _ref;
-      _ref = toLocal(e.clientX, e.clientY), downX = _ref[0], downY = _ref[1];
+      _ref = toLocal(e.pageX, e.pageY), downX = _ref[0], downY = _ref[1];
       move = function(e) {
         var x, y, _ref1;
         _ref1 = toLocal(e.clientX, e.clientY), x = _ref1[0], y = _ref1[1];
@@ -96,7 +96,7 @@ Options:
     wheel = function(e) {
       var delta, deltaLimit, deltaX, deltaY, scale, scaleFactor, x, y, _ref, _ref1;
       _ref = mouseWheelEvent(e.originalEvent), delta = _ref[0], deltaX = _ref[1], deltaY = _ref[2];
-      _ref1 = toLocal(e.originalEvent.clientX, e.originalEvent.clientY), x = _ref1[0], y = _ref1[1];
+      _ref1 = toLocal(e.originalEvent.pageX, e.originalEvent.pageY), x = _ref1[0], y = _ref1[1];
       deltaLimit = 2.8;
       delta = Math.min(Math.max(delta, -deltaLimit), deltaLimit);
       scaleFactor = 1.1;
@@ -109,6 +109,7 @@ Options:
       return pz.emit("update");
     };
     $element.on("mousewheel", wheel);
+    $element.on("DOMMouseScroll", wheel);
     return pz;
   };
 

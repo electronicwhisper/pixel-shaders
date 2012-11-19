@@ -10,7 +10,8 @@
   },
   "local": [
     "shader",
-    "pan-zoom"
+    "pan-zoom",
+    "graph-grid"
   ],
   "scripts": ["index.js"]
 }

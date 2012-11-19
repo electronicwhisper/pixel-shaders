@@ -69,7 +69,7 @@ module.exports = (opts) ->
     [lerp(x, pz.minX, pz.maxX), lerp(y, pz.minY, pz.maxY)]
   
   down = (e) ->
-    [downX, downY] = toLocal(e.clientX, e.clientY)
+    [downX, downY] = toLocal(e.pageX, e.pageY)
     
     move = (e) ->
       [x, y] = toLocal(e.clientX, e.clientY)
@@ -93,7 +93,7 @@ module.exports = (opts) ->
   
   wheel = (e) ->
     [delta, deltaX, deltaY] = mouseWheelEvent(e.originalEvent)
-    [x, y] = toLocal(e.originalEvent.clientX, e.originalEvent.clientY)
+    [x, y] = toLocal(e.originalEvent.pageX, e.originalEvent.pageY)
     
     deltaLimit = 2.8
     delta = Math.min(Math.max(delta, -deltaLimit), deltaLimit)
@@ -110,5 +110,6 @@ module.exports = (opts) ->
     pz.emit("update")
     
   $element.on("mousewheel", wheel)
+  $element.on("DOMMouseScroll", wheel) # gecko
   
   return pz
