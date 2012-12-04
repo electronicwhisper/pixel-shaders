@@ -71,12 +71,16 @@ module.exports = (opts) ->
   majorOpacity = 0.4
   axesOpacity = 1.0
   labelOpacity = 1.0
+  textHeight = 12
+  shadowColor = "0,0,0"
+  shadowOpacity = 0.8
+  shadowBlur = 3
+  
   minorColor = "rgba(#{color}, #{minorOpacity})"
   majorColor = "rgba(#{color}, #{majorOpacity})"
   axesColor = "rgba(#{color}, #{axesOpacity})"
   labelColor = "rgba(#{color}, #{labelOpacity})"
-  textHeight = 12
-  
+  shadowCol = "rgba(#{shadowColor}, #{shadowOpacity})"
   
   minSpacing = (sizeX / width) * minPixels # TODO: also check in y direction
   [largeSpacing, smallSpacing] = findSpacing(minSpacing)
@@ -86,8 +90,8 @@ module.exports = (opts) ->
   ctx.setTransform(1,0,0,1,0,0)
   ctx.lineWidth = 0.5
   
-  ctx.shadowColor = "rgba(0,0,0,0.8)"
-  ctx.shadowBlur = 3
+  ctx.shadowColor = shadowCol
+  ctx.shadowBlur = shadowBlur
   
   # draw minor grid lines
   ctx.strokeStyle = minorColor

@@ -1,0 +1,11 @@
+{
+  "name": "codemirror",
+  "scripts": [
+    "index.js",
+    "codemirror.js",
+    "glsl.js"
+  ],
+  "styles": [
+    "codemirror.css"
+  ]
+}

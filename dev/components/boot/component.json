@@ -11,7 +11,9 @@
   "local": [
     "shader",
     "pan-zoom",
-    "graph-grid"
+    "graph-grid",
+    "editor",
+    "glsl-error"
   ],
   "scripts": ["index.js"]
 }

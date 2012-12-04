@@ -63,7 +63,7 @@ void main() {
     escape = i;
     float x = (z.x * z.x - z.y * z.y) + c.x;
     float y = (z.y * z.x + z.x * z.y) + c.y;
-	
+    
     if ((x * x + y * y) > 800.0) break;
     z.x = x;
     z.y = y;
@@ -132,6 +132,20 @@ update()
 
 
 
+
+
+editor = require("editor")({
+  div: $("#cm")[0]
+  multiline: true
+  src: fragmentShaderSource
+  errorCheck: require("glsl-error")
+})
+
+editor.on("change", (src) ->
+  shader.draw({
+    fragment: src
+  })
+)
 
 
 

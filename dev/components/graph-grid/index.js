@@ -51,7 +51,7 @@
   };
 
   module.exports = function(opts) {
-    var axesColor, axesOpacity, cMaxX, cMaxY, cMinX, cMinY, canvas, color, ctx, cx, cy, fromLocal, height, labelColor, labelDistance, labelOpacity, largeSpacing, majorColor, majorOpacity, maxX, maxY, minPixels, minSpacing, minX, minY, minorColor, minorOpacity, sizeX, sizeY, smallSpacing, text, textHeight, toLocal, width, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref10, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+    var axesColor, axesOpacity, cMaxX, cMaxY, cMinX, cMinY, canvas, color, ctx, cx, cy, fromLocal, height, labelColor, labelDistance, labelOpacity, largeSpacing, majorColor, majorOpacity, maxX, maxY, minPixels, minSpacing, minX, minY, minorColor, minorOpacity, shadowBlur, shadowCol, shadowColor, shadowOpacity, sizeX, sizeY, smallSpacing, text, textHeight, toLocal, width, x, y, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref10, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
     ctx = opts.ctx;
     minX = opts.minX;
     maxX = opts.maxX;
@@ -89,18 +89,22 @@
     majorOpacity = 0.4;
     axesOpacity = 1.0;
     labelOpacity = 1.0;
+    textHeight = 12;
+    shadowColor = "0,0,0";
+    shadowOpacity = 0.8;
+    shadowBlur = 3;
     minorColor = "rgba(" + color + ", " + minorOpacity + ")";
     majorColor = "rgba(" + color + ", " + majorOpacity + ")";
     axesColor = "rgba(" + color + ", " + axesOpacity + ")";
     labelColor = "rgba(" + color + ", " + labelOpacity + ")";
-    textHeight = 12;
+    shadowCol = "rgba(" + shadowColor + ", " + shadowOpacity + ")";
     minSpacing = (sizeX / width) * minPixels;
     _ref2 = findSpacing(minSpacing), largeSpacing = _ref2[0], smallSpacing = _ref2[1];
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.lineWidth = 0.5;
-    ctx.shadowColor = "rgba(0,0,0,0.8)";
-    ctx.shadowBlur = 3;
+    ctx.shadowColor = shadowCol;
+    ctx.shadowBlur = shadowBlur;
     ctx.strokeStyle = minorColor;
     _ref3 = ticks(smallSpacing, minX, maxX);
     for (_i = 0, _len = _ref3.length; _i < _len; _i++) {

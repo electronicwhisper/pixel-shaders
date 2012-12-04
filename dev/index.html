@@ -2,15 +2,33 @@
 <html>
 <head>
 <link rel="stylesheet" href="build/build.css" type="text/css" media="screen" title="no title" charset="utf-8">
+<style type="text/css">
+/** {
+  box-sizing: border-box;
+}*/
+body {
+  margin: 24px;
+  font-family: georgia;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+}
+</style>
 </head>
 <body>
 <!-- <a id="mylink" href="/">asdf</a>
 
 <div id="tt">Here's the <b>tooltip</b>.</div> -->
 
-<div id="main" style="width: 480px; height: 480px">
-  <canvas id="c" width="480" height="480" style="position: absolute"></canvas>
-  <canvas id="c2" width="480" height="480" style="position: absolute"></canvas>
+<div style="overflow: hidden">
+  
+  <div id="main" style="width: 480px; height: 480px; position: relative; float: left;">
+    <canvas id="c" width="480" height="480" style="position: absolute"></canvas>
+    <canvas id="c2" width="480" height="480" style="position: absolute"></canvas>
+  </div>
+  
+  <div id="cm" style="border: 1px solid #ccc; margin-left: 504px; height: 480px; box-sizing: border-box"></div>
+
 </div>
 
 <!-- <img src="anim.gif" /> -->

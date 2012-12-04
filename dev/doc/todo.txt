@@ -1,0 +1,45 @@
+
+
+error checker
+  glsl
+  js
+
+
+
+
+
+feed uniforms - time, webcam
+snapping on panZoom or reset
+turn on/off grid
+graph evaluation
+graph parser tree
+test twitch.tv
+glsl int type
+mouseover to view position / resulting color
+
+
+
+
+
+
+
+editor
+  1 line vs multiple lines
+  how it marks errors
+  how it figures out errors (i.e. compile in gpu vs compile in js)
+  displaying errors (e.g. with tipsy)
+
+display
+  graph, shader
+  set bounds: zoom in and out, pan
+
+
+
+
+
+
+
+
+Minor todo
+  make makefile react to .css
+  
