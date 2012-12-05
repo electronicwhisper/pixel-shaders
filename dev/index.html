@@ -13,6 +13,22 @@ body {
   line-height: 1.5;
   color: #333;
 }
+
+
+.book-split {
+  overflow: hidden;
+  margin-bottom: 96px;
+}
+.book-left {
+  width: 480px;
+  height: 480px;
+  float: left;
+  position: relative;
+}
+.book-right {
+  margin-left: 504px;
+}
+
 </style>
 </head>
 <body>
@@ -20,15 +36,28 @@ body {
 
 <div id="tt">Here's the <b>tooltip</b>.</div> -->
 
-<div style="overflow: hidden">
+<div class="book-split">
   
-  <div id="main" style="width: 480px; height: 480px; position: relative; float: left;">
-    <canvas id="c" width="480" height="480" style="position: absolute"></canvas>
+  <div id="main" class="book-left">
+    <canvas id="c1" width="480" height="480" style="position: absolute"></canvas>
     <canvas id="c2" width="480" height="480" style="position: absolute"></canvas>
   </div>
   
-  <div id="cm" style="border: 1px solid #ccc; margin-left: 504px; height: 480px; box-sizing: border-box"></div>
+  <div class="book-right">
+    <div id="cm" style="border: 1px solid #ccc; height: 480px; box-sizing: border-box;"></div>
+  </div>
 
+</div>
+
+
+<div class="book-split">
+  <div class="book-left" id="linegraph">
+    <canvas id="c3" width="480" height="480" style="position: absolute"></canvas>
+  </div>
+  <div class="book-right">
+    <div id="graph-cm" style="border: 1px solid #ccc;"></div>
+    <div id="substitution"></div>
+  </div>
 </div>
 
 <!-- <img src="anim.gif" /> -->

@@ -1,0 +1,17 @@
+{
+  "name": "deconstruct",
+  "dependencies": {
+    "component/jquery": "*",
+    "component/underscore": "*"
+  },
+  "local": [
+    "codemirror",
+    "parse"
+  ],
+  "scripts": [
+    "index.js"
+  ],
+  "styles": [
+    "deconstruct.css"
+  ]
+}

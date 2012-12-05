@@ -1,0 +1,30 @@
+ul.deconstruct-tree {
+  overflow-x: auto;
+  white-space: nowrap;  
+}
+ul.deconstruct-tree,
+ul.deconstruct-tree ul {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+ul.deconstruct-tree li {
+  display: block;
+  width: auto;
+  float: left;
+  vertical-align: top;
+  padding: 0;
+  margin: 0;
+}
+ul.deconstruct-tree li .deconstruct-node {
+  cursor: default;
+  display: block;
+  padding: 4px 8px;
+  margin-right: 24px;
+  white-space: normal;
+  letter-spacing: normal;
+}
+ul.deconstruct-tree li .deconstruct-node:hover {
+  background-color: #ccc;
+}

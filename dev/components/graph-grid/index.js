@@ -84,7 +84,7 @@
     };
     minPixels = 70;
     labelDistance = 5;
-    color = "255,255,255";
+    color = opts.color;
     minorOpacity = 0.2;
     majorOpacity = 0.4;
     axesOpacity = 1.0;
@@ -103,8 +103,10 @@
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.lineWidth = 0.5;
-    ctx.shadowColor = shadowCol;
-    ctx.shadowBlur = shadowBlur;
+    if (opts.shadow) {
+      ctx.shadowColor = shadowCol;
+      ctx.shadowBlur = shadowBlur;
+    }
     ctx.strokeStyle = minorColor;
     _ref3 = ticks(smallSpacing, minX, maxX);
     for (_i = 0, _len = _ref3.length; _i < _len; _i++) {

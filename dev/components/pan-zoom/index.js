@@ -77,7 +77,7 @@ Options:
       _ref = toLocal(e.pageX, e.pageY), downX = _ref[0], downY = _ref[1];
       move = function(e) {
         var x, y, _ref1;
-        _ref1 = toLocal(e.clientX, e.clientY), x = _ref1[0], y = _ref1[1];
+        _ref1 = toLocal(e.pageX, e.pageY), x = _ref1[0], y = _ref1[1];
         pz.minX += downX - x;
         pz.maxX += downX - x;
         pz.minY += downY - y;

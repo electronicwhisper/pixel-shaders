@@ -3,7 +3,8 @@
   "scripts": [
     "index.js",
     "codemirror.js",
-    "glsl.js"
+    "glsl.js",
+    "runmode.js"
   ],
   "styles": [
     "codemirror.css"

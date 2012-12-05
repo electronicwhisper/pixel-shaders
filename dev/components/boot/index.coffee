@@ -1,14 +1,6 @@
 $ = require('jquery')
-
-# tt = $("#tt")
-# 
-# Tip = require('tip')
-# tip = new Tip(tt)
-# tip.attach('#mylink')
-# 
-# setInterval(() ->
-#   tt.text(Math.random())
-# , 1000)
+_ = require('underscore')
+XRegExp = require('xregexp').XRegExp
 
 
 vertexShaderSource = """
@@ -37,136 +29,195 @@ void main() {
 """
 
 
-fragmentShaderSource2 = """
-precision mediump float;
-
-varying vec2 position;
-uniform sampler2D img;
-
-void main() {
-  gl_FragColor = texture2D(img, position);
-}
-"""
-
-mandelbrot = """
-precision mediump float;
-
-varying vec2 position;
-
-void main() {
-  vec2 c = position;
-  vec2 z = c;
+parseUniforms = (src) ->
+  regex = XRegExp('uniform +(?<type>[^ ]+) +(?<name>[^ ;]+) *;', 'g')
   
-  float escape = 0.;
-  const float iter = 50.;
-  for(float i = 0.; i<iter; i++) {
-    escape = i;
-    float x = (z.x * z.x - z.y * z.y) + c.x;
-    float y = (z.y * z.x + z.x * z.y) + c.y;
-    
-    if ((x * x + y * y) > 800.0) break;
-    z.x = x;
-    z.y = y;
-  }
+  uniforms = []
+  XRegExp.forEach(src, regex, (match) ->
+    uniforms.push({
+      type: match.type
+      name: match.name
+    })
+  )
+  return uniforms
+
+
+
+
+
+
+do ->
   
-  float b = escape/iter;
-  
-  vec3 col = vec3(0.5,0.8,1.0);
-  
-  gl_FragColor = vec4(col*b,1.);
-}
-"""
-
-
-
-
-
-shader = require("shader")({
-  canvas: $("canvas")[0]
-  vertex: vertexShaderSource
-  # fragment: fragmentShaderSource
-  fragment: mandelbrot
-  uniforms: {
-    boundsMin: [0, 0]
-    boundsMax: [1, 1]
-  }
-})
-
-shader.draw()
-
-
-
-
-pz = require("pan-zoom")({
-  element: $("#main")[0]
-  minX: 0
-  maxX: 1
-  minY: 0
-  maxY: 1
-  flipY: true
-})
-
-
-ctx = $("#c2")[0].getContext("2d")
-
-update = () ->
-  shader.draw({
+  shader = require("shader")({
+    canvas: $("#c1")[0]
+    vertex: vertexShaderSource
+    fragment: fragmentShaderSource
     uniforms: {
-      boundsMin: [pz.minX, pz.minY]
-      boundsMax: [pz.maxX, pz.maxY]
+      boundsMin: [0, 0]
+      boundsMax: [1, 1]
     }
   })
   
-  ctx.clearRect(0, 0, 1000, 1000)
-  require("graph-grid")({
-    ctx: ctx
-    minX: pz.minX
-    maxX: pz.maxX
-    minY: pz.minY
-    maxY: pz.maxY
+  
+  pz = require("pan-zoom")({
+    element: $("#main")[0]
+    minX: 0
+    maxX: 1
+    minY: 0
+    maxY: 1
     flipY: true
   })
-
-pz.on("update", update)
-update()
-
-
-
-
-
-editor = require("editor")({
-  div: $("#cm")[0]
-  multiline: true
-  src: fragmentShaderSource
-  errorCheck: require("glsl-error")
-})
-
-editor.on("change", (src) ->
-  shader.draw({
-    fragment: src
-  })
-)
-
-
-
-
-
-window.next = () ->
-  bird = $("img")[0]
   
-  shader.draw({
-    fragment: fragmentShaderSource2
-    uniforms: {
-      img: bird
-    }
-  })
-
-window.next2 = () ->
-  # turtle = $("img")[1]
-  $("img").attr("src", "turtle.jpg")
   
-  shader.draw({
-    uniforms: {
-      img: $("img")[0]
-    }
+  ctx = $("#c2")[0].getContext("2d")
+  
+  update = () ->
+    shader.draw({
+      uniforms: {
+        boundsMin: [pz.minX, pz.minY]
+        boundsMax: [pz.maxX, pz.maxY]
+      }
+    })
+    
+    ctx.clearRect(0, 0, 1000, 1000)
+    require("graph-grid")({
+      ctx: ctx
+      minX: pz.minX
+      maxX: pz.maxX
+      minY: pz.minY
+      maxY: pz.maxY
+      flipY: true
+      color: "255,255,255"
+      shadow: true
+    })
+  
+  pz.on("update", update)
+  update()
+  
+  
+  startTime = Date.now()
+  animated = false
+  uniforms = []
+  
+  shouldAnimate = () ->
+    for uniform in uniforms
+      if uniform.name == "time" || uniform.name == "webcam"
+        return true
+    return false
+  
+  
+  editor = require("editor")({
+    div: $("#cm")[0]
+    multiline: true
+    src: fragmentShaderSource
+    errorCheck: require("glsl-error")
   })
+  
+  editor.on("change", (src) ->
+    uniforms = parseUniforms(src)
+    animated = shouldAnimate()
+    
+    shader.draw({
+      fragment: src
+    })
+  )
+  
+  animate = () ->
+    require("raf")(animate)
+    if animated
+      sendUniforms = {}
+      for uniform in uniforms
+        if uniform.name == "time"
+          sendUniforms.time = (Date.now() - startTime) / 1000
+        if uniform.name == "webcam"
+          sendUniforms.webcam = require("webcam")()
+      shader.draw({
+        uniforms: sendUniforms
+      })
+  animate()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+do ->
+  src = "x"
+  f = require("evaluate").functionOfX(src)
+  
+  ctx = $("#c3")[0].getContext("2d")
+  
+  pz = require("pan-zoom")({
+    element: $("#linegraph")[0]
+    minX: -2
+    maxX: 2
+    minY: -2
+    maxY: 2
+    flipY: true
+  })
+  
+  graphEditor = require("editor")({
+    div: $("#graph-cm")
+    multiline: false
+    src: "x"
+    errorCheck: (src) ->
+      f = require("evaluate").functionOfX(src)
+      if f.err || src == ""
+        return [{lineNum: 0, error: ""}]
+      else
+        return false
+  })
+  
+  draw = () ->
+    ctx.clearRect(0, 0, 1000, 1000)
+    
+    require("graph-grid")({
+      ctx: ctx
+      minX: pz.minX
+      maxX: pz.maxX
+      minY: pz.minY
+      maxY: pz.maxY
+      flipY: true
+      color: "0,0,0"
+      shadow: false
+    })
+    
+    require("graph-line")({
+      ctx: ctx
+      f: f
+      minX: pz.minX
+      maxX: pz.maxX
+      minY: pz.minY
+      maxY: pz.maxY
+      flipY: true
+    })
+  
+  pz.on("update", draw)
+  graphEditor.on("change", (src) ->
+    require("deconstruct")({
+      div: $("#substitution")
+      src: src
+    })
+    
+    f = require("evaluate").functionOfX(src)
+    draw()
+  )
+  graphEditor.emit("change", graphEditor.src())
+  
+  
+  $("#substitution").on("mouseenter", ".deconstruct-node", () ->
+    s = $(this).text()
+    f = require("evaluate").functionOfX(s)
+    draw()
+  )

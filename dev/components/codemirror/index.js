@@ -1,6 +1,6 @@
 var codemirror = require("./codemirror");
-var glsl = require("./glsl");
 
-glsl(codemirror);
+require("./glsl")(codemirror);
+require("./runmode")(codemirror);
 
 module.exports = codemirror;

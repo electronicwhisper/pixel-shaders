@@ -5,7 +5,9 @@
     "component/underscore": "*",
     
     "component/tip": "*",
-    "component/aurora-tip": "*"
+    "component/aurora-tip": "*",
+    
+    "component/raf": "*"
     
   },
   "local": [
@@ -13,7 +15,13 @@
     "pan-zoom",
     "graph-grid",
     "editor",
-    "glsl-error"
+    "glsl-error",
+    "xregexp",
+    "webcam",
+    "parse",
+    "deconstruct",
+    "evaluate",
+    "graph-line"
   ],
   "scripts": ["index.js"]
 }

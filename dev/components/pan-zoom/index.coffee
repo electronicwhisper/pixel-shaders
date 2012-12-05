@@ -72,7 +72,7 @@ module.exports = (opts) ->
     [downX, downY] = toLocal(e.pageX, e.pageY)
     
     move = (e) ->
-      [x, y] = toLocal(e.clientX, e.clientY)
+      [x, y] = toLocal(e.pageX, e.pageY)
       pz.minX += downX - x
       pz.maxX += downX - x
       pz.minY += downY - y

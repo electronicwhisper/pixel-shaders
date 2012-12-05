@@ -66,7 +66,7 @@ module.exports = (opts) ->
   
   minPixels = 70
   labelDistance = 5
-  color = "255,255,255"
+  color = opts.color
   minorOpacity = 0.2
   majorOpacity = 0.4
   axesOpacity = 1.0
@@ -90,8 +90,9 @@ module.exports = (opts) ->
   ctx.setTransform(1,0,0,1,0,0)
   ctx.lineWidth = 0.5
   
-  ctx.shadowColor = shadowCol
-  ctx.shadowBlur = shadowBlur
+  if opts.shadow
+    ctx.shadowColor = shadowCol
+    ctx.shadowBlur = shadowBlur
   
   # draw minor grid lines
   ctx.strokeStyle = minorColor

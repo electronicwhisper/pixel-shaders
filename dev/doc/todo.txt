@@ -1,18 +1,15 @@
 
 
 error checker
-  glsl
   js
 
 
 
 
 
-feed uniforms - time, webcam
 snapping on panZoom or reset
 turn on/off grid
 graph evaluation
-graph parser tree
 test twitch.tv
 glsl int type
 mouseover to view position / resulting color
