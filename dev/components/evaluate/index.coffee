@@ -15,6 +15,10 @@ evalInContext = do ->
   pow = Math.pow
   sqrt = Math.sqrt
   fract = (x) -> x - floor(x)
+  step = (edge, x) -> if x < edge then 0 else 1
+  smoothstep = (edge0, edge1, x) ->
+    t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
   
   return (s) -> eval(s)
 
