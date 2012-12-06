@@ -4,7 +4,8 @@
     "index.js",
     "codemirror.js",
     "glsl.js",
-    "runmode.js"
+    "runmode.js",
+    "matchbrackets.js"
   ],
   "styles": [
     "codemirror.css"
