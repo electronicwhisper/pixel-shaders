@@ -21541,7 +21541,7 @@ require.register("evaluate/index.js", function(module, exports, require){
   XRegExp = require("xregexp").XRegExp;
 
   evalInContext = (function() {
-    var abs, ceil, clamp, cos, exp, floor, fract, max, min, mod, pow, sin, sqrt, tan;
+    var abs, ceil, clamp, cos, exp, floor, fract, max, min, mod, pow, sin, smoothstep, sqrt, step, tan;
     abs = Math.abs;
     mod = function(x, y) {
       return x - y * Math.floor(x / y);
@@ -21561,6 +21561,18 @@ require.register("evaluate/index.js", function(module, exports, require){
     sqrt = Math.sqrt;
     fract = function(x) {
       return x - floor(x);
+    };
+    step = function(edge, x) {
+      if (x < edge) {
+        return 0;
+      } else {
+        return 1;
+      }
+    };
+    smoothstep = function(edge0, edge1, x) {
+      var t;
+      t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+      return t * t * (3.0 - 2.0 * t);
     };
     return function(s) {
       return eval(s);
@@ -21667,7 +21679,7 @@ require.register("boot/index.js", function(module, exports, require){
 
   vertexShaderSource = "precision mediump float;\n\nattribute vec3 vertexPosition;\nvarying vec2 position;\nuniform vec2 boundsMin;\nuniform vec2 boundsMax;\n\nvoid main() {\n  gl_Position = vec4(vertexPosition, 1.0);\n  position = mix(boundsMin, boundsMax, (vertexPosition.xy + 1.0) * 0.5);\n}";
 
-  fragmentShaderSource = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor = vec4(position.x, position.y, 0., 1.);\n}";
+  fragmentShaderSource = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}";
 
   parseUniforms = function(src) {
     var regex, uniforms;
@@ -21710,18 +21722,28 @@ require.register("boot/index.js", function(module, exports, require){
         }
       });
       ctx.clearRect(0, 0, 1000, 1000);
-      return require("graph-grid")({
-        ctx: ctx,
-        minX: pz.minX,
-        maxX: pz.maxX,
-        minY: pz.minY,
-        maxY: pz.maxY,
-        flipY: true,
-        color: "255,255,255",
-        shadow: true
-      });
+      if ($("#showgrid").attr("checked")) {
+        return require("graph-grid")({
+          ctx: ctx,
+          minX: pz.minX,
+          maxX: pz.maxX,
+          minY: pz.minY,
+          maxY: pz.maxY,
+          flipY: true,
+          color: "255,255,255",
+          shadow: true
+        });
+      }
     };
+    $("#resetbounds").on("click", function() {
+      pz.minX = 0;
+      pz.minY = 0;
+      pz.maxX = 1;
+      pz.maxY = 1;
+      return pz.emit("update");
+    });
     pz.on("update", update);
+    $("#showgrid").on("change", update);
     update();
     startTime = Date.now();
     animated = false;

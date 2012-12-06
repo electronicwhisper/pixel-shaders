@@ -5,7 +5,7 @@
   XRegExp = require("xregexp").XRegExp;
 
   evalInContext = (function() {
-    var abs, ceil, clamp, cos, exp, floor, fract, max, min, mod, pow, sin, sqrt, tan;
+    var abs, ceil, clamp, cos, exp, floor, fract, max, min, mod, pow, sin, smoothstep, sqrt, step, tan;
     abs = Math.abs;
     mod = function(x, y) {
       return x - y * Math.floor(x / y);
@@ -25,6 +25,18 @@
     sqrt = Math.sqrt;
     fract = function(x) {
       return x - floor(x);
+    };
+    step = function(edge, x) {
+      if (x < edge) {
+        return 0;
+      } else {
+        return 1;
+      }
+    };
+    smoothstep = function(edge0, edge1, x) {
+      var t;
+      t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+      return t * t * (3.0 - 2.0 * t);
     };
     return function(s) {
       return eval(s);

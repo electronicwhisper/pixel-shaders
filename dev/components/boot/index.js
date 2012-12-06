@@ -10,7 +10,7 @@
 
   vertexShaderSource = "precision mediump float;\n\nattribute vec3 vertexPosition;\nvarying vec2 position;\nuniform vec2 boundsMin;\nuniform vec2 boundsMax;\n\nvoid main() {\n  gl_Position = vec4(vertexPosition, 1.0);\n  position = mix(boundsMin, boundsMax, (vertexPosition.xy + 1.0) * 0.5);\n}";
 
-  fragmentShaderSource = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor = vec4(position.x, position.y, 0., 1.);\n}";
+  fragmentShaderSource = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}";
 
   parseUniforms = function(src) {
     var regex, uniforms;
@@ -53,18 +53,28 @@
         }
       });
       ctx.clearRect(0, 0, 1000, 1000);
-      return require("graph-grid")({
-        ctx: ctx,
-        minX: pz.minX,
-        maxX: pz.maxX,
-        minY: pz.minY,
-        maxY: pz.maxY,
-        flipY: true,
-        color: "255,255,255",
-        shadow: true
-      });
+      if ($("#showgrid").attr("checked")) {
+        return require("graph-grid")({
+          ctx: ctx,
+          minX: pz.minX,
+          maxX: pz.maxX,
+          minY: pz.minY,
+          maxY: pz.maxY,
+          flipY: true,
+          color: "255,255,255",
+          shadow: true
+        });
+      }
     };
+    $("#resetbounds").on("click", function() {
+      pz.minX = 0;
+      pz.minY = 0;
+      pz.maxX = 1;
+      pz.maxY = 1;
+      return pz.emit("update");
+    });
     pz.on("update", update);
+    $("#showgrid").on("change", update);
     update();
     startTime = Date.now();
     animated = false;

@@ -24,7 +24,10 @@ precision mediump float;
 varying vec2 position;
 
 void main() {
-  gl_FragColor = vec4(position.x, position.y, 0., 1.);
+  gl_FragColor.r = position.x;
+  gl_FragColor.g = position.y;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
 }
 """
 
@@ -80,18 +83,28 @@ do ->
     })
     
     ctx.clearRect(0, 0, 1000, 1000)
-    require("graph-grid")({
-      ctx: ctx
-      minX: pz.minX
-      maxX: pz.maxX
-      minY: pz.minY
-      maxY: pz.maxY
-      flipY: true
-      color: "255,255,255"
-      shadow: true
-    })
+    if ($("#showgrid").attr("checked"))
+      require("graph-grid")({
+        ctx: ctx
+        minX: pz.minX
+        maxX: pz.maxX
+        minY: pz.minY
+        maxY: pz.maxY
+        flipY: true
+        color: "255,255,255"
+        shadow: true
+      })
+  
+  $("#resetbounds").on("click", () ->
+    pz.minX = 0
+    pz.minY = 0
+    pz.maxX = 1
+    pz.maxY = 1
+    pz.emit("update")
+  )
   
   pz.on("update", update)
+  $("#showgrid").on("change", update)
   update()
   
   

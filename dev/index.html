@@ -21,12 +21,18 @@ body {
 }
 .book-left {
   width: 480px;
-  height: 480px;
+/*  height: 480px;*/
   float: left;
   position: relative;
 }
 .book-right {
   margin-left: 504px;
+}
+
+
+.control {
+  float: left;
+  margin-right: 24px;
 }
 
 </style>
@@ -39,8 +45,18 @@ body {
 <div class="book-split">
   
   <div id="main" class="book-left">
-    <canvas id="c1" width="480" height="480" style="position: absolute"></canvas>
-    <canvas id="c2" width="480" height="480" style="position: absolute"></canvas>
+    <div style="height: 480px">
+      <canvas id="c1" width="480" height="480" style="position: absolute"></canvas>
+      <canvas id="c2" width="480" height="480" style="position: absolute"></canvas>
+    </div>
+    <div style="margin-top: 12px; overflow: hidden">
+      <div class="control">
+        <input type="checkbox" id="showgrid" /> Grid
+      </div>
+      <div class="control">
+        <button id="resetbounds">Reset</button>
+      </div>
+    </div>
   </div>
   
   <div class="book-right">
@@ -52,11 +68,20 @@ body {
 
 <div class="book-split">
   <div class="book-left" id="linegraph">
-    <canvas id="c3" width="480" height="480" style="position: absolute"></canvas>
+    <canvas id="c3" width="480" height="480"></canvas>
   </div>
   <div class="book-right">
     <div id="graph-cm" style="border: 1px solid #ccc;"></div>
     <div id="substitution"></div>
+  </div>
+</div>
+
+<div class="book-split">
+  <div class="book-right">
+    <h2>Useful Links</h2>
+    <ul>
+      <li><a href="http://www.khronos.org/opengles/sdk/docs/manglsl/" target="_blank">GLSL Reference</a></li>
+    </ul>
   </div>
 </div>
 
