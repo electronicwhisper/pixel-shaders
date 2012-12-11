@@ -2,5 +2,6 @@
   "name": "pixelshaders",
   "local": [
     "boot"
-  ]
+  ],
+  "paths": ["js"]
 }

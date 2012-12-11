@@ -1,9 +1,0 @@
-{
-  "name": "evaluate",
-  "local": [
-    "xregexp"
-  ],
-  "scripts": [
-    "index.js"
-  ]
-}

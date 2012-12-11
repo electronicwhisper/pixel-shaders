@@ -3,7 +3,6 @@
 
 snapping on panZoom or reset
 turn on/off grid
-glsl int type
 mouseover to view position / resulting color
 
 

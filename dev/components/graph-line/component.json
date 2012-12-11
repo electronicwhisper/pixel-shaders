@@ -1,7 +1,0 @@
-{
-  "name": "graph-line",
-  "dependencies": {
-    
-  },
-  "scripts": ["index.js"]
-}
