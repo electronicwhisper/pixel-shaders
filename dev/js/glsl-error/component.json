@@ -1,0 +1,6 @@
+{
+  "name": "glsl-error",
+  "dependencies": {
+  },
+  "scripts": ["index.js"]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "shader",
+  "dependencies": {
+    "component/underscore": "*"
+  },
+  "scripts": ["index.js"]
+}

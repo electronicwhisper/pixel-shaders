@@ -1,4 +1,4 @@
-SRC = $(shell find components js -name "*.js")
+SRC = $(shell find components js -name "*.js" -or -name "*.css")
 COFFEESCRIPTS = $(shell find . -name "*.coffee")
 COFFEESCRIPTSCONVERTED = $(COFFEESCRIPTS:.coffee=.js)
 
