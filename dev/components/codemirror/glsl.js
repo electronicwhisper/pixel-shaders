@@ -22,13 +22,17 @@ CodeMirror.defineMode("glsl", function(config, parserConfig) {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
+    if (/\d/.test(ch) || (ch == "." && /\d/.test(stream.peek()))) {
+      stream.eatWhile(/[\w\.]/);
+      if (stream.current().indexOf(".") != -1) {
+        return "number float";
+      } else {
+        return "number int";
+      }
+    }
     if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       curPunc = ch;
       return "bracket";
-    }
-    if (/\d/.test(ch)) {
-      stream.eatWhile(/[\w\.]/);
-      return "number";
     }
     if (ch == "/") {
       if (stream.eat("*")) {

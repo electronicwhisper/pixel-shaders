@@ -347,6 +347,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
   }
 }
 
+.cm-s-default .cm-int {color: #c64;}
+.cm-s-default .cm-float {color: #164;}
 .editor-error {
   background-color: #fcc;
 }

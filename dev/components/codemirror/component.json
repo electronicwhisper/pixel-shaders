@@ -8,6 +8,7 @@
     "matchbrackets.js"
   ],
   "styles": [
-    "codemirror.css"
+    "codemirror.css",
+    "custom.css"
   ]
 }

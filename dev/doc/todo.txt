@@ -16,3 +16,10 @@ full screen
 Minor todo
   make makefile react to .css
   make parse not capture parentheses as a group
+
+Book
+  abs
+  graph
+  arbitrary uniforms
+  variables and vectors
+  
