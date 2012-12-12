@@ -466,12 +466,25 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   visibility: hidden
 }
 }
+.cm-s-default .cm-comment {
+  color: #06f;
+  font-style: italic
+}
+
+.cm-s-default .cm-keyword {
+  color: #809
+}
+
 .cm-s-default .cm-int {
-  color: #c64
+  color: #d00
 }
 
 .cm-s-default .cm-float {
-  color: #164
+  color: #295
+}
+
+.cm-s-default .cm-property {
+  color: #910
 }
 .editor-error {
   background-color: #fcc

@@ -16257,11 +16257,22 @@ CodeMirror.defineMode("glsl", function(config, parserConfig) {
     }
     if (/\d/.test(ch) || (ch == "." && /\d/.test(stream.peek()))) {
       stream.eatWhile(/[\w\.]/);
-      if (stream.current().indexOf(".") != -1) {
+      if (/[eE]$/.test(stream.current())) {
+        // if the last character was e or E, eat a + or - and then eat digits
+        if (stream.eat(/[+-]/)) {
+          stream.eatWhile(/\d/);
+        }
+      }
+      // based on what we ate, mark it as an int or float
+      if (/[\.eE]/.test(stream.current())) {
         return "number float";
       } else {
         return "number int";
       }
+    }
+    if (ch == ".") {
+      stream.eatWhile(/\w/);
+      return "property";
     }
     if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       curPunc = ch;

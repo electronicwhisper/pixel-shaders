@@ -1,2 +1,5 @@
-.cm-s-default .cm-int {color: #c64;}
-.cm-s-default .cm-float {color: #164;}
+.cm-s-default .cm-comment {color: #06f; font-style: italic}
+.cm-s-default .cm-keyword {color: #809;}
+.cm-s-default .cm-int {color: #d00;}
+.cm-s-default .cm-float {color: #295;}
+.cm-s-default .cm-property {color: #910;}
