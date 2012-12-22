@@ -1,0 +1,19 @@
+{
+  "name": "bindings",
+  "scripts": ["index.js"],
+  "dependencies": {
+    "component/jquery": "*",
+    "component/underscore": "*",
+    "component/raf": "*"
+  },
+  "local": [
+    "knockout",
+    "graph-grid",
+    "pan-zoom",
+    "editor",
+    "glsl-error",
+    "shader",
+    "xregexp",
+    "webcam"
+  ]
+}

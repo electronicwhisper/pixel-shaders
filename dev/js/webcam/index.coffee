@@ -29,7 +29,6 @@ module.exports = () ->
     # Sometimes the browser doesn't ask for the webcam if it happens too fast.. so there's this silly delay
     setTimeout(askForCam, 200)
   
-  
   if streaming && video.readyState == 4
     return video
   else

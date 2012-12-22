@@ -9,11 +9,13 @@
   Emitter = require('emitter');
 
   module.exports = function(opts) {
-    var $div, cm, editor, errorCheck, multiline, src;
+    var $div, annotations, cm, editor, errors, multiline, oldAnnotations, src, update, widgets;
     $div = $(opts.div);
     multiline = opts.multiline || false;
     src = opts.src || "";
-    errorCheck = opts.errorCheck || false;
+    errors = opts.errors || {};
+    annotations = opts.annotations || {};
+    widgets = opts.widgets || {};
     cm = codemirror($div[0], {
       mode: "text/x-glsl",
       value: src,
@@ -32,22 +34,41 @@
       }
     };
     Emitter(editor);
-    cm.on("change", function() {
-      var error, errors, line, _i, _j, _len, _ref;
-      src = cm.getValue();
-      if (errorCheck) {
-        for (line = _i = 0, _ref = cm.lineCount(); 0 <= _ref ? _i < _ref : _i > _ref; line = 0 <= _ref ? ++_i : --_i) {
-          cm.removeLineClass(line, "wrap", "editor-error");
-        }
-        errors = errorCheck(src);
-        if (errors) {
-          for (_j = 0, _len = errors.length; _j < _len; _j++) {
-            error = errors[_j];
-            cm.addLineClass(error.lineNum, "wrap", "editor-error");
-          }
-          return;
-        }
+    oldAnnotations = [];
+    update = function() {
+      var $element, annotation, error, line, oldAnnotation, pos, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
+      for (line = _i = 0, _ref = cm.lineCount(); 0 <= _ref ? _i < _ref : _i > _ref; line = 0 <= _ref ? ++_i : --_i) {
+        cm.removeLineClass(line, "wrap", "editor-error");
       }
+      for (_j = 0, _len = errors.length; _j < _len; _j++) {
+        error = errors[_j];
+        cm.addLineClass(error.line, "wrap", "editor-error");
+      }
+      for (_k = 0, _len1 = oldAnnotations.length; _k < _len1; _k++) {
+        oldAnnotation = oldAnnotations[_k];
+        oldAnnotation.clear();
+      }
+      _results = [];
+      for (_l = 0, _len2 = annotations.length; _l < _len2; _l++) {
+        annotation = annotations[_l];
+        pos = {
+          line: annotation.line,
+          ch: cm.getLine(annotation.line).length
+        };
+        $element = $("<span class='editor-annotation'></span>").text(annotation.message);
+        _results.push(oldAnnotations.push(cm.setBookmark(pos, $element[0])));
+      }
+      return _results;
+    };
+    editor.set = function(o) {
+      errors = o.errors || errors;
+      annotations = o.annotations || annotations;
+      widgets = o.widgets || widgets;
+      return update();
+    };
+    cm.on("change", function() {
+      src = cm.getValue();
+      update();
       return editor.emit("change", src);
     });
     return editor;

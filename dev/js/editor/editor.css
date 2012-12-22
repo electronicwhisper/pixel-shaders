@@ -1,3 +1,14 @@
+.CodeMirror {
+  font-size: 16px;
+}
+
 .editor-error {
   background-color: #fcc;
+}
+
+.editor-annotation {
+  margin-left: 12px;
+  padding: 1px;
+  border-radius: 3px;
+  background-color: #ddd;
 }

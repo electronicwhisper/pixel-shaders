@@ -22,8 +22,8 @@
         indexEnd = error.indexOf("ERROR: 0:", index);
         lineError = indexEnd > index ? error.substring(index, indexEnd) : error.substring(index);
         parsed.push({
-          lineNum: lineNum - 1,
-          error: lineError
+          line: lineNum - 1,
+          message: lineError
         });
       }
     }
@@ -44,7 +44,7 @@
       log = gl.getShaderInfoLog(shader);
       return parseShaderError(log);
     } else {
-      return false;
+      return {};
     }
   };
 

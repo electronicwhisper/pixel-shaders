@@ -1,4 +1,18 @@
 
+in knockout
+  keep track of whether the editor is compiled
+  parse uniforms in editor
+
+
+
+
+
+
+
+
+
+
+
 
 
 snapping on panZoom or reset
@@ -14,10 +28,30 @@ full screen
 
 Minor todo
   make parse not capture parentheses as a group
+  build codemirror out of stuff in lib (to make upgrading easier and cleaner)
 
 Book
   abs
   graph
   arbitrary uniforms
   variables and vectors
-  
+
+
+
+shader
+  bounds
+  src
+  uniforms
+pan-zoom
+  bounds *
+editor
+  src *
+  uniforms *
+
+graph-grid
+  bounds
+  options (colors, spacing, etc.)
+graph-line
+  bounds
+  f
+deconstruct

@@ -19,8 +19,8 @@ parseShaderError = (error) ->
       indexEnd = error.indexOf("ERROR: 0:", index)
       lineError = if indexEnd > index then error.substring(index, indexEnd) else error.substring(index)
       parsed.push({
-        lineNum: lineNum - 1 # for 0-based line numbering
-        error: lineError
+        line: lineNum - 1 # for 0-based line numbering
+        message: lineError
       })
   return parsed
 
@@ -40,5 +40,5 @@ module.exports = (src) ->
     log = gl.getShaderInfoLog(shader)
     return parseShaderError(log)
   else
-    return false
+    return {}
   

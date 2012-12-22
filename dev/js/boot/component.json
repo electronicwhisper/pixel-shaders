@@ -21,7 +21,8 @@
     "parse",
     "deconstruct",
     "evaluate",
-    "graph-line"
+    "graph-line",
+    "bindings"
   ],
   "scripts": ["index.js"]
 }

@@ -486,8 +486,19 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 .cm-s-default .cm-property {
   color: #910
 }
+.CodeMirror {
+  font-size: 16px
+}
+
 .editor-error {
   background-color: #fcc
+}
+
+.editor-annotation {
+  margin-left: 12px;
+  padding: 1px;
+  border-radius: 3px;
+  background-color: #ddd
 }
 
 
@@ -527,4 +538,5 @@ ul.deconstruct-tree li .deconstruct-node {
 ul.deconstruct-tree li .deconstruct-node:hover {
   background-color: #ccc
 }
+
 
