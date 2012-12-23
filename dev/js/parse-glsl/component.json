@@ -1,0 +1,4 @@
+{
+  "name": "parse-glsl",
+  "scripts": ["index.js"]
+}

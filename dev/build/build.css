@@ -498,7 +498,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   margin-left: 12px;
   padding: 1px;
   border-radius: 3px;
-  background-color: #ddd
+  background-color: #ddd;
+  opacity: 0.5
 }
 
 
@@ -538,5 +539,6 @@ ul.deconstruct-tree li .deconstruct-node {
 ul.deconstruct-tree li .deconstruct-node:hover {
   background-color: #ccc
 }
+
 
 

@@ -15,6 +15,14 @@ sizeCanvas = (canvas) ->
   canvas.width = w
   canvas.height = h
 
+# ======================================================= Animation Util
+
+rafAnimate = (callback) ->
+  animate = () ->
+    require("raf")(animate)
+    callback()
+  animate()
+
 # ======================================================= drawGrid
 
 ko.bindingHandlers.drawGrid = {
@@ -115,6 +123,18 @@ ko.bindingHandlers.editorShader = {
         src = o.src()
         # TODO: make it not clear set values, we'll need to .peek() at uniforms
         o.uniforms(parseUniforms(src))
+    
+    # # annotate based on uniforms
+    # ko.computed () ->
+    #   if o.compiled()
+    #     uniforms = o.uniforms()
+    #     for own name, uniform of uniforms
+    #       if name == "time"
+    #         lines = o.src.peek().split("\n")
+    #         line = lines.indexOf("uniform float time;")
+    #         editor.set({
+    #           annotations: [{line: line, message: uniform.value}]
+    #         })
 }
 
 # ======================================================= drawShader
@@ -173,8 +193,6 @@ updateUniforms = (uniformsObservable) ->
   uniforms = uniformsObservable()
   changed = false
   
-  # console.log("updateUniforms called", uniforms)
-  
   for own name, uniform of uniforms
     if name == "time" && uniform.type == "float"
       uniform.value = (Date.now() - startTime) / 1000
@@ -216,13 +234,10 @@ do ->
       maxY: 1
     })
     src: ko.observable(fragmentShaderSource)
-    compiled: ko.observable(true)
+    compiled: ko.observable(false)
     uniforms: ko.observable({})
-    showGrid: ko.observable(false)
   }
-  animate = () ->
-    require("raf")(animate)
+  rafAnimate () ->
     updateUniforms(model.uniforms)
-  animate()
   
   ko.applyBindings(model)

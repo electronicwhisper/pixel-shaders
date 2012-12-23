@@ -1,11 +1,22 @@
 
-in knockout
-  keep track of whether the editor is compiled
-  parse uniforms in editor
+make annotations accept images, etc.
+in parsing uniforms, update incrementally (saving values, etc.)
+annotate based on uniforms
+annotate based on evaluation
+
+widgets for controlling uniforms
+slider on x/y axis
+
+build graph
+
+build exercises
 
 
 
-
+think about
+  moving more logic out of editor and into the model (like updateUniforms)
+  how fullscreen would work
+  having shaders "active" (when scrolled within view)
 
 
 
