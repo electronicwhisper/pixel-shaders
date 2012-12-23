@@ -15,6 +15,7 @@
     "shader",
     "xregexp",
     "webcam",
-    "parse-glsl"
+    "parse-glsl",
+    "interpret"
   ]
 }

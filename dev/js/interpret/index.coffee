@@ -9,9 +9,10 @@ zip = (f) ->
   (params...) ->
     maxLength = 0
     for param in params
-      maxLength = Math.max(maxlength, param.length)
-    return for i in [0...maxLength]
-      numbers = param[i % param.length] for param in params
+      maxLength = Math.max(maxLength, param.length)
+    for i in [0...maxLength]
+      numbers = for param in params
+        param[i % param.length]
       f(numbers...)
 
 vec = (size) ->
@@ -30,6 +31,7 @@ n = {
   div: zip (x, y) -> x / y
 }
 
+clamp = (x, minVal, maxVal) -> min(max(x, minVal), maxVal)
 builtin = {
   float: vec(1)
   vec2: vec(2)
@@ -45,11 +47,11 @@ builtin = {
   tan: zip Math.tan
   min: zip Math.min
   max: zip Math.max
-  clamp: zip (x, minVal, maxVal) -> min(max(x, minVal), maxVal)
+  clamp: zip clamp
   exp: zip Math.exp
   pow: zip Math.pow
   sqrt: zip Math.sqrt
-  fract: zip (x) -> x - floor(x)
+  fract: zip (x) -> x - Math.floor(x)
   step: zip (edge, x) -> if x < edge then 0 else 1
   smoothstep: zip (edge0, edge1, x) ->
     t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0)
@@ -65,8 +67,15 @@ makeEnv = () ->
   
   return env
 
+makeEnvFromHash = (hash) ->
+  env = makeEnv()
+  for own k, v of hash
+    env.set(k, v)
+  return env
+
 # goes through an ast, adding evaluated properties
 evaluate = (env, ast) ->
+  # console.log "evaluating", ast
   type = ast.type
   
   if type == "identifier"
@@ -105,7 +114,7 @@ evaluate = (env, ast) ->
   else if type == "function_call"
     function_name = ast.function_name
     if builtin[function_name]
-      evaluatedParameters = for parameter in parameters
+      evaluatedParameters = for parameter in ast.parameters
         evaluate(env, parameter)
         parameter.evaluated
       ast.evaluated = builtin[function_name](evaluatedParameters...)
@@ -116,4 +125,6 @@ evaluate = (env, ast) ->
     throw "Unsupported type: #{type}"
 
 
-module.exports = evaluate
+module.exports = (hash, ast) ->
+  env = makeEnvFromHash(hash)
+  evaluate(env, ast)
