@@ -1,3 +1,10 @@
+rgba output, sampling pixels
+separate layer for doing annotations
+evaluator widget
+
+
+
+
 
 make annotations accept images, etc.
 in parsing uniforms, update incrementally (saving values, etc.)

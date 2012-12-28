@@ -36,6 +36,8 @@ body {
 .book-edit {
   margin-left: 324px;
   height: 300px;
+}
+.book-editor {
   border: 1px solid #ccc;
   box-sizing: border-box;
 }
@@ -44,14 +46,11 @@ body {
 <body>
 
 
-<div class="book-view-edit">
-  <div class="book-view" data-bind="panAndZoom: {bounds: bounds}">
-    <canvas data-bind="drawShader: {bounds: bounds, src: src, compiled: compiled, uniforms: uniforms}"></canvas>
-    <canvas class="book-grid" data-bind="drawGrid: {bounds: bounds, color: 'white'}"></canvas>
-  </div>
-  <div class="book-edit" data-bind="editorShader: {src: src, compiled: compiled, uniforms: uniforms}">
-  </div>
-</div>
+
+
+<div class="book-editor" data-bind="editorLine: {src: src}"></div>
+
+<div data-bind="text: result"></div>
 
 <script src="build/build.js"></script>
 <script>

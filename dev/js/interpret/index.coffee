@@ -1,3 +1,5 @@
+# http://www.khronos.org/registry/gles/specs/2.0/GLSL_ES_Specification_1.0.17.pdf
+
 ###
 Data types
   floats are an array (length 1) of a number
@@ -16,6 +18,7 @@ zip = (f) ->
       f(numbers...)
 
 vec = (size) ->
+  # TODO: actually it's an error if there are too many or too few components to fill a vector. You can only use a float to fill it. #pg 44
   (params...) ->
     result = []
     while result.length < size
@@ -23,6 +26,25 @@ vec = (size) ->
         for component in param
           result.push(component)
     result.slice(0, size)
+
+selectionComponents = {
+  x: 0
+  y: 1
+  z: 2
+  w: 3
+  r: 0
+  g: 1
+  b: 2
+  a: 3
+  s: 0
+  t: 1
+  p: 2
+  q: 3
+}
+select = (x, selection) ->
+  # TODO: be more restrictive
+  for char in selection
+    x[selectionComponents[char]]
 
 n = {
   add: zip (x, y) -> x + y
@@ -85,11 +107,20 @@ evaluate = (env, ast) ->
   else if type == "float"
     ast.evaluated = [ast.value]
   
+  else if type == "postfix"
+    operator_type = ast.operator.type
+    if operator_type == "field_selector"
+      selection = ast.operator.selection
+      evaluate(env, ast.expression)
+      ast.evaluated = select(ast.expression.evaluated, selection)
+    else
+      throw "Unsupported postfix operator: #{operator_type}"
+  
   else if type == "unary"
     operator = ast.operator.operator
     evaluate(env, ast.expression)
     if operator == "-"
-      ast.evaluated = n.mul(-1, ast.expression.evaluated)
+      ast.evaluated = n.mul([-1], ast.expression.evaluated)
     else if operator == "+"
       ast.evaluated = ast.expression.evaluated
     else

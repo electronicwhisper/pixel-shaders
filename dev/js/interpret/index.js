@@ -8,7 +8,7 @@ Data types
 
 
 (function() {
-  var builtin, clamp, evaluate, makeEnv, makeEnvFromHash, n, vec, zip,
+  var builtin, clamp, evaluate, makeEnv, makeEnvFromHash, n, select, selectionComponents, vec, zip,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty;
 
@@ -54,6 +54,31 @@ Data types
       }
       return result.slice(0, size);
     };
+  };
+
+  selectionComponents = {
+    x: 0,
+    y: 1,
+    z: 2,
+    w: 3,
+    r: 0,
+    g: 1,
+    b: 2,
+    a: 3,
+    s: 0,
+    t: 1,
+    p: 2,
+    q: 3
+  };
+
+  select = function(x, selection) {
+    var char, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = selection.length; _i < _len; _i++) {
+      char = selection[_i];
+      _results.push(x[selectionComponents[char]]);
+    }
+    return _results;
   };
 
   n = {
@@ -137,18 +162,27 @@ Data types
   };
 
   evaluate = function(env, ast) {
-    var evaluatedParameters, function_name, name, operator, parameter, type;
+    var evaluatedParameters, function_name, name, operator, operator_type, parameter, selection, type;
     type = ast.type;
     if (type === "identifier") {
       name = ast.name;
       return ast.evaluated = env.get(name);
     } else if (type === "float") {
       return ast.evaluated = [ast.value];
+    } else if (type === "postfix") {
+      operator_type = ast.operator.type;
+      if (operator_type === "field_selector") {
+        selection = ast.operator.selection;
+        evaluate(env, ast.expression);
+        return ast.evaluated = select(ast.expression.evaluated, selection);
+      } else {
+        throw "Unsupported postfix operator: " + operator_type;
+      }
     } else if (type === "unary") {
       operator = ast.operator.operator;
       evaluate(env, ast.expression);
       if (operator === "-") {
-        return ast.evaluated = n.mul(-1, ast.expression.evaluated);
+        return ast.evaluated = n.mul([-1], ast.expression.evaluated);
       } else if (operator === "+") {
         return ast.evaluated = ast.expression.evaluated;
       } else {

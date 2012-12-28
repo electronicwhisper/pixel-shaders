@@ -137,6 +137,23 @@ ko.bindingHandlers.editorShader = {
     #         })
 }
 
+
+# ======================================================= editorLine
+
+ko.bindingHandlers.editorLine = {
+  init: (element, valueAccessor) ->
+    o = valueAccessor()
+    editor = require("editor")({
+      div: element
+      src: o.src()
+      multiline: false
+    })
+    
+    editor.on "change", () ->
+      o.src(editor.src())
+}
+
+
 # ======================================================= drawShader
 
 vertexShaderSource = """
@@ -163,17 +180,22 @@ ko.bindingHandlers.drawShader = {
       fragment: o.src()
     })
     
+    draw = () ->
+      shader.draw()
+    
     # src updates
     ko.computed () ->
       if o.compiled()
-        shader.draw({fragment: o.src()})
+        shader.set({fragment: o.src()})
+        draw()
     
     # bounds updates
     ko.computed () ->
       uniformValues = {}
       uniformValues.boundsMin = [o.bounds().minX, o.bounds().minY]
       uniformValues.boundsMax = [o.bounds().maxX, o.bounds().maxY]
-      shader.draw({uniforms: uniformValues})
+      shader.set({uniforms: uniformValues})
+      draw()
     
     # uniforms updates
     ko.computed () ->
@@ -182,7 +204,8 @@ ko.bindingHandlers.drawShader = {
       for own name, uniform of uniforms
         if uniform.value != undefined
           uniformValues[name] = uniform.value
-      shader.draw({uniforms: uniformValues})
+      shader.set({uniforms: uniformValues})
+      draw()
 }
 
 
@@ -212,7 +235,25 @@ updateUniforms = (uniformsObservable) ->
 
 
 
-do ->
+
+
+
+templates = {
+  shaderExample: """
+  <div class="book-view-edit">
+    <div class="book-view" data-bind="panAndZoom: {bounds: bounds}">
+      <canvas data-bind="drawShader: {bounds: bounds, src: src, compiled: compiled, uniforms: uniforms}"></canvas>
+      <canvas class="book-grid" data-bind="drawGrid: {bounds: bounds, color: 'white'}"></canvas>
+    </div>
+    <div class="book-edit book-editor" data-bind="editorShader: {src: src, compiled: compiled, uniforms: uniforms}">
+    </div>
+  </div>
+  """
+  
+}
+
+# TODO
+makeShaderExample = (src) ->
   fragmentShaderSource = """
   precision mediump float;
   
@@ -239,5 +280,39 @@ do ->
   }
   rafAnimate () ->
     updateUniforms(model.uniforms)
+
+
+
+
+floatToString = (n, significantDigits) ->
+  n.toPrecision(significantDigits)
+vecToString = (x, significantDigits) ->
+  fts = (n) ->
+    floatToString(n, significantDigits)
+  
+  if x.length == 1
+    fts(x[0])
+  else
+    s = (fts(n) for n in x).join(", ")
+    return "vec#{x.length}(#{s})"
+
+
+do ->
+  model = {
+    src: ko.observable("3. + 5.")
+    result: ko.observable("")
+  }
+  
+  ko.computed () ->
+    src = model.src()
+    try
+      ast = require("parse-glsl").parse(src, "assignment_expression")
+      console.log ast
+      require("interpret")({}, ast)
+      
+      
+      result = vecToString(ast.evaluated, 3)
+      console.log result
+      model.result(result)
   
   ko.applyBindings(model)
