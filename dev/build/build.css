@@ -475,11 +475,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   color: #809
 }
 
-.cm-s-default .cm-int {
+.cm-s-default .cm-int,
+.cm-s-default .int {
   color: #d00
 }
 
-.cm-s-default .cm-float {
+.cm-s-default .cm-float,
+.cm-s-default .float {
   color: #295
 }
 
@@ -494,12 +496,22 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   background-color: #fcc
 }
 
+.editor-annotations {
+  position: absolute;
+  left: 0;
+  top: 0
+}
+
 .editor-annotation {
+  position: absolute;
   margin-left: 12px;
-  padding: 1px;
+  margin-top: 3px;
+  font-size: 15px;
+  padding: 2px 5px;
   border-radius: 3px;
-  background-color: #ddd;
-  opacity: 0.5
+  background-color: rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  pointer-events: none
 }
 
 

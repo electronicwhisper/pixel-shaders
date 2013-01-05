@@ -9,24 +9,32 @@
   Emitter = require('emitter');
 
   module.exports = function(opts) {
-    var $div, annotations, cm, editor, errors, multiline, oldAnnotations, src, update, widgets;
+    var $annotations, $div, annotations, cm, cmOpts, editor, errors, multiline, src, update, widgets;
     $div = $(opts.div);
     multiline = opts.multiline || false;
     src = opts.src || "";
     errors = opts.errors || {};
     annotations = opts.annotations || {};
     widgets = opts.widgets || {};
-    cm = codemirror($div[0], {
+    cmOpts = {
       mode: "text/x-glsl",
       value: src,
-      lineNumbers: multiline,
+      lineNumbers: true,
       matchBrackets: true
-    });
+    };
+    if (!multiline) {
+      cmOpts.lineNumberFormatter = function(n) {
+        return "";
+      };
+    }
+    cm = codemirror($div[0], cmOpts);
     if (multiline) {
       cm.setSize("100%", $div.innerHeight());
     } else {
       cm.setSize("100%", cm.defaultTextHeight() + 8);
     }
+    $annotations = $("<div class='editor-annotations'></div>");
+    $(cm.getScrollerElement()).find(".CodeMirror-lines").append($annotations);
     editor = {
       codemirror: cm,
       src: function() {
@@ -34,9 +42,8 @@
       }
     };
     Emitter(editor);
-    oldAnnotations = [];
     update = function() {
-      var $element, annotation, error, line, oldAnnotation, pos, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
+      var $annotation, annotation, charPos, error, line, xyPos, _i, _j, _k, _len, _len1, _ref, _results;
       for (line = _i = 0, _ref = cm.lineCount(); 0 <= _ref ? _i < _ref : _i > _ref; line = 0 <= _ref ? ++_i : --_i) {
         cm.removeLineClass(line, "wrap", "editor-error");
       }
@@ -44,19 +51,22 @@
         error = errors[_j];
         cm.addLineClass(error.line, "wrap", "editor-error");
       }
-      for (_k = 0, _len1 = oldAnnotations.length; _k < _len1; _k++) {
-        oldAnnotation = oldAnnotations[_k];
-        oldAnnotation.clear();
-      }
+      $annotations.html("");
       _results = [];
-      for (_l = 0, _len2 = annotations.length; _l < _len2; _l++) {
-        annotation = annotations[_l];
-        pos = {
+      for (_k = 0, _len1 = annotations.length; _k < _len1; _k++) {
+        annotation = annotations[_k];
+        charPos = {
           line: annotation.line,
           ch: cm.getLine(annotation.line).length
         };
-        $element = $("<span class='editor-annotation'></span>").text(annotation.message);
-        _results.push(oldAnnotations.push(cm.setBookmark(pos, $element[0])));
+        xyPos = cm.cursorCoords(charPos, "local");
+        $annotation = $("<div class='editor-annotation'></div>");
+        codemirror.runMode(annotation.message, "text/x-glsl", $annotation[0]);
+        $annotation.css({
+          left: xyPos.left,
+          top: xyPos.top
+        });
+        _results.push($annotations.append($annotation));
       }
       return _results;
     };

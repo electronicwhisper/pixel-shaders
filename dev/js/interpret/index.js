@@ -8,9 +8,11 @@ Data types
 
 
 (function() {
-  var builtin, clamp, evaluate, makeEnv, makeEnvFromHash, n, select, selectionComponents, vec, zip,
+  var builtin, clamp, evaluate, extractStatements, floatToString, makeEnv, makeEnvFromHash, operators, select, selectionComponents, vec, vecToString, zip, _,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty;
+
+  _ = require("underscore");
 
   zip = function(f) {
     return function() {
@@ -81,7 +83,7 @@ Data types
     return _results;
   };
 
-  n = {
+  operators = {
     add: zip(function(x, y) {
       return x + y;
     }),
@@ -162,9 +164,38 @@ Data types
   };
 
   evaluate = function(env, ast) {
-    var evaluatedParameters, function_name, name, operator, operator_type, parameter, selection, type;
+    var evaluatedParameters, function_name, name, operator, operator_type, parameter, selection, statement, type, _i, _j, _len, _len1, _ref, _ref1, _results, _results1;
     type = ast.type;
-    if (type === "identifier") {
+    if (type === "root") {
+      _ref = ast.statements;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        statement = _ref[_i];
+        _results.push(evaluate(env, statement));
+      }
+      return _results;
+    } else if (type === "precision") {
+
+    } else if (type === "declarator") {
+
+    } else if (type === "function_declaration") {
+      if (ast.name === "main") {
+        return evaluate(env, ast.body);
+      } else {
+
+      }
+    } else if (type === "scope") {
+      _ref1 = ast.statements;
+      _results1 = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        statement = _ref1[_j];
+        _results1.push(evaluate(env, statement));
+      }
+      return _results1;
+    } else if (type === "expression") {
+      evaluate(env, ast.expression);
+      return ast.evaluated = ast.expression.evaluated;
+    } else if (type === "identifier") {
       name = ast.name;
       return ast.evaluated = env.get(name);
     } else if (type === "float") {
@@ -182,7 +213,7 @@ Data types
       operator = ast.operator.operator;
       evaluate(env, ast.expression);
       if (operator === "-") {
-        return ast.evaluated = n.mul([-1], ast.expression.evaluated);
+        return ast.evaluated = operators.mul([-1], ast.expression.evaluated);
       } else if (operator === "+") {
         return ast.evaluated = ast.expression.evaluated;
       } else {
@@ -190,16 +221,20 @@ Data types
       }
     } else if (type === "binary") {
       operator = ast.operator.operator;
-      evaluate(env, ast.left);
+      if (operator !== "=") {
+        evaluate(env, ast.left);
+      }
       evaluate(env, ast.right);
-      if (operator === "+") {
-        return ast.evaluated = n.add(ast.left.evaluated, ast.right.evaluated);
+      if (operator === "=") {
+        return ast.evaluated = ast.right.evaluated;
+      } else if (operator === "+") {
+        return ast.evaluated = operators.add(ast.left.evaluated, ast.right.evaluated);
       } else if (operator === "-") {
-        return ast.evaluated = n.sub(ast.left.evaluated, ast.right.evaluated);
+        return ast.evaluated = operators.sub(ast.left.evaluated, ast.right.evaluated);
       } else if (operator === "*") {
-        return ast.evaluated = n.mul(ast.left.evaluated, ast.right.evaluated);
+        return ast.evaluated = operators.mul(ast.left.evaluated, ast.right.evaluated);
       } else if (operator === "/") {
-        return ast.evaluated = n.div(ast.left.evaluated, ast.right.evaluated);
+        return ast.evaluated = operators.div(ast.left.evaluated, ast.right.evaluated);
       } else {
         throw "Unsupported binary operator: " + operator;
       }
@@ -207,15 +242,15 @@ Data types
       function_name = ast.function_name;
       if (builtin[function_name]) {
         evaluatedParameters = (function() {
-          var _i, _len, _ref, _results;
-          _ref = ast.parameters;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            parameter = _ref[_i];
+          var _k, _len2, _ref2, _results2;
+          _ref2 = ast.parameters;
+          _results2 = [];
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            parameter = _ref2[_k];
             evaluate(env, parameter);
-            _results.push(parameter.evaluated);
+            _results2.push(parameter.evaluated);
           }
-          return _results;
+          return _results2;
         })();
         return ast.evaluated = builtin[function_name].apply(builtin, evaluatedParameters);
       } else {
@@ -231,5 +266,69 @@ Data types
     env = makeEnvFromHash(hash);
     return evaluate(env, ast);
   };
+
+  floatToString = function(n, significantDigits) {
+    var s;
+    s = n.toFixed(significantDigits);
+    if (!s.indexOf(".")) {
+      s = s + ".";
+    }
+    return s.replace(/0+$/, "");
+  };
+
+  vecToString = function(x, significantDigits) {
+    var fts, n, s;
+    fts = function(n) {
+      return floatToString(n, significantDigits);
+    };
+    if (x.length === 1) {
+      return fts(x[0]);
+    } else {
+      s = ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = x.length; _i < _len; _i++) {
+          n = x[_i];
+          _results.push(fts(n));
+        }
+        return _results;
+      })()).join(", ");
+      return "vec" + x.length + "(" + s + ")";
+    }
+  };
+
+  extractStatements = function(ast, result) {
+    var a, k, statement, v, _i, _j, _len, _len1, _ref;
+    if (result == null) {
+      result = [];
+    }
+    if (ast.statements) {
+      _ref = ast.statements;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        statement = _ref[_i];
+        if (statement.evaluated) {
+          result.push({
+            line: statement.line - 1,
+            message: vecToString(statement.evaluated, 5)
+          });
+        }
+      }
+    }
+    if (_.isObject(ast)) {
+      for (k in ast) {
+        if (!__hasProp.call(ast, k)) continue;
+        v = ast[k];
+        extractStatements(v, result);
+      }
+    } else if (_.isArray(ast)) {
+      for (_j = 0, _len1 = ast.length; _j < _len1; _j++) {
+        a = ast[_j];
+        extractStatements(a, result);
+      }
+    }
+    return result;
+  };
+
+  module.exports.extractStatements = extractStatements;
 
 }).call(this);

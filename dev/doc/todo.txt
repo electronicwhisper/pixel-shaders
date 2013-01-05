@@ -1,6 +1,6 @@
 rgba output, sampling pixels
-separate layer for doing annotations
-evaluator widget
+
+document the options on each of the ko.bindingHandler's
 
 
 

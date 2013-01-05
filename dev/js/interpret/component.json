@@ -1,4 +1,7 @@
 {
   "name": "interpret",
+  "dependencies": {
+    "component/underscore": "*"
+  },
   "scripts": ["index.js"]
 }

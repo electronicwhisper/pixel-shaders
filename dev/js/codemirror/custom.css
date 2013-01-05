@@ -1,5 +1,6 @@
 .cm-s-default .cm-comment {color: #06f; font-style: italic}
 .cm-s-default .cm-keyword {color: #809;}
-.cm-s-default .cm-int {color: #d00;}
-.cm-s-default .cm-float {color: #295;}
+/* There's a bug with codemirror where runmode won't add the cm- prefix to classes beyond the first */
+.cm-s-default .cm-int, .cm-s-default .int {color: #d00;}
+.cm-s-default .cm-float, .cm-s-default .float {color: #295;}
 .cm-s-default .cm-property {color: #910;}

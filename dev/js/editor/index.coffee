@@ -7,23 +7,30 @@ module.exports = (opts) ->
   $div = $(opts.div)
   multiline = opts.multiline || false
   src = opts.src || ""
-  # errorCheck = opts.errorCheck || false
   errors = opts.errors || {}
   annotations = opts.annotations || {}
   widgets = opts.widgets || {}
   
-  cm = codemirror($div[0], {
+  cmOpts = {
     mode: "text/x-glsl"
     value: src
-    lineNumbers: multiline
+    lineNumbers: true
     matchBrackets: true
-  })
+  }
+  if !multiline
+    cmOpts.lineNumberFormatter = (n) -> ""
+  
+  cm = codemirror($div[0], cmOpts)
   
   # set height
   if multiline
     cm.setSize("100%", $div.innerHeight())
   else
     cm.setSize("100%", cm.defaultTextHeight() + 8)
+  
+  # make $annotations, container for annotations
+  $annotations = $("<div class='editor-annotations'></div>")
+  $(cm.getScrollerElement()).find(".CodeMirror-lines").append($annotations)
   
   editor = {
     codemirror: cm
@@ -32,7 +39,7 @@ module.exports = (opts) ->
   
   Emitter(editor)
   
-  oldAnnotations = []
+  
   update = () ->
     # =================================== errors
     # first remove all error classes
@@ -42,14 +49,14 @@ module.exports = (opts) ->
       cm.addLineClass(error.line, "wrap", "editor-error")
     
     # =================================== annotations
-    # first remove all old annotations
-    for oldAnnotation in oldAnnotations
-      oldAnnotation.clear()
-    # add annotations
+    $annotations.html("") # remove old annotations
     for annotation in annotations
-      pos = {line: annotation.line, ch: cm.getLine(annotation.line).length}
-      $element = $("<span class='editor-annotation'></span>").text(annotation.message)
-      oldAnnotations.push(cm.setBookmark(pos, $element[0]))
+      charPos = {line: annotation.line, ch: cm.getLine(annotation.line).length}
+      xyPos = cm.cursorCoords(charPos, "local")
+      $annotation = $("<div class='editor-annotation'></div>")
+      codemirror.runMode(annotation.message, "text/x-glsl", $annotation[0])
+      $annotation.css({left: xyPos.left, top: xyPos.top})
+      $annotations.append($annotation)
     
     # =================================== widgets
   

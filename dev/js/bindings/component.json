@@ -16,6 +16,7 @@
     "xregexp",
     "webcam",
     "parse-glsl",
-    "interpret"
+    "interpret",
+    "codemirror"
   ]
 }

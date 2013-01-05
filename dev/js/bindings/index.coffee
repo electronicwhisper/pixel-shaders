@@ -15,6 +15,45 @@ sizeCanvas = (canvas) ->
   canvas.width = w
   canvas.height = h
 
+# ======================================================= String Util
+
+srcTrim = (s) ->
+  lines = s.split("\n")
+  indent = Infinity
+  for line in lines
+    lineIndent = line.search(/[^ ]/)
+    indent = Math.min(indent, lineIndent) if lineIndent != -1
+  if indent != Infinity
+    lines = for line in lines
+      line.substr(indent)
+  return lines.join("\n").trim()
+
+
+# TODO finish moving this to interpret
+floatToString = (n, significantDigits) ->
+  n.toPrecision(significantDigits)
+vecToString = (x, significantDigits) ->
+  fts = (n) ->
+    floatToString(n, significantDigits)
+  
+  if x.length == 1
+    fts(x[0])
+  else
+    s = (fts(n) for n in x).join(", ")
+    return "vec#{x.length}(#{s})"
+
+XRegExp = require('xregexp').XRegExp
+parseUniforms = (src) ->
+  regex = XRegExp('uniform +(?<type>[^ ]+) +(?<name>[^ ;]+) *;', 'g')
+  
+  uniforms = {}
+  XRegExp.forEach(src, regex, (match) ->
+    uniforms[match.name] = {
+      type: match.type
+    }
+  )
+  return uniforms
+
 # ======================================================= Animation Util
 
 rafAnimate = (callback) ->
@@ -80,79 +119,40 @@ ko.bindingHandlers.panAndZoom = {
 
 # ======================================================= editorShader
 
-# TODO: this probably wants to be its own file
-XRegExp = require('xregexp').XRegExp
-parseUniforms = (src) ->
-  regex = XRegExp('uniform +(?<type>[^ ]+) +(?<name>[^ ;]+) *;', 'g')
-  
-  uniforms = {}
-  XRegExp.forEach(src, regex, (match) ->
-    uniforms[match.name] = {
-      type: match.type
-    }
-  )
-  return uniforms
-
 ko.bindingHandlers.editorShader = {
   init: (element, valueAccessor) ->
     o = valueAccessor()
     editor = require("editor")({
       div: element
       src: o.src()
-      multiline: true
-    })
-    
-    editor.on "change", () ->
-      o.compiled(false)
-      o.src(editor.src())
-    
-    # compile and mark errors
-    ko.computed () ->
-      src = o.src()
-      errors = require("glsl-error")(src)
-      editor.set({
-        errors: errors
-      })
-      
-      compiled = !_.some(errors)
-      o.compiled(compiled)
-    
-    # update uniforms
-    ko.computed () ->
-      if o.compiled()
-        src = o.src()
-        # TODO: make it not clear set values, we'll need to .peek() at uniforms
-        o.uniforms(parseUniforms(src))
-    
-    # # annotate based on uniforms
-    # ko.computed () ->
-    #   if o.compiled()
-    #     uniforms = o.uniforms()
-    #     for own name, uniform of uniforms
-    #       if name == "time"
-    #         lines = o.src.peek().split("\n")
-    #         line = lines.indexOf("uniform float time;")
-    #         editor.set({
-    #           annotations: [{line: line, message: uniform.value}]
-    #         })
-}
-
-
-# ======================================================= editorLine
-
-ko.bindingHandlers.editorLine = {
-  init: (element, valueAccessor) ->
-    o = valueAccessor()
-    editor = require("editor")({
-      div: element
-      src: o.src()
-      multiline: false
+      multiline: o.multiline
     })
     
     editor.on "change", () ->
       o.src(editor.src())
+    
+    if o.errors
+      ko.computed () ->
+        editor.set({
+          errors: o.errors()
+        })
+    
+    if o.annotations
+      ko.computed () ->
+        editor.set({
+          annotations: o.annotations()
+        })
 }
 
+
+# ======================================================= syntaxHighlight
+
+# TODO: figure out why runMode is making .int and .float instead of .cm-int and .cm-float
+ko.bindingHandlers.syntaxHighlight = {
+  update: (element, valueAccessor) ->
+    v = ko.utils.unwrapObservable(valueAccessor())
+    require("codemirror").runMode(v, "text/x-glsl", element)
+}
 
 # ======================================================= drawShader
 
@@ -185,9 +185,8 @@ ko.bindingHandlers.drawShader = {
     
     # src updates
     ko.computed () ->
-      if o.compiled()
-        shader.set({fragment: o.src()})
-        draw()
+      shader.set({fragment: o.src()})
+      draw()
     
     # bounds updates
     ko.computed () ->
@@ -238,34 +237,20 @@ updateUniforms = (uniformsObservable) ->
 
 
 
-templates = {
-  shaderExample: """
+
+buildShaderExample = ($replace) ->
+  src = srcTrim($replace.text())
+  
+  $div = $("""
   <div class="book-view-edit">
     <div class="book-view" data-bind="panAndZoom: {bounds: bounds}">
-      <canvas data-bind="drawShader: {bounds: bounds, src: src, compiled: compiled, uniforms: uniforms}"></canvas>
+      <canvas data-bind="drawShader: {bounds: bounds, src: compiledSrc, uniforms: uniforms}"></canvas>
       <canvas class="book-grid" data-bind="drawGrid: {bounds: bounds, color: 'white'}"></canvas>
     </div>
-    <div class="book-edit book-editor" data-bind="editorShader: {src: src, compiled: compiled, uniforms: uniforms}">
+    <div class="book-edit book-editor" data-bind="editorShader: {src: src, multiline: true, errors: errors, annotations: annotations}">
     </div>
   </div>
-  """
-  
-}
-
-# TODO
-makeShaderExample = (src) ->
-  fragmentShaderSource = """
-  precision mediump float;
-  
-  varying vec2 position;
-  
-  void main() {
-    gl_FragColor.r = position.x;
-    gl_FragColor.g = position.y;
-    gl_FragColor.b = 0.0;
-    gl_FragColor.a = 1.0;
-  }
-  """
+  """)
   
   model = {
     bounds: ko.observable({
@@ -274,45 +259,119 @@ makeShaderExample = (src) ->
       maxX: 1
       maxY: 1
     })
-    src: ko.observable(fragmentShaderSource)
-    compiled: ko.observable(false)
+    src: ko.observable(src)
+    compiledSrc: ko.observable(src)
+    errors: ko.observable([])
+    annotations: ko.observable([])
     uniforms: ko.observable({})
   }
+  
   rafAnimate () ->
     updateUniforms(model.uniforms)
-
-
-
-
-floatToString = (n, significantDigits) ->
-  n.toPrecision(significantDigits)
-vecToString = (x, significantDigits) ->
-  fts = (n) ->
-    floatToString(n, significantDigits)
   
-  if x.length == 1
-    fts(x[0])
-  else
-    s = (fts(n) for n in x).join(", ")
-    return "vec#{x.length}(#{s})"
+  # compile and mark errors
+  ko.computed () ->
+    src = model.src()
+    errors = require("glsl-error")(src)
+    model.errors(errors)
+    
+    if !_.some(errors)
+      model.compiledSrc(src)
+  
+  # update uniforms
+  ko.computed () ->
+    src = model.compiledSrc()
+    # TODO: make it not clear set values, we'll need to .peek() at uniforms
+    model.uniforms(parseUniforms(src))
+  
+  
+  # # annotate based on uniforms
+  # (ko.computed () ->
+  #   uniforms = model.uniforms()
+  #   for own name, uniform of uniforms
+  #     if name == "time"
+  #       lines = model.compiledSrc.peek().split("\n")
+  #       line = lines.indexOf("uniform float time;")
+  #       model.annotations([{line: line, message: uniform.value}])
+  # ).extend({ throttle: 1 })
+  # # TODO: do I really need this throttle?
+  
+  ko.computed () ->
+    src = model.compiledSrc()
+    try
+      ast = require("parse-glsl").parse(src, "fragment_start")
+      require("interpret")({
+        position: [0.5, 0.5]
+      }, ast)
+      annotations = require("interpret").extractStatements(ast)
+      model.annotations(annotations)
+    catch e
+      console.log ast
+      throw e
+      
+      model.annotations([])
+  
+  
+  $replace.replaceWith($div)
+  
+  ko.applyBindings(model, $div[0]) # for sizing, this has to be after the div has been added to the body
 
 
-do ->
+
+
+
+
+
+buildEvaluator = ($replace) ->
+  src = srcTrim($replace.text())
+  $div = $("""
+  <div class="book-editor" data-bind="editorShader: {src: src, multiline: false, annotations: annotations, errors: errors}"></div>
+  """)
+  
   model = {
-    src: ko.observable("3. + 5.")
-    result: ko.observable("")
+    src: ko.observable(src)
+    annotations: ko.observable([])
+    errors: ko.observable([])
   }
   
   ko.computed () ->
     src = model.src()
     try
       ast = require("parse-glsl").parse(src, "assignment_expression")
-      console.log ast
+      # console.log ast
       require("interpret")({}, ast)
       
-      
       result = vecToString(ast.evaluated, 3)
-      console.log result
-      model.result(result)
+      # console.log result
+      model.annotations([{line: 0, message: result}])
+      model.errors([])
+    catch e
+      model.annotations([])
+      model.errors([{line: 0, message: ""}])
   
-  ko.applyBindings(model)
+  $replace.replaceWith($div)
+  
+  ko.applyBindings(model, $div[0])
+
+
+
+
+build = ($selection, buildFunction) ->
+  $selection.each () ->
+    buildFunction($(this))
+
+
+#
+do ->
+  build($(".shader-example"), buildShaderExample)
+  build($(".evaluator"), buildEvaluator)
+
+
+
+
+
+
+
+
+
+

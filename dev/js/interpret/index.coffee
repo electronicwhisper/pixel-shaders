@@ -7,6 +7,8 @@ Data types
 ###
 
 
+_ = require("underscore")
+
 zip = (f) ->
   (params...) ->
     maxLength = 0
@@ -46,7 +48,7 @@ select = (x, selection) ->
   for char in selection
     x[selectionComponents[char]]
 
-n = {
+operators = {
   add: zip (x, y) -> x + y
   sub: zip (x, y) -> x - y
   mul: zip (x, y) -> x * y
@@ -100,7 +102,32 @@ evaluate = (env, ast) ->
   # console.log "evaluating", ast
   type = ast.type
   
-  if type == "identifier"
+  if type == "root"
+    for statement in ast.statements
+      evaluate(env, statement)
+  
+  else if type == "precision"
+    # done
+  
+  else if type == "declarator"
+    # TODO
+  
+  else if type == "function_declaration"
+    if ast.name == "main"
+      evaluate(env, ast.body)
+    else
+      # TODO add it to the env
+  
+  else if type == "scope"
+    # TODO make a nested env
+    for statement in ast.statements
+      evaluate(env, statement)
+  
+  else if type == "expression"
+    evaluate(env, ast.expression)
+    ast.evaluated = ast.expression.evaluated
+  
+  else if type == "identifier"
     name = ast.name
     ast.evaluated = env.get(name)
   
@@ -120,7 +147,7 @@ evaluate = (env, ast) ->
     operator = ast.operator.operator
     evaluate(env, ast.expression)
     if operator == "-"
-      ast.evaluated = n.mul([-1], ast.expression.evaluated)
+      ast.evaluated = operators.mul([-1], ast.expression.evaluated)
     else if operator == "+"
       ast.evaluated = ast.expression.evaluated
     else
@@ -128,17 +155,20 @@ evaluate = (env, ast) ->
   
   else if type == "binary"
     operator = ast.operator.operator
-    # TODO: don't evaluate left side if operator is =, etc.
-    evaluate(env, ast.left)
+    if operator != "="
+      evaluate(env, ast.left)
     evaluate(env, ast.right)
-    if operator == "+"
-      ast.evaluated = n.add(ast.left.evaluated, ast.right.evaluated)
+    if operator == "="
+      # TODO modify the env
+      ast.evaluated = ast.right.evaluated
+    else if operator == "+"
+      ast.evaluated = operators.add(ast.left.evaluated, ast.right.evaluated)
     else if operator == "-"
-      ast.evaluated = n.sub(ast.left.evaluated, ast.right.evaluated)
+      ast.evaluated = operators.sub(ast.left.evaluated, ast.right.evaluated)
     else if operator == "*"
-      ast.evaluated = n.mul(ast.left.evaluated, ast.right.evaluated)
+      ast.evaluated = operators.mul(ast.left.evaluated, ast.right.evaluated)
     else if operator == "/"
-      ast.evaluated = n.div(ast.left.evaluated, ast.right.evaluated)
+      ast.evaluated = operators.div(ast.left.evaluated, ast.right.evaluated)
     else
       throw "Unsupported binary operator: #{operator}"
   
@@ -159,3 +189,68 @@ evaluate = (env, ast) ->
 module.exports = (hash, ast) ->
   env = makeEnvFromHash(hash)
   evaluate(env, ast)
+
+
+
+floatToString = (n, significantDigits) ->
+  # s = "" + n
+  # if !s.indexOf(".")
+  #   s = s + "."
+  # 
+  s = n.toFixed(significantDigits)
+  if !s.indexOf(".")
+    s = s + "."
+  # shave 0's off the end
+  s.replace(/0+$/, "")
+vecToString = (x, significantDigits) ->
+  fts = (n) ->
+    floatToString(n, significantDigits)
+  
+  if x.length == 1
+    fts(x[0])
+  else
+    s = (fts(n) for n in x).join(", ")
+    return "vec#{x.length}(#{s})"
+
+# takes an evaluated ast and finds the statements, returns a list of {line, message}
+extractStatements = (ast, result = []) ->
+  if ast.statements
+    for statement in ast.statements
+      if statement.evaluated
+        result.push({
+          line: statement.line - 1 # pegjs does 1-based line numbering
+          message: vecToString(statement.evaluated, 5)
+        })
+  
+  # recurse
+  if _.isObject(ast)
+    for own k, v of ast
+      extractStatements(v, result)
+  else if _.isArray(ast)
+    for a in ast
+      extractStatements(a, result)
+  
+  return result
+
+
+
+module.exports.extractStatements = extractStatements
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

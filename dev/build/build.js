@@ -16589,24 +16589,32 @@ require.register("editor/index.js", function(module, exports, require){
   Emitter = require('emitter');
 
   module.exports = function(opts) {
-    var $div, annotations, cm, editor, errors, multiline, oldAnnotations, src, update, widgets;
+    var $annotations, $div, annotations, cm, cmOpts, editor, errors, multiline, src, update, widgets;
     $div = $(opts.div);
     multiline = opts.multiline || false;
     src = opts.src || "";
     errors = opts.errors || {};
     annotations = opts.annotations || {};
     widgets = opts.widgets || {};
-    cm = codemirror($div[0], {
+    cmOpts = {
       mode: "text/x-glsl",
       value: src,
-      lineNumbers: multiline,
+      lineNumbers: true,
       matchBrackets: true
-    });
+    };
+    if (!multiline) {
+      cmOpts.lineNumberFormatter = function(n) {
+        return "";
+      };
+    }
+    cm = codemirror($div[0], cmOpts);
     if (multiline) {
       cm.setSize("100%", $div.innerHeight());
     } else {
       cm.setSize("100%", cm.defaultTextHeight() + 8);
     }
+    $annotations = $("<div class='editor-annotations'></div>");
+    $(cm.getScrollerElement()).find(".CodeMirror-lines").append($annotations);
     editor = {
       codemirror: cm,
       src: function() {
@@ -16614,9 +16622,8 @@ require.register("editor/index.js", function(module, exports, require){
       }
     };
     Emitter(editor);
-    oldAnnotations = [];
     update = function() {
-      var $element, annotation, error, line, oldAnnotation, pos, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
+      var $annotation, annotation, charPos, error, line, xyPos, _i, _j, _k, _len, _len1, _ref, _results;
       for (line = _i = 0, _ref = cm.lineCount(); 0 <= _ref ? _i < _ref : _i > _ref; line = 0 <= _ref ? ++_i : --_i) {
         cm.removeLineClass(line, "wrap", "editor-error");
       }
@@ -16624,19 +16631,22 @@ require.register("editor/index.js", function(module, exports, require){
         error = errors[_j];
         cm.addLineClass(error.line, "wrap", "editor-error");
       }
-      for (_k = 0, _len1 = oldAnnotations.length; _k < _len1; _k++) {
-        oldAnnotation = oldAnnotations[_k];
-        oldAnnotation.clear();
-      }
+      $annotations.html("");
       _results = [];
-      for (_l = 0, _len2 = annotations.length; _l < _len2; _l++) {
-        annotation = annotations[_l];
-        pos = {
+      for (_k = 0, _len1 = annotations.length; _k < _len1; _k++) {
+        annotation = annotations[_k];
+        charPos = {
           line: annotation.line,
           ch: cm.getLine(annotation.line).length
         };
-        $element = $("<span class='editor-annotation'></span>").text(annotation.message);
-        _results.push(oldAnnotations.push(cm.setBookmark(pos, $element[0])));
+        xyPos = cm.cursorCoords(charPos, "local");
+        $annotation = $("<div class='editor-annotation'></div>");
+        codemirror.runMode(annotation.message, "text/x-glsl", $annotation[0]);
+        $annotation.css({
+          left: xyPos.left,
+          top: xyPos.top
+        });
+        _results.push($annotations.append($annotation));
       }
       return _results;
     };
@@ -30937,9 +30947,11 @@ Data types
 
 
 (function() {
-  var builtin, clamp, evaluate, makeEnv, makeEnvFromHash, n, select, selectionComponents, vec, zip,
+  var builtin, clamp, evaluate, extractStatements, floatToString, makeEnv, makeEnvFromHash, operators, select, selectionComponents, vec, vecToString, zip, _,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty;
+
+  _ = require("underscore");
 
   zip = function(f) {
     return function() {
@@ -31010,7 +31022,7 @@ Data types
     return _results;
   };
 
-  n = {
+  operators = {
     add: zip(function(x, y) {
       return x + y;
     }),
@@ -31091,9 +31103,38 @@ Data types
   };
 
   evaluate = function(env, ast) {
-    var evaluatedParameters, function_name, name, operator, operator_type, parameter, selection, type;
+    var evaluatedParameters, function_name, name, operator, operator_type, parameter, selection, statement, type, _i, _j, _len, _len1, _ref, _ref1, _results, _results1;
     type = ast.type;
-    if (type === "identifier") {
+    if (type === "root") {
+      _ref = ast.statements;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        statement = _ref[_i];
+        _results.push(evaluate(env, statement));
+      }
+      return _results;
+    } else if (type === "precision") {
+
+    } else if (type === "declarator") {
+
+    } else if (type === "function_declaration") {
+      if (ast.name === "main") {
+        return evaluate(env, ast.body);
+      } else {
+
+      }
+    } else if (type === "scope") {
+      _ref1 = ast.statements;
+      _results1 = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        statement = _ref1[_j];
+        _results1.push(evaluate(env, statement));
+      }
+      return _results1;
+    } else if (type === "expression") {
+      evaluate(env, ast.expression);
+      return ast.evaluated = ast.expression.evaluated;
+    } else if (type === "identifier") {
       name = ast.name;
       return ast.evaluated = env.get(name);
     } else if (type === "float") {
@@ -31111,7 +31152,7 @@ Data types
       operator = ast.operator.operator;
       evaluate(env, ast.expression);
       if (operator === "-") {
-        return ast.evaluated = n.mul([-1], ast.expression.evaluated);
+        return ast.evaluated = operators.mul([-1], ast.expression.evaluated);
       } else if (operator === "+") {
         return ast.evaluated = ast.expression.evaluated;
       } else {
@@ -31119,16 +31160,20 @@ Data types
       }
     } else if (type === "binary") {
       operator = ast.operator.operator;
-      evaluate(env, ast.left);
+      if (operator !== "=") {
+        evaluate(env, ast.left);
+      }
       evaluate(env, ast.right);
-      if (operator === "+") {
-        return ast.evaluated = n.add(ast.left.evaluated, ast.right.evaluated);
+      if (operator === "=") {
+        return ast.evaluated = ast.right.evaluated;
+      } else if (operator === "+") {
+        return ast.evaluated = operators.add(ast.left.evaluated, ast.right.evaluated);
       } else if (operator === "-") {
-        return ast.evaluated = n.sub(ast.left.evaluated, ast.right.evaluated);
+        return ast.evaluated = operators.sub(ast.left.evaluated, ast.right.evaluated);
       } else if (operator === "*") {
-        return ast.evaluated = n.mul(ast.left.evaluated, ast.right.evaluated);
+        return ast.evaluated = operators.mul(ast.left.evaluated, ast.right.evaluated);
       } else if (operator === "/") {
-        return ast.evaluated = n.div(ast.left.evaluated, ast.right.evaluated);
+        return ast.evaluated = operators.div(ast.left.evaluated, ast.right.evaluated);
       } else {
         throw "Unsupported binary operator: " + operator;
       }
@@ -31136,15 +31181,15 @@ Data types
       function_name = ast.function_name;
       if (builtin[function_name]) {
         evaluatedParameters = (function() {
-          var _i, _len, _ref, _results;
-          _ref = ast.parameters;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            parameter = _ref[_i];
+          var _k, _len2, _ref2, _results2;
+          _ref2 = ast.parameters;
+          _results2 = [];
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            parameter = _ref2[_k];
             evaluate(env, parameter);
-            _results.push(parameter.evaluated);
+            _results2.push(parameter.evaluated);
           }
-          return _results;
+          return _results2;
         })();
         return ast.evaluated = builtin[function_name].apply(builtin, evaluatedParameters);
       } else {
@@ -31161,13 +31206,77 @@ Data types
     return evaluate(env, ast);
   };
 
+  floatToString = function(n, significantDigits) {
+    var s;
+    s = n.toFixed(significantDigits);
+    if (!s.indexOf(".")) {
+      s = s + ".";
+    }
+    return s.replace(/0+$/, "");
+  };
+
+  vecToString = function(x, significantDigits) {
+    var fts, n, s;
+    fts = function(n) {
+      return floatToString(n, significantDigits);
+    };
+    if (x.length === 1) {
+      return fts(x[0]);
+    } else {
+      s = ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = x.length; _i < _len; _i++) {
+          n = x[_i];
+          _results.push(fts(n));
+        }
+        return _results;
+      })()).join(", ");
+      return "vec" + x.length + "(" + s + ")";
+    }
+  };
+
+  extractStatements = function(ast, result) {
+    var a, k, statement, v, _i, _j, _len, _len1, _ref;
+    if (result == null) {
+      result = [];
+    }
+    if (ast.statements) {
+      _ref = ast.statements;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        statement = _ref[_i];
+        if (statement.evaluated) {
+          result.push({
+            line: statement.line - 1,
+            message: vecToString(statement.evaluated, 5)
+          });
+        }
+      }
+    }
+    if (_.isObject(ast)) {
+      for (k in ast) {
+        if (!__hasProp.call(ast, k)) continue;
+        v = ast[k];
+        extractStatements(v, result);
+      }
+    } else if (_.isArray(ast)) {
+      for (_j = 0, _len1 = ast.length; _j < _len1; _j++) {
+        a = ast[_j];
+        extractStatements(a, result);
+      }
+    }
+    return result;
+  };
+
+  module.exports.extractStatements = extractStatements;
+
 }).call(this);
 
 });
 require.register("bindings/index.js", function(module, exports, require){
 // Generated by CoffeeScript 1.4.0
 (function() {
-  var $, XRegExp, clear, floatToString, ko, makeShaderExample, parseUniforms, rafAnimate, sizeCanvas, startTime, templates, updateUniforms, vecToString, vertexShaderSource, _,
+  var $, XRegExp, build, buildEvaluator, buildShaderExample, clear, floatToString, ko, parseUniforms, rafAnimate, sizeCanvas, srcTrim, startTime, updateUniforms, vecToString, vertexShaderSource, _,
     __hasProp = {}.hasOwnProperty;
 
   ko = require("knockout");
@@ -31189,6 +31298,70 @@ require.register("bindings/index.js", function(module, exports, require){
     h = $(canvas).height();
     canvas.width = w;
     return canvas.height = h;
+  };
+
+  srcTrim = function(s) {
+    var indent, line, lineIndent, lines, _i, _len;
+    lines = s.split("\n");
+    indent = Infinity;
+    for (_i = 0, _len = lines.length; _i < _len; _i++) {
+      line = lines[_i];
+      lineIndent = line.search(/[^ ]/);
+      if (lineIndent !== -1) {
+        indent = Math.min(indent, lineIndent);
+      }
+    }
+    if (indent !== Infinity) {
+      lines = (function() {
+        var _j, _len1, _results;
+        _results = [];
+        for (_j = 0, _len1 = lines.length; _j < _len1; _j++) {
+          line = lines[_j];
+          _results.push(line.substr(indent));
+        }
+        return _results;
+      })();
+    }
+    return lines.join("\n").trim();
+  };
+
+  floatToString = function(n, significantDigits) {
+    return n.toPrecision(significantDigits);
+  };
+
+  vecToString = function(x, significantDigits) {
+    var fts, n, s;
+    fts = function(n) {
+      return floatToString(n, significantDigits);
+    };
+    if (x.length === 1) {
+      return fts(x[0]);
+    } else {
+      s = ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = x.length; _i < _len; _i++) {
+          n = x[_i];
+          _results.push(fts(n));
+        }
+        return _results;
+      })()).join(", ");
+      return "vec" + x.length + "(" + s + ")";
+    }
+  };
+
+  XRegExp = require('xregexp').XRegExp;
+
+  parseUniforms = function(src) {
+    var regex, uniforms;
+    regex = XRegExp('uniform +(?<type>[^ ]+) +(?<name>[^ ;]+) *;', 'g');
+    uniforms = {};
+    XRegExp.forEach(src, regex, function(match) {
+      return uniforms[match.name] = {
+        type: match.type
+      };
+    });
+    return uniforms;
   };
 
   rafAnimate = function(callback) {
@@ -31260,20 +31433,6 @@ require.register("bindings/index.js", function(module, exports, require){
     }
   };
 
-  XRegExp = require('xregexp').XRegExp;
-
-  parseUniforms = function(src) {
-    var regex, uniforms;
-    regex = XRegExp('uniform +(?<type>[^ ]+) +(?<name>[^ ;]+) *;', 'g');
-    uniforms = {};
-    XRegExp.forEach(src, regex, function(match) {
-      return uniforms[match.name] = {
-        type: match.type
-      };
-    });
-    return uniforms;
-  };
-
   ko.bindingHandlers.editorShader = {
     init: function(element, valueAccessor) {
       var editor, o;
@@ -31281,44 +31440,33 @@ require.register("bindings/index.js", function(module, exports, require){
       editor = require("editor")({
         div: element,
         src: o.src(),
-        multiline: true
+        multiline: o.multiline
       });
       editor.on("change", function() {
-        o.compiled(false);
         return o.src(editor.src());
       });
-      ko.computed(function() {
-        var compiled, errors, src;
-        src = o.src();
-        errors = require("glsl-error")(src);
-        editor.set({
-          errors: errors
+      if (o.errors) {
+        ko.computed(function() {
+          return editor.set({
+            errors: o.errors()
+          });
         });
-        compiled = !_.some(errors);
-        return o.compiled(compiled);
-      });
-      return ko.computed(function() {
-        var src;
-        if (o.compiled()) {
-          src = o.src();
-          return o.uniforms(parseUniforms(src));
-        }
-      });
+      }
+      if (o.annotations) {
+        return ko.computed(function() {
+          return editor.set({
+            annotations: o.annotations()
+          });
+        });
+      }
     }
   };
 
-  ko.bindingHandlers.editorLine = {
-    init: function(element, valueAccessor) {
-      var editor, o;
-      o = valueAccessor();
-      editor = require("editor")({
-        div: element,
-        src: o.src(),
-        multiline: false
-      });
-      return editor.on("change", function() {
-        return o.src(editor.src());
-      });
+  ko.bindingHandlers.syntaxHighlight = {
+    update: function(element, valueAccessor) {
+      var v;
+      v = ko.utils.unwrapObservable(valueAccessor());
+      return require("codemirror").runMode(v, "text/x-glsl", element);
     }
   };
 
@@ -31337,12 +31485,10 @@ require.register("bindings/index.js", function(module, exports, require){
         return shader.draw();
       };
       ko.computed(function() {
-        if (o.compiled()) {
-          shader.set({
-            fragment: o.src()
-          });
-          return draw();
-        }
+        shader.set({
+          fragment: o.src()
+        });
+        return draw();
       });
       ko.computed(function() {
         var uniformValues;
@@ -31395,13 +31541,10 @@ require.register("bindings/index.js", function(module, exports, require){
     }
   };
 
-  templates = {
-    shaderExample: "<div class=\"book-view-edit\">\n  <div class=\"book-view\" data-bind=\"panAndZoom: {bounds: bounds}\">\n    <canvas data-bind=\"drawShader: {bounds: bounds, src: src, compiled: compiled, uniforms: uniforms}\"></canvas>\n    <canvas class=\"book-grid\" data-bind=\"drawGrid: {bounds: bounds, color: 'white'}\"></canvas>\n  </div>\n  <div class=\"book-edit book-editor\" data-bind=\"editorShader: {src: src, compiled: compiled, uniforms: uniforms}\">\n  </div>\n</div>"
-  };
-
-  makeShaderExample = function(src) {
-    var fragmentShaderSource, model;
-    fragmentShaderSource = "precision mediump float;\n\nvarying vec2 position;\n\nvoid main() {\n  gl_FragColor.r = position.x;\n  gl_FragColor.g = position.y;\n  gl_FragColor.b = 0.0;\n  gl_FragColor.a = 1.0;\n}";
+  buildShaderExample = function($replace) {
+    var $div, model, src;
+    src = srcTrim($replace.text());
+    $div = $("<div class=\"book-view-edit\">\n  <div class=\"book-view\" data-bind=\"panAndZoom: {bounds: bounds}\">\n    <canvas data-bind=\"drawShader: {bounds: bounds, src: compiledSrc, uniforms: uniforms}\"></canvas>\n    <canvas class=\"book-grid\" data-bind=\"drawGrid: {bounds: bounds, color: 'white'}\"></canvas>\n  </div>\n  <div class=\"book-edit book-editor\" data-bind=\"editorShader: {src: src, multiline: true, errors: errors, annotations: annotations}\">\n  </div>\n</div>");
     model = {
       bounds: ko.observable({
         minX: 0,
@@ -31409,59 +31552,94 @@ require.register("bindings/index.js", function(module, exports, require){
         maxX: 1,
         maxY: 1
       }),
-      src: ko.observable(fragmentShaderSource),
-      compiled: ko.observable(false),
+      src: ko.observable(src),
+      compiledSrc: ko.observable(src),
+      errors: ko.observable([]),
+      annotations: ko.observable([]),
       uniforms: ko.observable({})
     };
-    return rafAnimate(function() {
+    rafAnimate(function() {
       return updateUniforms(model.uniforms);
     });
+    ko.computed(function() {
+      var errors;
+      src = model.src();
+      errors = require("glsl-error")(src);
+      model.errors(errors);
+      if (!_.some(errors)) {
+        return model.compiledSrc(src);
+      }
+    });
+    ko.computed(function() {
+      src = model.compiledSrc();
+      return model.uniforms(parseUniforms(src));
+    });
+    ko.computed(function() {
+      var annotations, ast;
+      src = model.compiledSrc();
+      try {
+        ast = require("parse-glsl").parse(src, "fragment_start");
+        require("interpret")({
+          position: [0.5, 0.5]
+        }, ast);
+        annotations = require("interpret").extractStatements(ast);
+        return model.annotations(annotations);
+      } catch (e) {
+        console.log(ast);
+        throw e;
+        return model.annotations([]);
+      }
+    });
+    $replace.replaceWith($div);
+    return ko.applyBindings(model, $div[0]);
   };
 
-  floatToString = function(n, significantDigits) {
-    return n.toPrecision(significantDigits);
-  };
-
-  vecToString = function(x, significantDigits) {
-    var fts, n, s;
-    fts = function(n) {
-      return floatToString(n, significantDigits);
-    };
-    if (x.length === 1) {
-      return fts(x[0]);
-    } else {
-      s = ((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = x.length; _i < _len; _i++) {
-          n = x[_i];
-          _results.push(fts(n));
-        }
-        return _results;
-      })()).join(", ");
-      return "vec" + x.length + "(" + s + ")";
-    }
-  };
-
-  (function() {
-    var model;
+  buildEvaluator = function($replace) {
+    var $div, model, src;
+    src = srcTrim($replace.text());
+    $div = $("<div class=\"book-editor\" data-bind=\"editorShader: {src: src, multiline: false, annotations: annotations, errors: errors}\"></div>");
     model = {
-      src: ko.observable("3. + 5."),
-      result: ko.observable("")
+      src: ko.observable(src),
+      annotations: ko.observable([]),
+      errors: ko.observable([])
     };
     ko.computed(function() {
-      var ast, result, src;
+      var ast, result;
       src = model.src();
       try {
         ast = require("parse-glsl").parse(src, "assignment_expression");
-        console.log(ast);
         require("interpret")({}, ast);
         result = vecToString(ast.evaluated, 3);
-        console.log(result);
-        return model.result(result);
-      } catch (_error) {}
+        model.annotations([
+          {
+            line: 0,
+            message: result
+          }
+        ]);
+        return model.errors([]);
+      } catch (e) {
+        model.annotations([]);
+        return model.errors([
+          {
+            line: 0,
+            message: ""
+          }
+        ]);
+      }
     });
-    return ko.applyBindings(model);
+    $replace.replaceWith($div);
+    return ko.applyBindings(model, $div[0]);
+  };
+
+  build = function($selection, buildFunction) {
+    return $selection.each(function() {
+      return buildFunction($(this));
+    });
+  };
+
+  (function() {
+    build($(".shader-example"), buildShaderExample);
+    return build($(".evaluator"), buildEvaluator);
   })();
 
 }).call(this);
@@ -31768,3 +31946,10 @@ require.alias("webcam/index.js", "bindings/deps/webcam/index.js");
 require.alias("parse-glsl/index.js", "bindings/deps/parse-glsl/index.js");
 
 require.alias("interpret/index.js", "bindings/deps/interpret/index.js");
+require.alias("component-underscore/index.js", "interpret/deps/underscore/index.js");
+
+require.alias("codemirror/index.js", "bindings/deps/codemirror/index.js");
+require.alias("codemirror/codemirror.js", "bindings/deps/codemirror/codemirror.js");
+require.alias("codemirror/glsl.js", "bindings/deps/codemirror/glsl.js");
+require.alias("codemirror/runmode.js", "bindings/deps/codemirror/runmode.js");
+require.alias("codemirror/matchbrackets.js", "bindings/deps/codemirror/matchbrackets.js");
