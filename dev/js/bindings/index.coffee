@@ -300,7 +300,9 @@ buildShaderExample = ($replace) ->
     src = model.compiledSrc()
     try
       ast = require("parse-glsl").parse(src, "fragment_start")
+      window.debug = ast
       require("interpret")({
+        gl_FragColor: [0, 0, 0, 0]
         position: [0.5, 0.5]
       }, ast)
       annotations = require("interpret").extractStatements(ast)

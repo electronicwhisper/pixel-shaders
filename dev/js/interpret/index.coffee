@@ -29,6 +29,15 @@ vec = (size) ->
           result.push(component)
     result.slice(0, size)
 
+defaultValue = (type) ->
+  defaults = {
+    float: [0]
+    vec2: [0, 0]
+    vec3: [0, 0, 0]
+    vec4: [0, 0, 0, 0]
+  }
+  defaults[type].slice(0) # clone the array
+
 selectionComponents = {
   x: 0
   y: 1
@@ -48,6 +57,20 @@ select = (x, selection) ->
   for char in selection
     x[selectionComponents[char]]
 
+# Note: the following 2 functions are a little hacky in that they takes advantage of the mutability of arrays
+setSelection = (vec, assign, selection) ->
+  # Sets the components of vec to assign based on selection
+  # e.g. p.xy = vec2(3., 4.)
+  #      vec <= p, assign <= [3, 4], selection <= "xy"
+  for char, i in selection
+    vec[selectionComponents[char]] = assign[i]
+
+setAll = (vec, assign) ->
+  # Sets as in e.g. gl_FragColor = 1.
+  for component, i in vec
+    vec[i] = assign[i % assign.length]
+    # TODO: this is way too lenient, actually you can only set things if they have the same number of components
+
 operators = {
   add: zip (x, y) -> x + y
   sub: zip (x, y) -> x - y
@@ -55,32 +78,43 @@ operators = {
   div: zip (x, y) -> x / y
 }
 
-clamp = (x, minVal, maxVal) -> min(max(x, minVal), maxVal)
-builtin = {
-  float: vec(1)
-  vec2: vec(2)
-  vec3: vec(3)
-  vec4: vec(4)
+builtin = do ->
+  clamp = (x, minVal, maxVal) -> min(max(x, minVal), maxVal)
+  length = (v) ->
+    total = 0
+    for component in v
+      total += component * component
+    [Math.sqrt(total)]
   
-  abs: zip Math.abs
-  mod: zip (x, y) -> x - y * Math.floor(x/y)
-  floor: zip Math.floor
-  ceil: zip Math.ceil
-  sin: zip Math.sin
-  cos: zip Math.cos
-  tan: zip Math.tan
-  min: zip Math.min
-  max: zip Math.max
-  clamp: zip clamp
-  exp: zip Math.exp
-  pow: zip Math.pow
-  sqrt: zip Math.sqrt
-  fract: zip (x) -> x - Math.floor(x)
-  step: zip (edge, x) -> if x < edge then 0 else 1
-  smoothstep: zip (edge0, edge1, x) ->
-    t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0)
-    return t * t * (3.0 - 2.0 * t)
-}
+  return {
+    float: vec(1)
+    vec2: vec(2)
+    vec3: vec(3)
+    vec4: vec(4)
+    
+    length: length
+    distance: (v, w) ->
+      length(operators.sub(v, w))
+    
+    abs: zip Math.abs
+    mod: zip (x, y) -> x - y * Math.floor(x/y)
+    floor: zip Math.floor
+    ceil: zip Math.ceil
+    sin: zip Math.sin
+    cos: zip Math.cos
+    tan: zip Math.tan
+    min: zip Math.min
+    max: zip Math.max
+    clamp: zip clamp
+    exp: zip Math.exp
+    pow: zip Math.pow
+    sqrt: zip Math.sqrt
+    fract: zip (x) -> x - Math.floor(x)
+    step: zip (edge, x) -> if x < edge then 0 else 1
+    smoothstep: zip (edge0, edge1, x) ->
+      t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0)
+      return t * t * (3.0 - 2.0 * t)
+  }
 
 makeEnv = () ->
   store = {}
@@ -110,7 +144,18 @@ evaluate = (env, ast) ->
     # done
   
   else if type == "declarator"
-    # TODO
+    declaredType = ast.typeAttribute.name
+    for declarator in ast.declarators
+      name = declarator.name.name
+      if env.get(name)
+        # it's already defined which means it was passed in as a uniform/varying to the interpreter
+        ast.evaluated = env.get(name)
+      else
+        env.set(name, defaultValue(declaredType)) # set it to the default value
+        if declarator.initializer
+          evaluate(env, declarator.initializer)
+          setAll(env.get(name), declarator.initializer.evaluated)
+          ast.evaluated = declarator.initializer.evaluated
   
   else if type == "function_declaration"
     if ast.name == "main"
@@ -124,8 +169,9 @@ evaluate = (env, ast) ->
       evaluate(env, statement)
   
   else if type == "expression"
-    evaluate(env, ast.expression)
-    ast.evaluated = ast.expression.evaluated
+    if ast.expression != "" # handle an empty statement
+      evaluate(env, ast.expression)
+      ast.evaluated = ast.expression.evaluated
   
   else if type == "identifier"
     name = ast.name
@@ -159,7 +205,13 @@ evaluate = (env, ast) ->
       evaluate(env, ast.left)
     evaluate(env, ast.right)
     if operator == "="
-      # TODO modify the env
+      if ast.left.type == "postfix"
+        name = ast.left.expression.name
+        selection = ast.left.operator.selection
+        setSelection(env.get(name), ast.right.evaluated, selection)
+      else if ast.left.type == "identifier"
+        name = ast.left.name
+        setAll(env.get(name), ast.right.evaluated)
       ast.evaluated = ast.right.evaluated
     else if operator == "+"
       ast.evaluated = operators.add(ast.left.evaluated, ast.right.evaluated)
@@ -193,12 +245,12 @@ module.exports = (hash, ast) ->
 
 
 floatToString = (n, significantDigits) ->
-  # s = "" + n
+  s = "" + n
   # if !s.indexOf(".")
   #   s = s + "."
   # 
-  s = n.toFixed(significantDigits)
-  if !s.indexOf(".")
+  # s = n.toFixed(significantDigits)
+  if s.indexOf(".") == -1
     s = s + "."
   # shave 0's off the end
   s.replace(/0+$/, "")

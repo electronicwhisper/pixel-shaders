@@ -51,12 +51,13 @@ module.exports = (opts) ->
     # =================================== annotations
     $annotations.html("") # remove old annotations
     for annotation in annotations
-      charPos = {line: annotation.line, ch: cm.getLine(annotation.line).length}
-      xyPos = cm.cursorCoords(charPos, "local")
-      $annotation = $("<div class='editor-annotation'></div>")
-      codemirror.runMode(annotation.message, "text/x-glsl", $annotation[0])
-      $annotation.css({left: xyPos.left, top: xyPos.top})
-      $annotations.append($annotation)
+      if cm.getLine(annotation.line) != undefined
+        charPos = {line: annotation.line, ch: cm.getLine(annotation.line).length}
+        xyPos = cm.cursorCoords(charPos, "local")
+        $annotation = $("<div class='editor-annotation'></div>")
+        codemirror.runMode(annotation.message, "text/x-glsl", $annotation[0])
+        $annotation.css({left: xyPos.left, top: xyPos.top})
+        $annotations.append($annotation)
     
     # =================================== widgets
   

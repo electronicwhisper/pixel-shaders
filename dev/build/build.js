@@ -16635,18 +16635,22 @@ require.register("editor/index.js", function(module, exports, require){
       _results = [];
       for (_k = 0, _len1 = annotations.length; _k < _len1; _k++) {
         annotation = annotations[_k];
-        charPos = {
-          line: annotation.line,
-          ch: cm.getLine(annotation.line).length
-        };
-        xyPos = cm.cursorCoords(charPos, "local");
-        $annotation = $("<div class='editor-annotation'></div>");
-        codemirror.runMode(annotation.message, "text/x-glsl", $annotation[0]);
-        $annotation.css({
-          left: xyPos.left,
-          top: xyPos.top
-        });
-        _results.push($annotations.append($annotation));
+        if (cm.getLine(annotation.line) !== void 0) {
+          charPos = {
+            line: annotation.line,
+            ch: cm.getLine(annotation.line).length
+          };
+          xyPos = cm.cursorCoords(charPos, "local");
+          $annotation = $("<div class='editor-annotation'></div>");
+          codemirror.runMode(annotation.message, "text/x-glsl", $annotation[0]);
+          $annotation.css({
+            left: xyPos.left,
+            top: xyPos.top
+          });
+          _results.push($annotations.append($annotation));
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
     };
@@ -30947,7 +30951,7 @@ Data types
 
 
 (function() {
-  var builtin, clamp, evaluate, extractStatements, floatToString, makeEnv, makeEnvFromHash, operators, select, selectionComponents, vec, vecToString, zip, _,
+  var builtin, defaultValue, evaluate, extractStatements, floatToString, makeEnv, makeEnvFromHash, operators, select, selectionComponents, setAll, setSelection, vec, vecToString, zip, _,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty;
 
@@ -30997,6 +31001,17 @@ Data types
     };
   };
 
+  defaultValue = function(type) {
+    var defaults;
+    defaults = {
+      float: [0],
+      vec2: [0, 0],
+      vec3: [0, 0, 0],
+      vec4: [0, 0, 0, 0]
+    };
+    return defaults[type].slice(0);
+  };
+
   selectionComponents = {
     x: 0,
     y: 1,
@@ -31022,6 +31037,26 @@ Data types
     return _results;
   };
 
+  setSelection = function(vec, assign, selection) {
+    var char, i, _i, _len, _results;
+    _results = [];
+    for (i = _i = 0, _len = selection.length; _i < _len; i = ++_i) {
+      char = selection[i];
+      _results.push(vec[selectionComponents[char]] = assign[i]);
+    }
+    return _results;
+  };
+
+  setAll = function(vec, assign) {
+    var component, i, _i, _len, _results;
+    _results = [];
+    for (i = _i = 0, _len = vec.length; _i < _len; i = ++_i) {
+      component = vec[i];
+      _results.push(vec[i] = assign[i % assign.length]);
+    }
+    return _results;
+  };
+
   operators = {
     add: zip(function(x, y) {
       return x + y;
@@ -31037,46 +31072,61 @@ Data types
     })
   };
 
-  clamp = function(x, minVal, maxVal) {
-    return min(max(x, minVal), maxVal);
-  };
-
-  builtin = {
-    float: vec(1),
-    vec2: vec(2),
-    vec3: vec(3),
-    vec4: vec(4),
-    abs: zip(Math.abs),
-    mod: zip(function(x, y) {
-      return x - y * Math.floor(x / y);
-    }),
-    floor: zip(Math.floor),
-    ceil: zip(Math.ceil),
-    sin: zip(Math.sin),
-    cos: zip(Math.cos),
-    tan: zip(Math.tan),
-    min: zip(Math.min),
-    max: zip(Math.max),
-    clamp: zip(clamp),
-    exp: zip(Math.exp),
-    pow: zip(Math.pow),
-    sqrt: zip(Math.sqrt),
-    fract: zip(function(x) {
-      return x - Math.floor(x);
-    }),
-    step: zip(function(edge, x) {
-      if (x < edge) {
-        return 0;
-      } else {
-        return 1;
+  builtin = (function() {
+    var clamp, length;
+    clamp = function(x, minVal, maxVal) {
+      return min(max(x, minVal), maxVal);
+    };
+    length = function(v) {
+      var component, total, _i, _len;
+      total = 0;
+      for (_i = 0, _len = v.length; _i < _len; _i++) {
+        component = v[_i];
+        total += component * component;
       }
-    }),
-    smoothstep: zip(function(edge0, edge1, x) {
-      var t;
-      t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-      return t * t * (3.0 - 2.0 * t);
-    })
-  };
+      return [Math.sqrt(total)];
+    };
+    return {
+      float: vec(1),
+      vec2: vec(2),
+      vec3: vec(3),
+      vec4: vec(4),
+      length: length,
+      distance: function(v, w) {
+        return length(operators.sub(v, w));
+      },
+      abs: zip(Math.abs),
+      mod: zip(function(x, y) {
+        return x - y * Math.floor(x / y);
+      }),
+      floor: zip(Math.floor),
+      ceil: zip(Math.ceil),
+      sin: zip(Math.sin),
+      cos: zip(Math.cos),
+      tan: zip(Math.tan),
+      min: zip(Math.min),
+      max: zip(Math.max),
+      clamp: zip(clamp),
+      exp: zip(Math.exp),
+      pow: zip(Math.pow),
+      sqrt: zip(Math.sqrt),
+      fract: zip(function(x) {
+        return x - Math.floor(x);
+      }),
+      step: zip(function(edge, x) {
+        if (x < edge) {
+          return 0;
+        } else {
+          return 1;
+        }
+      }),
+      smoothstep: zip(function(edge0, edge1, x) {
+        var t;
+        t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+        return t * t * (3.0 - 2.0 * t);
+      })
+    };
+  })();
 
   makeEnv = function() {
     var env, store;
@@ -31103,7 +31153,7 @@ Data types
   };
 
   evaluate = function(env, ast) {
-    var evaluatedParameters, function_name, name, operator, operator_type, parameter, selection, statement, type, _i, _j, _len, _len1, _ref, _ref1, _results, _results1;
+    var declarator, declaredType, evaluatedParameters, function_name, name, operator, operator_type, parameter, selection, statement, type, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _results, _results1, _results2;
     type = ast.type;
     if (type === "root") {
       _ref = ast.statements;
@@ -31116,7 +31166,26 @@ Data types
     } else if (type === "precision") {
 
     } else if (type === "declarator") {
-
+      declaredType = ast.typeAttribute.name;
+      _ref1 = ast.declarators;
+      _results1 = [];
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        declarator = _ref1[_j];
+        name = declarator.name.name;
+        if (env.get(name)) {
+          _results1.push(ast.evaluated = env.get(name));
+        } else {
+          env.set(name, defaultValue(declaredType));
+          if (declarator.initializer) {
+            evaluate(env, declarator.initializer);
+            setAll(env.get(name), declarator.initializer.evaluated);
+            _results1.push(ast.evaluated = declarator.initializer.evaluated);
+          } else {
+            _results1.push(void 0);
+          }
+        }
+      }
+      return _results1;
     } else if (type === "function_declaration") {
       if (ast.name === "main") {
         return evaluate(env, ast.body);
@@ -31124,16 +31193,18 @@ Data types
 
       }
     } else if (type === "scope") {
-      _ref1 = ast.statements;
-      _results1 = [];
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        statement = _ref1[_j];
-        _results1.push(evaluate(env, statement));
+      _ref2 = ast.statements;
+      _results2 = [];
+      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+        statement = _ref2[_k];
+        _results2.push(evaluate(env, statement));
       }
-      return _results1;
+      return _results2;
     } else if (type === "expression") {
-      evaluate(env, ast.expression);
-      return ast.evaluated = ast.expression.evaluated;
+      if (ast.expression !== "") {
+        evaluate(env, ast.expression);
+        return ast.evaluated = ast.expression.evaluated;
+      }
     } else if (type === "identifier") {
       name = ast.name;
       return ast.evaluated = env.get(name);
@@ -31165,6 +31236,14 @@ Data types
       }
       evaluate(env, ast.right);
       if (operator === "=") {
+        if (ast.left.type === "postfix") {
+          name = ast.left.expression.name;
+          selection = ast.left.operator.selection;
+          setSelection(env.get(name), ast.right.evaluated, selection);
+        } else if (ast.left.type === "identifier") {
+          name = ast.left.name;
+          setAll(env.get(name), ast.right.evaluated);
+        }
         return ast.evaluated = ast.right.evaluated;
       } else if (operator === "+") {
         return ast.evaluated = operators.add(ast.left.evaluated, ast.right.evaluated);
@@ -31181,15 +31260,15 @@ Data types
       function_name = ast.function_name;
       if (builtin[function_name]) {
         evaluatedParameters = (function() {
-          var _k, _len2, _ref2, _results2;
-          _ref2 = ast.parameters;
-          _results2 = [];
-          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-            parameter = _ref2[_k];
+          var _l, _len3, _ref3, _results3;
+          _ref3 = ast.parameters;
+          _results3 = [];
+          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+            parameter = _ref3[_l];
             evaluate(env, parameter);
-            _results2.push(parameter.evaluated);
+            _results3.push(parameter.evaluated);
           }
-          return _results2;
+          return _results3;
         })();
         return ast.evaluated = builtin[function_name].apply(builtin, evaluatedParameters);
       } else {
@@ -31208,8 +31287,8 @@ Data types
 
   floatToString = function(n, significantDigits) {
     var s;
-    s = n.toFixed(significantDigits);
-    if (!s.indexOf(".")) {
+    s = "" + n;
+    if (s.indexOf(".") === -1) {
       s = s + ".";
     }
     return s.replace(/0+$/, "");
@@ -31579,7 +31658,9 @@ require.register("bindings/index.js", function(module, exports, require){
       src = model.compiledSrc();
       try {
         ast = require("parse-glsl").parse(src, "fragment_start");
+        window.debug = ast;
         require("interpret")({
+          gl_FragColor: [0, 0, 0, 0],
           position: [0.5, 0.5]
         }, ast);
         annotations = require("interpret").extractStatements(ast);

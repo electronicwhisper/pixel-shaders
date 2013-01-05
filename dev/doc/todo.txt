@@ -4,12 +4,17 @@ document the options on each of the ko.bindingHandler's
 
 
 
+pass in position reactively
+add +=, etc operators
+add dot, etc
+
+
+make grid labels skooch in to be visible
+
 
 
 make annotations accept images, etc.
 in parsing uniforms, update incrementally (saving values, etc.)
-annotate based on uniforms
-annotate based on evaluation
 
 widgets for controlling uniforms
 slider on x/y axis
@@ -21,7 +26,6 @@ build exercises
 
 
 think about
-  moving more logic out of editor and into the model (like updateUniforms)
   how fullscreen would work
   having shaders "active" (when scrolled within view)
 

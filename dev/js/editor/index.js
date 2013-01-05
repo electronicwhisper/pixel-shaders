@@ -55,18 +55,22 @@
       _results = [];
       for (_k = 0, _len1 = annotations.length; _k < _len1; _k++) {
         annotation = annotations[_k];
-        charPos = {
-          line: annotation.line,
-          ch: cm.getLine(annotation.line).length
-        };
-        xyPos = cm.cursorCoords(charPos, "local");
-        $annotation = $("<div class='editor-annotation'></div>");
-        codemirror.runMode(annotation.message, "text/x-glsl", $annotation[0]);
-        $annotation.css({
-          left: xyPos.left,
-          top: xyPos.top
-        });
-        _results.push($annotations.append($annotation));
+        if (cm.getLine(annotation.line) !== void 0) {
+          charPos = {
+            line: annotation.line,
+            ch: cm.getLine(annotation.line).length
+          };
+          xyPos = cm.cursorCoords(charPos, "local");
+          $annotation = $("<div class='editor-annotation'></div>");
+          codemirror.runMode(annotation.message, "text/x-glsl", $annotation[0]);
+          $annotation.css({
+            left: xyPos.left,
+            top: xyPos.top
+          });
+          _results.push($annotations.append($annotation));
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
     };
