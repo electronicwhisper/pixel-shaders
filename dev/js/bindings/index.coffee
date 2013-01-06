@@ -29,19 +29,6 @@ srcTrim = (s) ->
   return lines.join("\n").trim()
 
 
-# TODO finish moving this to interpret
-floatToString = (n, significantDigits) ->
-  n.toPrecision(significantDigits)
-vecToString = (x, significantDigits) ->
-  fts = (n) ->
-    floatToString(n, significantDigits)
-  
-  if x.length == 1
-    fts(x[0])
-  else
-    s = (fts(n) for n in x).join(", ")
-    return "vec#{x.length}(#{s})"
-
 XRegExp = require('xregexp').XRegExp
 parseUniforms = (src) ->
   regex = XRegExp('uniform +(?<type>[^ ]+) +(?<name>[^ ;]+) *;', 'g')
@@ -367,7 +354,7 @@ buildEvaluator = ($replace) ->
       # console.log ast
       require("interpret")({}, ast)
       
-      result = vecToString(ast.evaluated, 3)
+      result = require("interpret").vecToString(ast.evaluated, 3)
       # console.log result
       model.annotations([{line: 0, message: result}])
       model.errors([])

@@ -417,6 +417,8 @@ Data types
     return result;
   };
 
+  module.exports.vecToString = vecToString;
+
   module.exports.extractStatements = extractStatements;
 
 }).call(this);

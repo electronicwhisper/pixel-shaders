@@ -290,7 +290,7 @@ extractStatements = (ast, result = []) ->
   return result
 
 
-
+module.exports.vecToString = vecToString
 module.exports.extractStatements = extractStatements
 
 
