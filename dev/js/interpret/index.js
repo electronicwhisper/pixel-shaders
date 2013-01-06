@@ -8,7 +8,7 @@ Data types
 
 
 (function() {
-  var builtin, defaultValue, evaluate, extractStatements, floatToString, makeEnv, makeEnvFromHash, operators, select, selectionComponents, setAll, setSelection, vec, vecToString, zip, _,
+  var builtin, defaultValue, evaluate, extractStatements, floatToString, makeEnv, makeEnvFromHash, operators, round, select, selectionComponents, setAll, setSelection, vec, vecToString, zip, _,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty;
 
@@ -342,8 +342,21 @@ Data types
     return evaluate(env, ast);
   };
 
+  round = function(x, precision) {
+    var mult;
+    if (precision == null) {
+      precision = 3;
+    }
+    mult = Math.pow(10, precision);
+    return Math.round(x * mult) / mult;
+  };
+
   floatToString = function(n, significantDigits) {
-    var s;
+    var rounded, s;
+    rounded = round(n, 6);
+    if (Math.abs(rounded - n) < 1 / Math.pow(10, 9)) {
+      n = rounded;
+    }
     s = "" + n;
     if (s.indexOf(".") === -1) {
       s = s + ".";

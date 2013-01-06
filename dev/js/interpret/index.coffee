@@ -243,8 +243,13 @@ module.exports = (hash, ast) ->
   evaluate(env, ast)
 
 
-
+round = (x, precision=3) ->
+  mult = Math.pow(10, precision)
+  Math.round(x*mult) / mult
 floatToString = (n, significantDigits) ->
+  rounded = round(n, 6)
+  if Math.abs(rounded - n) < 1/Math.pow(10, 9)
+    n = rounded
   s = "" + n
   # if !s.indexOf(".")
   #   s = s + "."

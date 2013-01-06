@@ -231,6 +231,32 @@ updateUniforms = (uniformsObservable) ->
 
 
 
+# TODO: move all this logic to panAndZoom
+lerp = (x, min, max) ->
+  min + x * (max - min)
+round = (x, precision=3) ->
+  mult = Math.pow(10, precision)
+  Math.round(x*mult) / mult
+ko.bindingHandlers.logPosition = {
+  init: (element, valueAccessor) ->
+    o = valueAccessor()
+    $element = $(element)
+    $element.on("mousemove", (e) ->
+      width = $element.width()
+      height = $element.height()
+      offset = $element.offset()
+      
+      bounds = o.bounds()
+      
+      x = (e.pageX - offset.left) / width
+      y = (e.pageY - offset.top) / height
+      
+      y = 1 - y
+      
+      position = [round(lerp(x, bounds.minX, bounds.maxX)), round(lerp(y, bounds.minY, bounds.maxY))]
+      o.position(position)
+    )
+}
 
 
 
@@ -243,7 +269,7 @@ buildShaderExample = ($replace) ->
   
   $div = $("""
   <div class="book-view-edit">
-    <div class="book-view" data-bind="panAndZoom: {bounds: bounds}">
+    <div class="book-view" data-bind="panAndZoom: {bounds: bounds}, logPosition: {bounds: bounds, position: position}">
       <canvas data-bind="drawShader: {bounds: bounds, src: compiledSrc, uniforms: uniforms}"></canvas>
       <canvas class="book-grid" data-bind="drawGrid: {bounds: bounds, color: 'white'}"></canvas>
     </div>
@@ -264,6 +290,7 @@ buildShaderExample = ($replace) ->
     errors: ko.observable([])
     annotations: ko.observable([])
     uniforms: ko.observable({})
+    position: ko.observable([0.3, 0.4])
   }
   
   rafAnimate () ->
@@ -285,34 +312,31 @@ buildShaderExample = ($replace) ->
     model.uniforms(parseUniforms(src))
   
   
-  # # annotate based on uniforms
-  # (ko.computed () ->
-  #   uniforms = model.uniforms()
-  #   for own name, uniform of uniforms
-  #     if name == "time"
-  #       lines = model.compiledSrc.peek().split("\n")
-  #       line = lines.indexOf("uniform float time;")
-  #       model.annotations([{line: line, message: uniform.value}])
-  # ).extend({ throttle: 1 })
-  # # TODO: do I really need this throttle?
-  
-  ko.computed () ->
+  parsedSrc = ko.computed () ->
     src = model.compiledSrc()
     try
-      ast = require("parse-glsl").parse(src, "fragment_start")
-      window.debug = ast
-      require("interpret")({
-        gl_FragColor: [0, 0, 0, 0]
-        position: [0.5, 0.5]
-      }, ast)
-      annotations = require("interpret").extractStatements(ast)
-      model.annotations(annotations)
-    catch e
-      console.log ast
-      throw e
-      
-      model.annotations([])
+      require("parse-glsl").parse(src, "fragment_start")
   
+  (ko.computed () ->
+    position = model.position()
+    if position
+      ast = parsedSrc()
+      uniforms = model.uniforms()
+      env = {
+        gl_FragColor: [0, 0, 0, 0]
+        position: position
+      }
+      for own name, uniform of uniforms
+        env[name] = if _.isNumber(uniform.value) then [uniform.value] else uniform.value
+      try
+        require("interpret")(env, ast)
+        annotations = require("interpret").extractStatements(ast)
+        model.annotations(annotations)
+      catch e
+        model.annotations([])
+        console.log ast
+        # throw e
+  ).extend({ throttle: 1 })
   
   $replace.replaceWith($div)
   

@@ -1,16 +1,30 @@
+Things to mention to Mozilla
+  saving reader progress -- login? localstorage? where should it be stored?
+  analyzing where people get stuck
+  glsl parser in javascript
+
+
+
+
+
+
+
+
+
 rgba output, sampling pixels
 
 document the options on each of the ko.bindingHandler's
 
 
 
-pass in position reactively
 add +=, etc operators
 add dot, etc
+gl_FragColor "sampling" as output
 
 
 make grid labels skooch in to be visible
-
+add "crosshairs" to show position
+make position "pinable"
 
 
 make annotations accept images, etc.
@@ -43,10 +57,6 @@ mouseover to view position / resulting color
 
 
 
-full screen
-
-
-
 
 Minor todo
   make parse not capture parentheses as a group
@@ -59,21 +69,3 @@ Book
   variables and vectors
 
 
-
-shader
-  bounds
-  src
-  uniforms
-pan-zoom
-  bounds *
-editor
-  src *
-  uniforms *
-
-graph-grid
-  bounds
-  options (colors, spacing, etc.)
-graph-line
-  bounds
-  f
-deconstruct
