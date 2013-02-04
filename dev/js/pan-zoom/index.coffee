@@ -68,27 +68,34 @@ module.exports = (opts) ->
     
     [lerp(x, pz.minX, pz.maxX), lerp(y, pz.minY, pz.maxY)]
   
+  downX = 0
+  downY = 0
+  panning = false
   down = (e) ->
     [downX, downY] = toLocal(e.pageX, e.pageY)
-    
-    move = (e) ->
+    panning = true
+    e.preventDefault() # stop text selection
+  move = (e) ->
+    if panning
       [x, y] = toLocal(e.pageX, e.pageY)
       pz.minX += downX - x
       pz.maxX += downX - x
       pz.minY += downY - y
       pz.maxY += downY - y
       pz.emit("update")
-    
-    up = (e) ->
-      $(document).off("mousemove", move)
-      $(document).off("mouseup", up)
-    
-    $(document).on("mousemove", move)
-    $(document).on("mouseup", up)
-    
-    e.preventDefault() # stop text selection
+      pz.emit("position", x, y)
+  $element.on("mousemove", (e) ->
+    if !panning
+      [x, y] = toLocal(e.pageX, e.pageY)
+      pz.emit("position", x, y)
+  )
+  up = (e) ->
+    panning = false
   
   $element.on("mousedown", down)
+  $(document).on("mousemove", move)
+  $(document).on("mouseup", up)
+  
   
   
   wheel = (e) ->

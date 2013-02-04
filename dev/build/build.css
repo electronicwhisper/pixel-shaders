@@ -496,6 +496,17 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   background-color: #fcc
 }
 
+.editor-error-gutter {
+  color: transparent;
+  background-color: rgba(255,0,0,0.2);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-origin: content-box;
+  padding-right: 2px;
+  height: 16px;
+  margin: 0px -1px
+}
+
 .editor-annotations {
   position: absolute;
   left: 0;

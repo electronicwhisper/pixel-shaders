@@ -1,13 +1,20 @@
-Things to mention to Mozilla
-  saving reader progress -- login? localstorage? where should it be stored?
-  analyzing where people get stuck
-  glsl parser in javascript
+
+exercises
+markdown compiling
+port old sample chapter to new infrastructure
 
 
 
 
 
 
+introduction
+  cpu vs gpu animation
+  pixel zoom in / zoom out glsl code
+
+
+
+update component/tip or switch it out for error message
 
 
 

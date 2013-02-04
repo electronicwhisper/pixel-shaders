@@ -164,6 +164,15 @@ to set uniforms,
       },
       set: set,
       draw: draw,
+      readPixels: function() {
+        var arr, h, w;
+        draw();
+        w = gl.drawingBufferWidth;
+        h = gl.drawingBufferHeight;
+        arr = new Uint8Array(w * h * 4);
+        gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, arr);
+        return arr;
+      },
       resize: function() {},
       ctx: function() {
         return gl;

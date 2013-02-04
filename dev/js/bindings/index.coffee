@@ -102,6 +102,26 @@ ko.bindingHandlers.panAndZoom = {
         maxY: pz.maxY
       })
     )
+    if o.position
+      pz.on("position", (x, y) ->
+        o.position([x, y])
+      )
+}
+
+
+ko.bindingHandlers.relPosition = {
+  init: (element, valueAccessor) ->
+    o = valueAccessor()
+    $element = $(element)
+    ko.computed () ->
+      bounds = o.bounds()
+      position = o.position()
+      width = $element.parent().width()
+      height = $element.parent().height()
+      x = width * (position[0] - bounds.minX) / (bounds.maxX - bounds.minX)
+      y = height * (1 - (position[1] - bounds.minY)) / (bounds.maxY - bounds.minY) # flipY
+      $element.css("left", x)
+      $element.css("top", y)
 }
 
 # ======================================================= editorShader
@@ -117,6 +137,10 @@ ko.bindingHandlers.editorShader = {
     
     editor.on "change", () ->
       o.src(editor.src())
+    
+    o.src.subscribe (newSrc) ->
+      if newSrc != editor.src()
+        editor.codemirror.setValue(newSrc)
     
     if o.errors
       ko.computed () ->
@@ -166,6 +190,7 @@ ko.bindingHandlers.drawShader = {
       vertex: vertexShaderSource
       fragment: o.src()
     })
+    element.shader = shader
     
     draw = () ->
       shader.draw()
@@ -218,32 +243,6 @@ updateUniforms = (uniformsObservable) ->
 
 
 
-# TODO: move all this logic to panAndZoom
-lerp = (x, min, max) ->
-  min + x * (max - min)
-round = (x, precision=3) ->
-  mult = Math.pow(10, precision)
-  Math.round(x*mult) / mult
-ko.bindingHandlers.logPosition = {
-  init: (element, valueAccessor) ->
-    o = valueAccessor()
-    $element = $(element)
-    $element.on("mousemove", (e) ->
-      width = $element.width()
-      height = $element.height()
-      offset = $element.offset()
-      
-      bounds = o.bounds()
-      
-      x = (e.pageX - offset.left) / width
-      y = (e.pageY - offset.top) / height
-      
-      y = 1 - y
-      
-      position = [round(lerp(x, bounds.minX, bounds.maxX)), round(lerp(y, bounds.minY, bounds.maxY))]
-      o.position(position)
-    )
-}
 
 
 
@@ -251,20 +250,36 @@ ko.bindingHandlers.logPosition = {
 
 
 
-buildShaderExample = ($replace) ->
-  src = srcTrim($replace.text())
-  
-  $div = $("""
-  <div class="book-view-edit">
-    <div class="book-view" data-bind="panAndZoom: {bounds: bounds}, logPosition: {bounds: bounds, position: position}">
-      <canvas data-bind="drawShader: {bounds: bounds, src: compiledSrc, uniforms: uniforms}"></canvas>
-      <canvas class="book-grid" data-bind="drawGrid: {bounds: bounds, color: 'white'}"></canvas>
-    </div>
-    <div class="book-edit book-editor" data-bind="editorShader: {src: src, multiline: true, errors: errors, annotations: annotations}">
-    </div>
-  </div>
-  """)
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+shaderModel = (src) ->
   model = {
     bounds: ko.observable({
       minX: 0
@@ -298,15 +313,22 @@ buildShaderExample = ($replace) ->
     # TODO: make it not clear set values, we'll need to .peek() at uniforms
     model.uniforms(parseUniforms(src))
   
-  
+  # parse the src
   parsedSrc = ko.computed () ->
     src = model.compiledSrc()
     try
       require("parse-glsl").parse(src, "fragment_start")
   
+  # interpret based on position and annotate the line-by-line evaluation
   (ko.computed () ->
     position = model.position()
     if position
+      # round it
+      round = (x) ->
+        mult = Math.pow(10, 3)
+        Math.round(x*mult) / mult
+      position = (round(x) for x in position)
+      
       ast = parsedSrc()
       uniforms = model.uniforms()
       env = {
@@ -325,9 +347,142 @@ buildShaderExample = ($replace) ->
         # throw e
   ).extend({ throttle: 1 })
   
+  return model
+
+
+
+
+
+
+
+
+
+buildShaderExample = ($replace) ->
+  src = srcTrim($replace.text())
+  model = shaderModel(src)
+  
+  $div = $("""
+  <div class="book-view-edit">
+    <div class="book-view" data-bind="panAndZoom: {bounds: bounds, position: position}">
+      <canvas data-bind="drawShader: {bounds: bounds, src: compiledSrc, uniforms: uniforms}"></canvas>
+      <canvas class="book-grid" data-bind="drawGrid: {bounds: bounds, color: 'white'}"></canvas>
+      <!--<div class="book-crosshair" data-bind="relPosition: {bounds: bounds, position: position}"></div>-->
+    </div>
+    <div class="book-edit book-editor" data-bind="editorShader: {src: src, multiline: true, errors: errors, annotations: annotations}">
+    </div>
+  </div>
+  """)
+  
   $replace.replaceWith($div)
   
   ko.applyBindings(model, $div[0]) # for sizing, this has to be after the div has been added to the body
+
+
+
+testEqualPixelArrays = (p1, p2) ->
+  len = p1.length
+  
+  # sample 1000 random locations to test equivalence
+  equivalent = true
+  for i in [0...1000]
+    location = Math.floor(Math.random()*len)
+    diff = Math.abs(p1[location] - p2[location])
+    if diff > 2
+      equivalent = false
+  
+  return equivalent
+
+
+buildShaderExercise = ($replace) ->
+  $div = $("""
+  <div>
+  <div class="book-view-edit">
+    <div class="book-view" data-bind="panAndZoom: {bounds: work.bounds, position: work.position}">
+      <canvas class="shader-work" data-bind="drawShader: {bounds: work.bounds, src: work.compiledSrc, uniforms: work.uniforms}"></canvas>
+      <canvas class="book-grid" data-bind="drawGrid: {bounds: work.bounds, color: 'white'}"></canvas>
+    </div>
+    <div class="book-edit book-editor" data-bind="editorShader: {src: work.src, multiline: true, errors: work.errors, annotations: work.annotations}">
+    </div>
+  </div>
+  <div class="book-view-edit">
+    <div class="book-view" data-bind="panAndZoom: {bounds: work.bounds, position: work.position}">
+      <canvas class="shader-solution" data-bind="drawShader: {bounds: work.bounds, src: solution.compiledSrc, uniforms: solution.uniforms}"></canvas>
+      <canvas class="book-grid" data-bind="drawGrid: {bounds: work.bounds, color: 'white'}"></canvas>
+    </div>
+    <div class="book-edit" style="font-family: helvetica; font-size: 30px;">
+      <div style="float: left">
+        <i class="icon-arrow-left" style="font-size: 26px"></i>
+      </div>
+      <div style="margin-left: 30px;">
+        <div>
+          Make this
+        </div>
+        <div style="font-size: 48px">
+          <span style="color: #090" data-bind="visible: solved"><i class="icon-ok"></i> <span style="font-size: 42px; font-weight: bold">Solved</span></span>&nbsp;
+        </div>
+        <div>
+          <button style="vertical-align: middle" data-bind="disable: onFirst, event: {click: previous}">&#x2190;</button>
+          <span data-bind="text: currentExercise()+1"></span> of <span data-bind="text: numExercises"></span>
+          <button style="vertical-align: middle" data-bind="disable: onLast, event: {click: next}">&#x2192;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  """)
+  
+  
+  workSrcs = [srcTrim($replace.find("start").text())]
+  workModel = shaderModel(workSrcs[0])
+  
+  solutionSrcs = $replace.find("solution").map () ->
+    srcTrim($(this).text())
+  solutionModel = shaderModel(solutionSrcs[0])
+  
+  model = {
+    work: workModel
+    solution: solutionModel
+    solved: ko.observable(false)
+    currentExercise: ko.observable(0)
+    numExercises: solutionSrcs.length
+  }
+  
+  model.onFirst = ko.computed () -> model.currentExercise() == 0
+  model.onLast = ko.computed () -> model.currentExercise() == model.numExercises - 1
+  model.previous = () ->
+    if !model.onFirst()
+      model.currentExercise(model.currentExercise() - 1)
+  model.next = () ->
+    if !model.onLast()
+      model.currentExercise(model.currentExercise() + 1)
+  
+  ko.computed () ->
+    currentExercise = model.currentExercise()
+    model.solution.src(solutionSrcs[currentExercise])
+    if workSrcs[currentExercise]
+      model.work.src(workSrcs[currentExercise])
+  
+  ko.computed () ->
+    workSrc = model.work.src()
+    workSrcs[model.currentExercise.peek()] = workSrc
+  
+  ko.computed () ->
+    model.work.compiledSrc()
+    model.solution.compiledSrc()
+    setTimeout(checkSolved, 0)
+  
+  checkSolved = () ->
+    workPixels = $div.find(".shader-work")[0].shader?.readPixels()
+    solutionPixels = $div.find(".shader-solution")[0].shader?.readPixels()
+    
+    if workPixels && solutionPixels
+      solved = testEqualPixelArrays(workPixels, solutionPixels)
+      model.solved(solved)
+  
+  
+  $replace.replaceWith($div)
+  
+  ko.applyBindings(model, $div[0])
 
 
 
@@ -377,6 +532,7 @@ build = ($selection, buildFunction) ->
 #
 do ->
   build($(".shader-example"), buildShaderExample)
+  build($(".shader-exercise"), buildShaderExercise)
   build($(".evaluator"), buildEvaluator)
 
 

@@ -43,13 +43,19 @@
     };
     Emitter(editor);
     update = function() {
-      var $annotation, annotation, charPos, error, line, xyPos, _i, _j, _k, _len, _len1, _ref, _results;
+      var $annotation, annotation, charPos, error, gutterError, line, xyPos, _i, _j, _k, _len, _len1, _ref, _results;
+      cm.clearGutter("CodeMirror-linenumbers");
       for (line = _i = 0, _ref = cm.lineCount(); 0 <= _ref ? _i < _ref : _i > _ref; line = 0 <= _ref ? ++_i : --_i) {
         cm.removeLineClass(line, "wrap", "editor-error");
       }
       for (_j = 0, _len = errors.length; _j < _len; _j++) {
         error = errors[_j];
         cm.addLineClass(error.line, "wrap", "editor-error");
+        gutterError = $("<div class='editor-error-gutter'></div>")[0];
+        require("tip")(gutterError, {
+          value: error.message
+        });
+        cm.setGutterMarker(error.line, "CodeMirror-linenumbers", gutterError);
       }
       $annotations.html("");
       _results = [];

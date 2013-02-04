@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+<base href="build" />
 <link rel="stylesheet" href="build/build.css" type="text/css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="assets/font/font-awesome.css">
 <style type="text/css">
 body {
   font-family: georgia;
@@ -13,6 +15,7 @@ body {
 
 .book-view-edit {
   overflow: hidden;
+  margin: 24px 0px;
 }
 
 .book-view {
@@ -37,6 +40,18 @@ body {
   opacity: 1.0;
 }
 
+.book-crosshair {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin-left: -6px;
+  margin-top: -6px;
+  border: 1px solid #fff;
+  cursor: crosshair;
+  pointer-events: none;
+/*  border-radius: 5px;*/
+}
+
 .book-edit {
   margin-left: 324px;
   height: 300px;
@@ -54,6 +69,10 @@ h1, h2, p, body > ul, body > ol, .book-text {
 .book-text {
   margin: 16px 0px 16px 324px;
 }
+
+.editor-error-gutter {
+  background-image: url(assets/warning.png);
+}
 </style>
 </head>
 <body>
@@ -61,15 +80,68 @@ h1, h2, p, body > ul, body > ol, .book-text {
 
 <div class="shader-example">
   precision mediump float;
-
+  
   varying vec2 position;
-
+  
   void main() {
     gl_FragColor.r = position.x;
     gl_FragColor.g = position.y;
     gl_FragColor.b = 0.0;
     gl_FragColor.a = 1.0;
   }
+</div>
+
+<p>Some book text.</p>
+
+<div class="shader-exercise">
+  <start>
+    precision mediump float;
+    
+    varying vec2 position;
+    
+    void main() {
+      gl_FragColor.r = 1.0;
+      gl_FragColor.g = 0.0;
+      gl_FragColor.b = 0.0;
+      gl_FragColor.a = 1.0;
+    }
+  </start>
+  <solution>
+    precision mediump float;
+    
+    varying vec2 position;
+    
+    void main() {
+      gl_FragColor.r = 0.0;
+      gl_FragColor.g = 0.0;
+      gl_FragColor.b = 1.0;
+      gl_FragColor.a = 1.0;
+    }
+  </solution>
+  <solution>
+    precision mediump float;
+    
+    varying vec2 position;
+    
+    void main() {
+      gl_FragColor.r = 1.0;
+      gl_FragColor.g = 1.0;
+      gl_FragColor.b = 0.0;
+      gl_FragColor.a = 1.0;
+    }
+  </solution>
+  <solution>
+    precision mediump float;
+    
+    varying vec2 position;
+    
+    void main() {
+      gl_FragColor.r = 1.0;
+      gl_FragColor.g = 0.5;
+      gl_FragColor.b = 0.0;
+      gl_FragColor.a = 1.0;
+    }
+  </solution>
 </div>
 
 <p>Some text here.</p>

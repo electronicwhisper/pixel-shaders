@@ -2,10 +2,14 @@
   "name": "editor",
   "dependencies": {
     "component/jquery": "*",
-    "component/emitter": "*"
+    "component/emitter": "*",
+    "component/tip": "*"
   },
   "local": [
     "codemirror"
+  ],
+  "images": [
+    "warning.png"
   ],
   "scripts": ["index.js"],
   "styles": ["editor.css"]

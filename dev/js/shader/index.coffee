@@ -183,6 +183,13 @@ module.exports = (opts) ->
     get: () -> o
     set: set
     draw: draw
+    readPixels: () ->
+      draw()
+      w = gl.drawingBufferWidth
+      h = gl.drawingBufferHeight
+      arr = new Uint8Array(w * h * 4)
+      gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, arr)
+      return arr
     resize: () ->
       # call this when the canvas's width or height change
       # TODO

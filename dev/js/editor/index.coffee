@@ -43,10 +43,14 @@ module.exports = (opts) ->
   update = () ->
     # =================================== errors
     # first remove all error classes
+    cm.clearGutter("CodeMirror-linenumbers")
     for line in [0...cm.lineCount()]
       cm.removeLineClass(line, "wrap", "editor-error")
     for error in errors
       cm.addLineClass(error.line, "wrap", "editor-error")
+      gutterError = $("<div class='editor-error-gutter'></div>")[0]
+      require("tip")(gutterError, {value: error.message})
+      cm.setGutterMarker(error.line, "CodeMirror-linenumbers", gutterError)
     
     # =================================== annotations
     $annotations.html("") # remove old annotations

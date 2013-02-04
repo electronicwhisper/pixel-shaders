@@ -49,7 +49,7 @@ Options:
   };
 
   module.exports = function(opts) {
-    var $element, down, pz, toLocal, wheel;
+    var $element, down, downX, downY, move, panning, pz, toLocal, up, wheel;
     $element = $(opts.element);
     pz = {};
     pz.minX = opts.minX;
@@ -72,27 +72,40 @@ Options:
       }
       return [lerp(x, pz.minX, pz.maxX), lerp(y, pz.minY, pz.maxY)];
     };
+    downX = 0;
+    downY = 0;
+    panning = false;
     down = function(e) {
-      var downX, downY, move, up, _ref;
+      var _ref;
       _ref = toLocal(e.pageX, e.pageY), downX = _ref[0], downY = _ref[1];
-      move = function(e) {
-        var x, y, _ref1;
-        _ref1 = toLocal(e.pageX, e.pageY), x = _ref1[0], y = _ref1[1];
+      panning = true;
+      return e.preventDefault();
+    };
+    move = function(e) {
+      var x, y, _ref;
+      if (panning) {
+        _ref = toLocal(e.pageX, e.pageY), x = _ref[0], y = _ref[1];
         pz.minX += downX - x;
         pz.maxX += downX - x;
         pz.minY += downY - y;
         pz.maxY += downY - y;
-        return pz.emit("update");
-      };
-      up = function(e) {
-        $(document).off("mousemove", move);
-        return $(document).off("mouseup", up);
-      };
-      $(document).on("mousemove", move);
-      $(document).on("mouseup", up);
-      return e.preventDefault();
+        pz.emit("update");
+        return pz.emit("position", x, y);
+      }
+    };
+    $element.on("mousemove", function(e) {
+      var x, y, _ref;
+      if (!panning) {
+        _ref = toLocal(e.pageX, e.pageY), x = _ref[0], y = _ref[1];
+        return pz.emit("position", x, y);
+      }
+    });
+    up = function(e) {
+      return panning = false;
     };
     $element.on("mousedown", down);
+    $(document).on("mousemove", move);
+    $(document).on("mouseup", up);
     wheel = function(e) {
       var delta, deltaLimit, deltaX, deltaY, scale, scaleFactor, x, y, _ref, _ref1;
       _ref = mouseWheelEvent(e.originalEvent), delta = _ref[0], deltaX = _ref[1], deltaY = _ref[2];
