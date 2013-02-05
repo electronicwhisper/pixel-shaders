@@ -8,12 +8,12 @@ Colors in GLSL are represented as a mixture of their red, green, and blue compon
 
 Colors also have an alpha component. Alpha represents how opaque (`1.0`) or transparent (`0.0`) the color is. This can be useful when you're compositing one image on top of another, but for this chapter we'll always be setting the alpha component to `1.0`--fully opaque.
 
+### Exercises
+
 <div class="shader-exercise">
 <div class="start">
 
     precision mediump float;
-
-    varying vec2 position;
 
     void main() {
       gl_FragColor.r = 1.0;
@@ -26,8 +26,6 @@ Colors also have an alpha component. Alpha represents how opaque (`1.0`) or tran
 <div class="solution">
 
     precision mediump float;
-  
-    varying vec2 position;
   
     void main() {
       gl_FragColor.r = 0.0;
@@ -41,8 +39,6 @@ Colors also have an alpha component. Alpha represents how opaque (`1.0`) or tran
 
     precision mediump float;
 
-    varying vec2 position;
-
     void main() {
       gl_FragColor.r = 1.0;
       gl_FragColor.g = 1.0;
@@ -54,8 +50,6 @@ Colors also have an alpha component. Alpha represents how opaque (`1.0`) or tran
 <div class="solution">
 
     precision mediump float;
-  
-    varying vec2 position;
   
     void main() {
       gl_FragColor.r = 1.0;
@@ -101,6 +95,8 @@ But since the same program is run 90,000 times, every time it runs it outputs th
 To make the program output different colors for different pixels, we can introduce `position` which will *vary* across the image. That is, it will take on a different value depending on which pixel the shader is computing. We can use `position` to figure out the *coordinates* of our pixel and compute the appropriate color with our program.
 
 `position.x` will range from `0.0` to `1.0` from the left to the right of our image. `position.y` will range from `0.0` to `1.0` from the bottom to the top of our image.
+
+### Exercises
 
 <div class="shader-exercise">
 <div class="start">
@@ -167,14 +163,28 @@ To make the program output different colors for different pixels, we can introdu
 GLSL supports the standard arithmetic operations:
 
 * `+` (plus)
+
+    <div class="evaluator">2.0 + 3.5</div>
+
 * `-` (minus)
+
+    <div class="evaluator">4.5 - 0.5</div>
+
 * `*` (times)
+
+    <div class="evaluator">2.0 * 3.0</div>
+
 * `/` (divided by)
+
+    <div class="evaluator">3.0 / 2.0</div>
 
 You'll also need to use parentheses to group terms. Contrast these:
 
-* <div class="evaluator">1.0 + 1.0 * 3.0</div>
-* <div class="evaluator">(1.0 + 1.0) * 3.0</div>
+<div class="book-text"><div class="evaluator">1.0 + 1.0 * 3.0</div></div>
+
+<div class="book-text"><div class="evaluator">(1.0 + 1.0) * 3.0</div></div>
+
+### Exercises
 
 <div class="shader-exercise">
 <div class="start">

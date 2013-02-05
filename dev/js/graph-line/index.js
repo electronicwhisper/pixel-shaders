@@ -32,7 +32,7 @@
       _ref1 = [cMaxY, cMinY], cMinY = _ref1[0], cMaxY = _ref1[1];
     }
     ctx.lineWidth = 2;
-    ctx.strokeStyle = "#006";
+    ctx.strokeStyle = opts.color || "#006";
     ctx.beginPath();
     resolution = 0.25;
     for (i = _i = 0, _ref2 = width / resolution; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {

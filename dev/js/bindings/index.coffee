@@ -145,6 +145,7 @@ ko.bindingHandlers.drawGraph = {
           minY: bounds.minY
           maxY: bounds.maxY
           f: f
+          color: o.color
         })
 }
 

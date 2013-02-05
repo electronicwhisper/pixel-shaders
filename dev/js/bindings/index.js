@@ -161,7 +161,8 @@
             maxX: bounds.maxX,
             minY: bounds.minY,
             maxY: bounds.maxY,
-            f: f
+            f: f,
+            color: o.color
           });
         }
       });

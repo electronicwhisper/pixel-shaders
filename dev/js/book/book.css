@@ -1,4 +1,4 @@
-.shader-editor, .shader-exercise, .evaluator {
+.shader-example, .shader-exercise, .evaluator, .graph-example, .graph-exercise {
   display: none;
 }
 
@@ -16,7 +16,7 @@ a:hover {
   color: #d00;
 }
 
-h1, h2 {
+h1, h2, h3 {
   font-family: 'Contrail One';
   color: #000;
   font-weight: normal;
@@ -27,6 +27,9 @@ h1 {
 h2 {
   font-size: 42px;
   margin-top: 72px;
+}
+h3 {
+  font-size: 24px;
 }
 
 
@@ -96,15 +99,16 @@ canvas {
   box-sizing: border-box;
 }
 
-h1, h2, p, body > ul, body > ol, .book-text {
+h1, h2, h3, body > p, body > ul, body > ol, .book-text {
   width: 540px;
   margin-left: 324px;
+  box-sizing: border-box;
+}
+
+li {
+  margin: 16px 0px;
 }
 
 .book-text {
   margin: 16px 0px 16px 324px;
-}
-
-.editor-error-gutter {
-  background-image: url(assets/warning.png);
 }

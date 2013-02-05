@@ -29,7 +29,7 @@ module.exports = (opts) ->
     [cMinY, cMaxY] = [cMaxY, cMinY]
   
   ctx.lineWidth = 2
-  ctx.strokeStyle = "#006"
+  ctx.strokeStyle = opts.color || "#006"
   
   ctx.beginPath()
   

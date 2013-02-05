@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../build/build.css" type="text/css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="../vendor/font/font-awesome.css">
+<link rel="stylesheet" href="../vendor/ContrailOne/ContrailOne.css">
+</head>
+<body>
+
+
+<h1 id="working-with-functions">Working with Functions</h1>
+<h2 id="abs"><code>abs</code></h2>
+<p>In addition to arithmetic operations, GLSL has several built-in mathematical <em>functions</em> that are very useful.</p>
+<p>We’ll start with <code>abs</code> which takes the <em>absolute value</em> of a number. It takes negative numbers to the positive version of the number and leaves positive numbers the same.</p>
+<ul>
+<li><div class="evaluator">
+abs(-1.5)
+</div></li>
+<li><div class="evaluator">
+abs(4.2)
+</div></li>
+<li><div class="evaluator">
+abs(0.0)
+</div>
+</li>
+</ul>
+<p>Notice how we write <code>abs</code> followed by parentheses with the <em>parameter</em> (the number we want to take the absolute value of) inside. This is how we apply functions in GLSL.</p>
+<p>Here is a line graph of <code>abs</code>:</p>
+<div class="graph-example">
+abs(x)
+</div>
+
+<p>In the above graph, <code>x</code> ranges horizontally and the value of the <em>expression</em>, in this case <code>abs(x)</code>, ranges vertically.</p>
+<p>Graphs are helpful for visualizing functions so we’ll be using them a lot. Here are a few other examples of graphs:</p>
+<div class="graph-example">
+x
+</div>
+
+<div class="graph-example">
+x + 0.5
+</div>
+
+<div class="graph-example">
+-abs(x)
+</div>
+
+<h3 id="exercises">Exercises</h3>
+<div class="graph-exercise">
+  <div class="start">
+abs(x)
+</div>
+  <div class="solution">
+abs(x) - 1.0
+</div>
+  <div class="solution">
+abs(x - 0.5)
+</div>
+  <div class="solution">
+abs(x - 0.5) * 2.0
+</div>
+  <div class="solution">
+1.0 - abs(x - 0.5) * 2.0
+</div>
+</div>
+
+
+<script src="../build/build.js"></script>
+<script>
+require("book");
+</script>
+</body>
+</html>
