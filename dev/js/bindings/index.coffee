@@ -396,46 +396,46 @@ testEqualPixelArrays = (p1, p2) ->
 buildShaderExercise = ($replace) ->
   $div = $("""
   <div>
-  <div class="book-view-edit">
-    <div class="book-view" data-bind="panAndZoom: {bounds: work.bounds, position: work.position}">
-      <canvas class="shader-work" data-bind="drawShader: {bounds: work.bounds, src: work.compiledSrc, uniforms: work.uniforms}"></canvas>
-      <canvas class="book-grid" data-bind="drawGrid: {bounds: work.bounds, color: 'white'}"></canvas>
-    </div>
-    <div class="book-edit book-editor" data-bind="editorShader: {src: work.src, multiline: true, errors: work.errors, annotations: work.annotations}">
-    </div>
-  </div>
-  <div class="book-view-edit">
-    <div class="book-view" data-bind="panAndZoom: {bounds: work.bounds, position: work.position}">
-      <canvas class="shader-solution" data-bind="drawShader: {bounds: work.bounds, src: solution.compiledSrc, uniforms: solution.uniforms}"></canvas>
-      <canvas class="book-grid" data-bind="drawGrid: {bounds: work.bounds, color: 'white'}"></canvas>
-    </div>
-    <div class="book-edit" style="font-family: helvetica; font-size: 30px;">
-      <div style="float: left">
-        <i class="icon-arrow-left" style="font-size: 26px"></i>
+    <div class="book-view-edit">
+      <div class="book-view" data-bind="panAndZoom: {bounds: work.bounds, position: work.position}">
+        <canvas class="shader-work" data-bind="drawShader: {bounds: work.bounds, src: work.compiledSrc, uniforms: work.uniforms}"></canvas>
+        <canvas class="book-grid" data-bind="drawGrid: {bounds: work.bounds, color: 'white'}"></canvas>
       </div>
-      <div style="margin-left: 30px;">
-        <div>
-          Make this
-        </div>
-        <div style="font-size: 48px">
-          <span style="color: #090" data-bind="visible: solved"><i class="icon-ok"></i> <span style="font-size: 42px; font-weight: bold">Solved</span></span>&nbsp;
-        </div>
-        <div>
-          <button style="vertical-align: middle" data-bind="disable: onFirst, event: {click: previous}">&#x2190;</button>
-          <span data-bind="text: currentExercise()+1"></span> of <span data-bind="text: numExercises"></span>
-          <button style="vertical-align: middle" data-bind="disable: onLast, event: {click: next}">&#x2192;</button>
-        </div>
+      <div class="book-edit book-editor" data-bind="editorShader: {src: work.src, multiline: true, errors: work.errors, annotations: work.annotations}">
       </div>
     </div>
-  </div>
+    <div class="book-view-edit">
+      <div class="book-view" data-bind="panAndZoom: {bounds: work.bounds, position: work.position}">
+        <canvas class="shader-solution" data-bind="drawShader: {bounds: work.bounds, src: solution.compiledSrc, uniforms: solution.uniforms}"></canvas>
+        <canvas class="book-grid" data-bind="drawGrid: {bounds: work.bounds, color: 'white'}"></canvas>
+      </div>
+      <div class="book-edit" style="font-family: helvetica; font-size: 30px;">
+        <div style="float: left">
+          <i class="icon-arrow-left" style="font-size: 26px"></i>
+        </div>
+        <div style="margin-left: 30px;">
+          <div>
+            Make this
+          </div>
+          <div style="font-size: 48px">
+            <span style="color: #090" data-bind="visible: solved"><i class="icon-ok"></i> <span style="font-size: 42px; font-weight: bold">Solved</span></span>&nbsp;
+          </div>
+          <div>
+            <button style="vertical-align: middle" data-bind="disable: onFirst, event: {click: previous}">&#x2190;</button>
+            <span data-bind="text: currentExercise()+1"></span> of <span data-bind="text: numExercises"></span>
+            <button style="vertical-align: middle" data-bind="disable: onLast, event: {click: next}">&#x2192;</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   """)
   
   
-  workSrcs = [srcTrim($replace.find("start").text())]
+  workSrcs = [srcTrim($replace.find(".start").text())]
   workModel = shaderModel(workSrcs[0])
   
-  solutionSrcs = $replace.find("solution").map () ->
+  solutionSrcs = $replace.find(".solution").map () ->
     srcTrim($(this).text())
   solutionModel = shaderModel(solutionSrcs[0])
   

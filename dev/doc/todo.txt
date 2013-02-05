@@ -1,9 +1,4 @@
 
-exercises
-markdown compiling
-port old sample chapter to new infrastructure
-
-
 
 
 

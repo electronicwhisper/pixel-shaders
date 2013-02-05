@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="../build/build.css" type="text/css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="../assets/font/font-awesome.css">
+<style type="text/css">
+body {
+  font-family: georgia;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #282828;
+  margin: 96px 48px 144px 48px;
+}
+
+.book-view-edit {
+  overflow: hidden;
+  margin: 24px 0px;
+}
+
+.book-view {
+  float: left;
+  width: 300px;
+  height: 300px;
+  position: relative;
+}
+
+.book-view canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.book-grid {
+  opacity: 0.0;
+  -webkit-transition: opacity 0.3s;
+}
+.book-view:hover .book-grid {
+  opacity: 1.0;
+}
+
+.book-crosshair {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin-left: -6px;
+  margin-top: -6px;
+  border: 1px solid #fff;
+  cursor: crosshair;
+  pointer-events: none;
+/*  border-radius: 5px;*/
+}
+
+.book-edit {
+  margin-left: 324px;
+  height: 300px;
+}
+.book-editor {
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+h1, h2, p, body > ul, body > ol, .book-text {
+  width: 540px;
+  margin-left: 324px;
+}
+
+.book-text {
+  margin: 16px 0px 16px 324px;
+}
+
+.editor-error-gutter {
+  background-image: url(assets/warning.png);
+}
+</style>
+</head>
+<body>
+
+
+<h1 id="basics">Basics</h1>
+<h2 id="colors">Colors</h2>
+<p>Let's start by writing some pixel shaders that just output a solid color.</p>
+<p>Colors in GLSL are represented as a mixture of their red, green, and blue components, on a scale from <code>0.0</code> to <code>1.0</code>.</p>
+<p>Colors also have an alpha component. Alpha represents how opaque (<code>1.0</code>) or transparent (<code>0.0</code>) the color is. This can be useful when you're compositing one image on top of another, but for this chapter we'll always be setting the alpha component to <code>1.0</code>--fully opaque.</p>
+<div class="shader-exercise">
+<div class="start">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 1.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 0.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 1.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 1.0;
+  gl_FragColor.g = 1.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 1.0;
+  gl_FragColor.g = 0.5;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+</div>
+
+<h2 id="numbers">Numbers</h2>
+<p>You'll notice that I always write my numbers with a decimal point. That is, instead of just writing <code>0</code> and <code>1</code>, I write <code>0.0</code> and <code>1.0</code>.</p>
+<p>GLSL treats numbers that are written with a decimal point differently than numbers written without one. Numbers with a decimal point are called <code>float</code>s and numbers without a decimal point are called <code>int</code>s.</p>
+<p>Here are a few examples of <code>float</code>s:</p>
+<ul>
+<li><code>3.14</code></li>
+<li><code>0.5</code> (same as <code>.5</code>)</li>
+<li><code>1.</code> (same as <code>1.0</code>)</li>
+<li><code>0.</code> (same as <code>.0</code> or <code>0.0</code>)</li>
+</ul>
+<p>Here are a few examples of <code>int</code>s:</p>
+<ul>
+<li><code>33</code></li>
+<li><code>1</code></li>
+<li><code>0</code></li>
+</ul>
+<p>If you type in a <code>float</code> where GLSL is expecting an <code>int</code>, or vice versa, it will give an error.</p>
+<p>As we saw with the colors, GLSL tends to represent values in fractional amounts, usually on a scale of <code>0.0</code> to <code>1.0</code>. So we'll mostly be seeing <code>float</code>s in this book.</p>
+<h2 id="gradients">Gradients</h2>
+<p>We've seen how to make solid colors, but how do we make more interesting images--images with variation?</p>
+<p>A pixel shader works by running your program <em>for every pixel</em> in the outputted image. The examples we've been working with have a resolution of 300 by 300, so that means the pixel shader gets run 90,000 separate times (300 times 300).</p>
+<p>But since the same program is run 90,000 times, every time it runs it outputs the same color. So we just end up with solid color images.</p>
+<p>To make the program output different colors for different pixels, we can introduce <code>position</code> which will <em>vary</em> across the image. That is, it will take on a different value depending on which pixel the shader is computing. We can use <code>position</code> to figure out the <em>coordinates</em> of our pixel and compute the appropriate color with our program.</p>
+<p><code>position.x</code> will range from <code>0.0</code> to <code>1.0</code> from the left to the right of our image. <code>position.y</code> will range from <code>0.0</code> to <code>1.0</code> from the bottom to the top of our image.</p>
+<div class="shader-exercise">
+<div class="start">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = position.x;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 0.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = position.y;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = position.x;
+  gl_FragColor.g = position.x;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = position.x;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = position.y;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+</div>
+
+
+<h2 id="arithmetic">Arithmetic</h2>
+<p>GLSL supports the standard arithmetic operations:</p>
+<ul>
+<li><code>+</code> (plus)</li>
+<li><code>-</code> (minus)</li>
+<li><code>*</code> (times)</li>
+<li><code>/</code> (divided by)</li>
+</ul>
+<p>You'll also need to use parentheses to group terms. Contrast these:</p>
+<ul>
+<li><div class="evaluator">
+1.0 + 1.0 * 3.0
+</div></li>
+<li><div class="evaluator">
+(1.0 + 1.0) * 3.0
+</div>
+</li>
+</ul>
+<div class="shader-exercise">
+<div class="start">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 1.0 - position.x;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 0.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 1.0 - position.y;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 1.0 - position.x;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = position.x;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = (position.x + position.y) / 2.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = (position.x + 1.0 - position.y) / 2.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+</div>
+
+
+<h2 id="feedback">Feedback</h2>
+<p><em> This chapter is about halfway done. If you've gotten this far, I'd love to hear your thoughts. Did it make sense? Did the exercises feel in flow with the content? How is the pacing? <script type="text/javascript">
+<!--
+h='&#x61;&#108;&#x75;&#x6d;&#46;&#x6d;&#x69;&#116;&#46;&#x65;&#100;&#x75;';a='&#64;';n='&#116;&#x71;&#x73;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+'Send me an email'+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#x53;&#x65;&#110;&#100;&#32;&#x6d;&#x65;&#32;&#x61;&#110;&#32;&#x65;&#x6d;&#x61;&#x69;&#108;&#32;&#40;&#116;&#x71;&#x73;&#32;&#x61;&#116;&#32;&#x61;&#108;&#x75;&#x6d;&#32;&#100;&#x6f;&#116;&#32;&#x6d;&#x69;&#116;&#32;&#100;&#x6f;&#116;&#32;&#x65;&#100;&#x75;&#x29;</noscript>. Thanks!</p>
+<p>Toby </em></p>
+
+
+<script src="../build/build.js"></script>
+<script>
+require("bindings");
+</script>
+</body>
+</html>
