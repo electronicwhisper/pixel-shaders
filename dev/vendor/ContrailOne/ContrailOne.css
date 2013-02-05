@@ -1,0 +1,6 @@
+@font-face {
+  font-family: 'Contrail One';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Contrail One'), local('ContrailOne-Regular'), url(ContrailOne.woff) format('woff');
+}

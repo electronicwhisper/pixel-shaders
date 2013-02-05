@@ -1,5 +1,7 @@
 
-
+deconstruct for graph
+graph exercises
+fix single line formatting right
 
 
 
@@ -8,8 +10,10 @@ introduction
   pixel zoom in / zoom out glsl code
 
 
-
-update component/tip or switch it out for error message
+component
+  figure out what to do about weird image referencing problem with component
+  update component/tip or switch it out for error message
+  build codemirror out of stuff in lib (to make upgrading easier and cleaner)
 
 
 
@@ -37,7 +41,6 @@ slider on x/y axis
 
 build graph
 
-build exercises
 
 
 
@@ -62,7 +65,6 @@ mouseover to view position / resulting color
 
 Minor todo
   make parse not capture parentheses as a group
-  build codemirror out of stuff in lib (to make upgrading easier and cleaner)
 
 Book
   abs

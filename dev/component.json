@@ -1,7 +1,8 @@
 {
   "name": "pixelshaders",
   "local": [
-    "boot"
+    "boot",
+    "book"
   ],
   "paths": ["js"]
 }

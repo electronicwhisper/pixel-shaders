@@ -115,6 +115,86 @@
 
 
 .CodeMirror {
+  font-size: 16px
+}
+
+.editor-error {
+  background-color: #fcc
+}
+
+.editor-error-gutter {
+  color: transparent;
+  background-color: rgba(255,0,0,0.2);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-origin: content-box;
+  padding-right: 2px;
+  height: 16px;
+  margin: 0px -1px
+}
+
+.editor-annotations {
+  position: absolute;
+  left: 0;
+  top: 0
+}
+
+.editor-annotation {
+  position: absolute;
+  margin-left: 7px;
+  margin-top: 5px;
+  font-size: 14px;
+  padding: 0px 6px 1px 6px;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  pointer-events: none
+}
+
+
+
+
+ul.deconstruct-tree {
+  overflow-x: auto;
+  white-space: nowrap
+}
+
+ul.deconstruct-tree,
+ul.deconstruct-tree ul {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  list-style-type: none
+}
+
+ul.deconstruct-tree li {
+  display: block;
+  width: auto;
+  float: left;
+  vertical-align: top;
+  padding: 0;
+  margin: 0
+}
+
+ul.deconstruct-tree li .deconstruct-node {
+  cursor: default;
+  display: block;
+  padding: 4px 8px;
+  margin-right: 24px;
+  white-space: normal;
+  letter-spacing: normal
+}
+
+ul.deconstruct-tree li .deconstruct-node:hover {
+  background-color: #ccc
+}
+
+
+
+
+
+
+.CodeMirror {
   font-family: monospace;
   height: 300px
 }
@@ -488,81 +568,123 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 .cm-s-default .cm-property {
   color: #910
 }
-.CodeMirror {
-  font-size: 16px
+.shader-editor,
+.shader-exercise,
+.evaluator {
+  display: none
 }
 
-.editor-error {
-  background-color: #fcc
+body {
+  font-family: georgia;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #282828;
+  margin: 96px 48px 144px 48px
 }
 
-.editor-error-gutter {
-  color: transparent;
-  background-color: rgba(255,0,0,0.2);
-  background-repeat: no-repeat;
-  background-position: right center;
-  background-origin: content-box;
-  padding-right: 2px;
-  height: 16px;
-  margin: 0px -1px
+a {
+  color: #900
 }
 
-.editor-annotations {
+a:hover {
+  color: #d00
+}
+
+h1,
+h2 {
+  font-family: 'Contrail One';
+  color: #000;
+  font-weight: normal
+}
+
+h1 {
+  font-size: 60px
+}
+
+h2 {
+  font-size: 42px;
+  margin-top: 72px
+}
+
+.split {
+  overflow: hidden;
+  margin: 24px 0px
+}
+
+.left {
+  float: left;
+  width: 300px;
+  height: 300px;
+  position: relative
+}
+
+.right {
+  margin-left: 324px
+}
+
+.book-view-edit {
+  overflow: hidden;
+  margin: 24px 0px
+}
+
+.book-view {
+  float: left;
+  width: 300px;
+  height: 300px;
+  position: relative
+}
+
+canvas {
   position: absolute;
-  left: 0;
-  top: 0
+  width: 100%;
+  height: 100%;
+  cursor: crosshair
 }
 
-.editor-annotation {
+.book-view .book-grid {
+  opacity: 0.0;
+  -webkit-transition: opacity 0.3s
+}
+
+.book-view:hover .book-grid {
+  opacity: 1.0
+}
+
+.book-crosshair {
   position: absolute;
-  margin-left: 7px;
-  margin-top: 5px;
-  font-size: 14px;
-  padding: 0px 6px 1px 6px;
-  border-radius: 3px;
-  background-color: rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
+  width: 10px;
+  height: 10px;
+  margin-left: -6px;
+  margin-top: -6px;
+  border: 1px solid #fff;
+  cursor: crosshair;
   pointer-events: none
 }
 
-
-
-
-ul.deconstruct-tree {
-  overflow-x: auto;
-  white-space: nowrap
+.book-edit {
+  margin-left: 324px;
+  height: 300px
 }
 
-ul.deconstruct-tree,
-ul.deconstruct-tree ul {
-  width: auto;
-  margin: 0;
-  padding: 0;
-  list-style-type: none
+.book-editor {
+  border: 1px solid #ccc;
+  box-sizing: border-box
 }
 
-ul.deconstruct-tree li {
-  display: block;
-  width: auto;
-  float: left;
-  vertical-align: top;
-  padding: 0;
-  margin: 0
+h1,
+h2,
+p,
+body > ul,
+body > ol,
+.book-text {
+  width: 540px;
+  margin-left: 324px
 }
 
-ul.deconstruct-tree li .deconstruct-node {
-  cursor: default;
-  display: block;
-  padding: 4px 8px;
-  margin-right: 24px;
-  white-space: normal;
-  letter-spacing: normal
+.book-text {
+  margin: 16px 0px 16px 324px
 }
 
-ul.deconstruct-tree li .deconstruct-node:hover {
-  background-color: #ccc
+.editor-error-gutter {
+  background-image: url("/book/assets/warning.png")
 }
-
-
-
-

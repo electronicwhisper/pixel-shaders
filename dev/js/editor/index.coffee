@@ -26,7 +26,7 @@ module.exports = (opts) ->
   if multiline
     cm.setSize("100%", $div.innerHeight())
   else
-    cm.setSize("100%", cm.defaultTextHeight() + 8)
+    cm.setSize("100%", cm.defaultTextHeight() + 18)
   
   # make $annotations, container for annotations
   $annotations = $("<div class='editor-annotations'></div>")

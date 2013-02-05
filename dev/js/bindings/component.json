@@ -3,20 +3,14 @@
   "scripts": ["index.js"],
   "dependencies": {
     "component/jquery": "*",
-    "component/underscore": "*",
-    "component/raf": "*"
+    "component/underscore": "*"
   },
   "local": [
     "knockout",
     "graph-grid",
     "pan-zoom",
     "editor",
-    "glsl-error",
     "shader",
-    "xregexp",
-    "webcam",
-    "parse-glsl",
-    "interpret",
-    "codemirror"
+    "graph-line"
   ]
 }

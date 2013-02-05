@@ -31,7 +31,7 @@
     if (multiline) {
       cm.setSize("100%", $div.innerHeight());
     } else {
-      cm.setSize("100%", cm.defaultTextHeight() + 8);
+      cm.setSize("100%", cm.defaultTextHeight() + 18);
     }
     $annotations = $("<div class='editor-annotations'></div>");
     $(cm.getScrollerElement()).find(".CodeMirror-lines").append($annotations);

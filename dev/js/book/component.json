@@ -1,0 +1,19 @@
+{
+  "name": "book",
+  "styles": ["book.css"],
+  "scripts": ["index.js"],
+  "dependencies": {
+    "component/jquery": "*",
+    "component/underscore": "*",
+    "component/raf": "*"
+  },
+  "local": [
+    "knockout",
+    "bindings",
+    "glsl-error",
+    "parse-glsl",
+    "interpret",
+    "xregexp",
+    "codemirror"
+  ]
+}

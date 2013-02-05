@@ -1,0 +1,110 @@
+.shader-editor, .shader-exercise, .evaluator {
+  display: none;
+}
+
+body {
+  font-family: georgia;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #282828;
+  margin: 96px 48px 144px 48px;
+}
+a {
+  color: #900;
+}
+a:hover {
+  color: #d00;
+}
+
+h1, h2 {
+  font-family: 'Contrail One';
+  color: #000;
+  font-weight: normal;
+}
+h1 {
+  font-size: 60px;
+}
+h2 {
+  font-size: 42px;
+  margin-top: 72px;
+}
+
+
+
+.split {
+  overflow: hidden;
+  margin: 24px 0px;
+}
+.left {
+  float: left;
+  width: 300px;
+  height: 300px;
+  position: relative;
+}
+.right {
+  margin-left: 324px;
+}
+
+
+
+
+.book-view-edit {
+  overflow: hidden;
+  margin: 24px 0px;
+}
+
+.book-view {
+  float: left;
+  width: 300px;
+  height: 300px;
+  position: relative;
+}
+
+canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.book-view .book-grid {
+  opacity: 0.0;
+  -webkit-transition: opacity 0.3s;
+}
+.book-view:hover .book-grid {
+  opacity: 1.0;
+}
+
+.book-crosshair {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin-left: -6px;
+  margin-top: -6px;
+  border: 1px solid #fff;
+  cursor: crosshair;
+  pointer-events: none;
+/*  border-radius: 5px;*/
+}
+
+.book-edit {
+  margin-left: 324px;
+  height: 300px;
+}
+.book-editor {
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+h1, h2, p, body > ul, body > ol, .book-text {
+  width: 540px;
+  margin-left: 324px;
+}
+
+.book-text {
+  margin: 16px 0px 16px 324px;
+}
+
+.editor-error-gutter {
+  background-image: url(assets/warning.png);
+}

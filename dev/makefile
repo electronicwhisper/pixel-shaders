@@ -20,4 +20,4 @@ $(COFFEESCRIPTSCONVERTED): %.js: %.coffee
 	coffee -c $<
 
 $(MDSCONVERTED): %.html: %.md
-	pandoc -t html --template=./book/template.html -o $@ $<
+	pandoc -t html -S --template=./book/template.html -o $@ $<
