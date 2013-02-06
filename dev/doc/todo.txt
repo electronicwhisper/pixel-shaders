@@ -1,7 +1,6 @@
 
-deconstruct for graph
-graph exercises
-fix single line formatting right
+
+update deconstruct/parse algorithm
 
 
 

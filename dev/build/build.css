@@ -180,8 +180,8 @@ ul.deconstruct-tree li {
 ul.deconstruct-tree li .deconstruct-node {
   cursor: default;
   display: block;
-  padding: 4px 8px;
-  margin-right: 24px;
+  padding: 4px 5px 4px 5px;
+  margin-left: 29px;
   white-space: normal;
   letter-spacing: normal
 }
@@ -679,22 +679,19 @@ canvas {
   box-sizing: border-box
 }
 
+li,
+.book-text {
+  margin: 16px 0px
+}
+
 h1,
 h2,
 h3,
 body > p,
 body > ul,
 body > ol,
-.book-text {
+body > .book-text {
   width: 540px;
   margin-left: 324px;
   box-sizing: border-box
-}
-
-li {
-  margin: 16px 0px
-}
-
-.book-text {
-  margin: 16px 0px 16px 324px
 }

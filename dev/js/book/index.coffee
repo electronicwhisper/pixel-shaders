@@ -154,9 +154,18 @@ shaderModel = (src) ->
 
 # ======================================================= Graph Model
 
-graphModel = (src) ->
+makeGraphF = (src) ->
+  ast = require("parse-glsl").parse(src, "assignment_expression")
+  return (x) ->
+    require("interpret")({x: [x]}, ast)
+    return ast.evaluated[0]
+
+graphModel = (src, $deconstruct) ->
   model = {
-    src: ko.observable(src)
+    src: ko.observable(src) # what's in the editor
+    compiledSrc: ko.observable(src) # last src that successfully compiled
+    showSrc: ko.observable(src) # what the graph shows
+    
     annotations: ko.observable([])
     errors: ko.observable([])
     bounds: ko.observable({
@@ -168,27 +177,40 @@ graphModel = (src) ->
     f: ko.observable(false)
   }
   
-  parsedSrc = ko.observable()
-  
   ko.computed () ->
     src = model.src()
     compiled = false
     try
-      ast = require("parse-glsl").parse(src, "assignment_expression")
-      require("interpret")({x: [0]}, ast)
-      if ast.evaluated
-        parsedSrc(ast)
+      f = makeGraphF(src)
+      if _.isNumber(f(0))
         compiled = true
     if compiled
+      model.compiledSrc(src)
       model.errors([])
     else
       model.errors([{line: 0, message: ""}])
   
   ko.computed () ->
-    ast = parsedSrc()
-    model.f((x) ->
-      require("interpret")({x: [x]}, ast)
-      return ast.evaluated
+    model.showSrc(model.compiledSrc())
+  
+  ko.computed () ->
+    src = model.showSrc()
+    model.f(makeGraphF(src))
+  
+  if $deconstruct
+    ko.computed () ->
+      src = model.compiledSrc()
+      require("deconstruct")({
+        div: $deconstruct
+        src: src
+      })
+
+    $deconstruct.on("mouseover", ".deconstruct-node", (e) ->
+      src = $(this).text()
+      model.showSrc(src)
+    )
+    $deconstruct.on("mouseout", ".deconstruct-node", (e) ->
+      model.showSrc(model.compiledSrc())
     )
   
   return model
@@ -341,7 +363,9 @@ buildShaderExercise = ($replace) ->
 buildEvaluator = ($replace) ->
   src = srcTrim($replace.text())
   $div = $("""
-  <div class="book-editor" data-bind="editorShader: {src: src, multiline: false, annotations: annotations, errors: errors}"></div>
+  <div class="book-text">
+    <div class="book-editor" data-bind="editorShader: {src: src, multiline: false, annotations: annotations, errors: errors}"></div>
+  </div>
   """)
   
   model = {
@@ -381,11 +405,13 @@ buildGraphExample = ($replace) ->
     </div>
     <div class="right">
       <div class="book-editor" data-bind="editorShader: {src: src, multiline: false, errors: errors, annotations: annotations}"></div>
+      <div class="deconstruct"></div>
     </div>
   </div>
   """)
   
-  model = graphModel(src)
+  $deconstruct = $div.find(".deconstruct")
+  model = graphModel(src, $deconstruct)
   
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0])
@@ -411,17 +437,20 @@ buildGraphExercise = ($replace) ->
     <div class="left" data-bind="panAndZoom: {bounds: work.bounds}">
       <canvas class="book-grid" data-bind="drawGrid: {bounds: work.bounds, color: 'black'}"></canvas>
       <canvas data-bind="drawGraph: {bounds: work.bounds, f: work.f, color: 'rgba(0, 0, 180, 1.0)'}"></canvas>
-      <canvas data-bind="drawGraph: {bounds: work.bounds, f: solution.f, color: 'rgba(180, 0, 0, 0.7)'}"></canvas>
+      <canvas data-bind="drawGraph: {bounds: work.bounds, f: solution.f, color: 'rgba(180, 0, 0, 0.75)'}"></canvas>
     </div>
     <div class="right">
-      <div class="book-editor" data-bind="editorShader: {src: work.src, multiline: false, errors: work.errors, annotations: work.annotations}"></div>
-      <div style="font-family: helvetica; font-size: 30px;" data-bind="with: exercise">
+      <div style="min-height: 264px">
+        <div class="book-editor" data-bind="editorShader: {src: work.src, multiline: false, errors: work.errors, annotations: work.annotations}"></div>
+        <div class="deconstruct"></div>
+      </div>
+      <div style="font-family: helvetica; font-size: 30px; margin-bottom: 72px" data-bind="with: exercise">
         <div style="float: left; margin-top: 2px; font-size: 26px">
           <i class="icon-arrow-left"></i>
         </div>
         <div style="margin-left: 30px;">
           <div>
-            Make the <span style='color: rgba(180, 0, 0, 0.7); font-weight: bold'>red</span> graph
+            Make the <span style='color: rgba(180, 0, 0, 0.75); font-weight: bold'>red</span> graph
           </div>
           <div data-bind="style: {visibility: solved() ? 'visible' : 'hidden'}">
             <span style="color: #090; font-size: 42px"><i class="icon-ok"></i> <span style="font-size: 42px; font-weight: bold">Solved</span></span>
@@ -441,9 +470,11 @@ buildGraphExercise = ($replace) ->
   solutionSrcs = $replace.find(".solution").map () ->
     srcTrim($(this).text())
   
+  $deconstruct = $div.find(".deconstruct")
+  
   model = {
     exercise: exerciseModel(startSrc, solutionSrcs)
-    work: graphModel(startSrc)
+    work: graphModel(startSrc, $deconstruct)
     solution: graphModel(solutionSrcs[0])
   }
   
@@ -451,12 +482,14 @@ buildGraphExercise = ($replace) ->
   makeEqualObservables(model.work.src, model.exercise.workSrc)
   
   ko.computed () ->
+    model.work.compiledSrc()
+    model.solution.f()
     solved = false
-    if model.work.f() && model.solution.f()
-      try
-        solved = testEqualGraphs(model.work.f(), model.solution.f())
-      catch e
-        solved = false
+    try
+      f = makeGraphF(model.work.compiledSrc())
+      solved = testEqualGraphs(f, model.solution.f())
+    catch e
+      solved = false
     model.exercise.solved(solved)
   
   $replace.replaceWith($div)

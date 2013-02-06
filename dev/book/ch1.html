@@ -14,7 +14,6 @@
 <p>Let’s start by writing some pixel shaders that just output a solid color.</p>
 <p>Colors in GLSL are represented as a mixture of their red, green, and blue components, on a scale from <code>0.0</code> to <code>1.0</code>.</p>
 <p>Colors also have an alpha component. Alpha represents how opaque (<code>1.0</code>) or transparent (<code>0.0</code>) the color is. This can be useful when you’re compositing one image on top of another, but for this chapter we’ll always be setting the alpha component to <code>1.0</code>–fully opaque.</p>
-<h3 id="exercises">Exercises</h3>
 <div class="shader-exercise">
 <div class="start">
 
@@ -86,7 +85,6 @@ void main() {
 <p>But since the same program is run 90,000 times, every time it runs it outputs the same color. So we just end up with solid color images.</p>
 <p>To make the program output different colors for different pixels, we can introduce <code>position</code> which will <em>vary</em> across the image. That is, it will take on a different value depending on which pixel the shader is computing. We can use <code>position</code> to figure out the <em>coordinates</em> of our pixel and compute the appropriate color with our program.</p>
 <p><code>position.x</code> will range from <code>0.0</code> to <code>1.0</code> from the left to the right of our image. <code>position.y</code> will range from <code>0.0</code> to <code>1.0</code> from the bottom to the top of our image.</p>
-<h3 id="exercises-1">Exercises</h3>
 <div class="shader-exercise">
 <div class="start">
 
@@ -158,7 +156,7 @@ void main() {
 </li>
 <li><p><code>*</code> (times)</p>
 <div class="evaluator">
-2.0 * 3.0
+2.0 * 4.0
 </div>
 </li>
 <li><p><code>/</code> (divided by)</p>
@@ -176,7 +174,6 @@ void main() {
 (1.0 + 1.0) * 3.0
 </div></div>
 
-<h3 id="exercises-2">Exercises</h3>
 <div class="shader-exercise">
 <div class="start">
 

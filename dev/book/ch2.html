@@ -13,18 +13,18 @@
 <h2 id="abs"><code>abs</code></h2>
 <p>In addition to arithmetic operations, GLSL has several built-in mathematical <em>functions</em> that are very useful.</p>
 <p>We’ll start with <code>abs</code> which takes the <em>absolute value</em> of a number. It takes negative numbers to the positive version of the number and leaves positive numbers the same.</p>
-<ul>
-<li><div class="evaluator">
+<div class="evaluator">
 abs(-1.5)
-</div></li>
-<li><div class="evaluator">
+</div>
+
+<div class="evaluator">
 abs(4.2)
-</div></li>
-<li><div class="evaluator">
+</div>
+
+<div class="evaluator">
 abs(0.0)
 </div>
-</li>
-</ul>
+
 <p>Notice how we write <code>abs</code> followed by parentheses with the <em>parameter</em> (the number we want to take the absolute value of) inside. This is how we apply functions in GLSL.</p>
 <p>Here is a line graph of <code>abs</code>:</p>
 <div class="graph-example">
@@ -38,14 +38,12 @@ x
 </div>
 
 <div class="graph-example">
-x + 0.5
+2. * x - 1.
 </div>
 
-<div class="graph-example">
--abs(x)
-</div>
+<!-- <div class="graph-example">-abs(x)</div> -->
 
-<h3 id="exercises">Exercises</h3>
+<p>The following exercises all use <code>abs</code> to create different graphs.</p>
 <div class="graph-exercise">
   <div class="start">
 abs(x)
@@ -63,6 +61,79 @@ abs(x - 0.5) * 2.0
 1.0 - abs(x - 0.5) * 2.0
 </div>
 </div>
+
+<p>Now let’s try using <code>abs</code> in shaders.</p>
+<div class="shader-exercise">
+<div class="start">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = abs(position.x);
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = abs(position.x - 0.5);
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = abs(position.x - 0.5) * 2.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 1.0 - abs(position.x - 0.5) * 2.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = abs(position.x - 0.5) * 2.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = abs(position.y - 0.5) * 2.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+</div>
+
+<p>In the above exercises, you sometimes needed to modify the expression <em>inside</em> the <code>abs</code> function, for example changing <code>abs(x)</code> to <code>abs(x - 0.5)</code>. This is called distorting the <em>domain</em> of the function.</p>
+<p>You also sometimes needed to modify the expression <em>outside</em> of the function, for example changing <code>abs(x)</code> to <code>abs(x) - 0.5</code>. This is called distorting the <em>range</em> of the function.</p>
+<p>We’ll see this idea–distorting the domain and range of a function–again and again in later chapters. Look out for it!</p>
 
 
 <script src="../build/build.js"></script>

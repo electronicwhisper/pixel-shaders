@@ -99,16 +99,13 @@ canvas {
   box-sizing: border-box;
 }
 
-h1, h2, h3, body > p, body > ul, body > ol, .book-text {
+li, .book-text {
+  margin: 16px 0px;
+}
+
+h1, h2, h3, body > p, body > ul, body > ol, body > .book-text {
   width: 540px;
   margin-left: 324px;
   box-sizing: border-box;
 }
 
-li {
-  margin: 16px 0px;
-}
-
-.book-text {
-  margin: 16px 0px 16px 324px;
-}
