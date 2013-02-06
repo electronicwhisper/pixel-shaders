@@ -8,7 +8,7 @@
   "local": [
     "codemirror"
   ],
-  "images": [
+  "files": [
     "warning.png"
   ],
   "scripts": ["index.js"],

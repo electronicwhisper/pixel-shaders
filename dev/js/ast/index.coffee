@@ -34,6 +34,9 @@ stringify = (ast, src) ->
   # remove trailing white space
   s = s.replace(/\s+$/, "")
   
+  # remove trailing commas
+  s = s.replace(/,+$/, "")
+  
   # remove unbalanced parentheses from the end
   # this is super hacky that you even have to do this -Toby
   endParens = 0

@@ -16797,6 +16797,7 @@ require.register("ast/index.js", function(module, exports, require){
     var ch, endParens, s, _i, _len;
     s = src.substring(ast.offset, ast.endOffset);
     s = s.replace(/\s+$/, "");
+    s = s.replace(/,+$/, "");
     endParens = 0;
     for (_i = 0, _len = s.length; _i < _len; _i++) {
       ch = s[_i];
