@@ -5,6 +5,7 @@
     "component/underscore": "*"
   },
   "local": [
+    "ast",
     "codemirror",
     "parse"
   ],

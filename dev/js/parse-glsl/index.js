@@ -1160,7 +1160,7 @@ module.exports = (function(){
         if (result0 !== null) {
           result0 = (function(offset, line, column, statements) {
               // Skip blank statements.  These were either whitespace or
-              var result = new node({line:line,column:column,
+              var result = new node({line:line,column:column,offset:offset,
                 type: "root",
                 statements: []
               });
@@ -1369,7 +1369,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, directive, value) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "preprocessor",
               directive: "#" + directive,
               value: value
@@ -1432,7 +1432,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-             return new node({line:line,column:column,
+             return new node({line:line,column:column,offset:offset,
                type: "identifier",
                name: head + tail.join("")
              });
@@ -1787,7 +1787,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, macro_name, parameters) {
-              var result = new node({line:line,column:column,
+              var result = new node({line:line,column:column,offset:offset,
                 type: "macro_call",
                 macro_name: macro_name,
                 parameters: parameters
@@ -1992,7 +1992,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, identifier, parameters, token_string) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
                  type: "preprocessor",
                  directive: "#define",
                  identifier: identifier.name,
@@ -2122,7 +2122,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, directive, value) {
-               return new node({line:line,column:column,
+               return new node({line:line,column:column,offset:offset,
                  type: "preprocessor",
                  directive: "#" + directive,
                  value: value
@@ -2228,7 +2228,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, value) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "preprocessor",
                 directive: "#elif",
                 value: value
@@ -2298,7 +2298,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "preprocessor",
               directive: "#else"
             });
@@ -2598,7 +2598,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, prototype, body) {
-              result = new node({line:line,column:column,
+              result = new node({line:line,column:column,offset:offset,
                 type: "function_declaration",
                 name: prototype.name,
                 returnType: prototype.returnType,
@@ -2642,7 +2642,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, statements) {
-              result = new node({line:line,column:column,
+              result = new node({line:line,column:column,offset:offset,
                 type: "scope",
                 statements: []
               });
@@ -2845,7 +2845,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, condition, if_body, else_body) {
-               result = new node({line:line,column:column,
+               result = new node({line:line,column:column,offset:offset,
                  type:"if_statement",
                  condition:condition,
                  body:if_body
@@ -2932,7 +2932,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, initializer, condition, increment, body) {
-                return new node({line:line,column:column,
+                return new node({line:line,column:column,offset:offset,
                   type:"for_statement",
                   initializer:initializer,
                   condition:condition,
@@ -3020,7 +3020,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, w, body) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "while_statement",
                 condition: w.condition,
                 body: body
@@ -3068,7 +3068,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, body, w) {
-               return new node({line:line,column:column,
+               return new node({line:line,column:column,offset:offset,
                  type: "do_statement",
                  condition: w.condition,
                  body: body
@@ -3129,7 +3129,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, expression) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "return",
                 value: expression
               });
@@ -3256,7 +3256,7 @@ module.exports = (function(){
           }
           if (result0 !== null) {
             result0 = (function(offset, line, column, type) {
-                      return new node({line:line,column:column,
+                      return new node({line:line,column:column,offset:offset,
                         type:type[0]
                       });
                     })(pos0.offset, pos0.line, pos0.column, result0);
@@ -3290,7 +3290,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, e) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "expression",
                 expression: e
               });
@@ -3360,7 +3360,7 @@ module.exports = (function(){
           }
           if (result0 !== null) {
             result0 = (function(offset, line, column, type, declarators) {
-                return new node({line:line,column:column,
+                return new node({line:line,column:column,offset:offset,
                   type: "declarator",
                   typeAttribute: type,
                   declarators: declarators
@@ -3453,7 +3453,7 @@ module.exports = (function(){
               result0 = (function(offset, line, column, head, tail) {
                     var items = [ head ].concat(tail.map(function(item) {
                       return item[1]; }));
-                    return new node({line:line,column:column,
+                    return new node({line:line,column:column,offset:offset,
                       type: "invariant",
                       identifiers: items
                     });
@@ -3512,7 +3512,7 @@ module.exports = (function(){
               }
               if (result0 !== null) {
                 result0 = (function(offset, line, column, precission, type) {
-                    return new node({line:line,column:column,
+                    return new node({line:line,column:column,offset:offset,
                       type:"precision",
                       precision: precission,
                       typeName: type
@@ -3567,7 +3567,7 @@ module.exports = (function(){
           }
           if (result0 !== null) {
             result0 = (function(offset, line, column, type, declarators) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "declarator",
                 typeAttribute: type,
                 declarators: declarators
@@ -3607,7 +3607,7 @@ module.exports = (function(){
             }
             if (result0 !== null) {
               result0 = (function(offset, line, column, type, declarators) {
-                return new node({line:line,column:column,
+                return new node({line:line,column:column,offset:offset,
                   type: "declarator",
                   typeAttribute: type,
                   declarators: declarators
@@ -3743,7 +3743,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, type, identifier, parameters) {
-              result = new node({line:line,column:column,
+              result = new node({line:line,column:column,offset:offset,
                 type:"function_prototype",
                 name: identifier.name,
                 returnType: type,
@@ -3911,7 +3911,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, const_qualifier, parameter, precision, type_name, identifier, array_size) {
-            var result = new node({line:line,column:column,
+            var result = new node({line:line,column:column,offset:offset,
               type: "parameter",
               type_name: type_name,
               name: identifier.name
@@ -4188,7 +4188,7 @@ module.exports = (function(){
         result0 = parse_identifier();
         if (result0 !== null) {
           result0 = (function(offset, line, column, name) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "declarator_item",
                 name:name
               });
@@ -4233,7 +4233,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, name, arraySize) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "declarator_item",
                 name: name,
                 arraySize: arraySize,
@@ -4277,7 +4277,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, name) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "declarator_item",
                 name: name,
                 isArray: true
@@ -4320,7 +4320,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, name, initializer) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "declarator_item",
                 name: name,
                 initializer:initializer
@@ -4404,7 +4404,7 @@ module.exports = (function(){
         if (result0 !== null) {
           result0 = (function(offset, line, column, declarators) {
              return declarators.map(function(item) {
-               return new node({line:line,column:column,
+               return new node({line:line,column:column,offset:offset,
                  type: "declarator",
                  typeAttribute: item[0],
                  declarators: item[2]
@@ -4515,7 +4515,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, qualifier, identifier, members, declarators) {
-              var result = new node({line:line,column:column,
+              var result = new node({line:line,column:column,offset:offset,
                 type: "struct_definition",
                 members:members
               });
@@ -4573,7 +4573,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, precision, name) {
-            var result = new node({line:line,column:column,
+            var result = new node({line:line,column:column,offset:offset,
               type: "type",
               name: name
             });
@@ -4924,7 +4924,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "type",
               name: "void"
             })
@@ -5114,7 +5114,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-             return new node({line:line,column:column,
+             return new node({line:line,column:column,offset:offset,
                type: "identifier",
                name: head + tail.join("")
              });
@@ -5753,7 +5753,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "int",
                 value: parseInt([head].concat(tail).join(""), 10)
               });
@@ -5827,7 +5827,7 @@ module.exports = (function(){
           }
           if (result0 !== null) {
             result0 = (function(offset, line, column, digits) {
-                return new node({line:line,column:column,
+                return new node({line:line,column:column,offset:offset,
                   type:"int",
                   value:parseInt(digits.join(""), 16)
                 });
@@ -5887,7 +5887,7 @@ module.exports = (function(){
             }
             if (result0 !== null) {
               result0 = (function(offset, line, column, digits) {
-                  return new node({line:line,column:column,
+                  return new node({line:line,column:column,offset:offset,
                     type:"int",
                     value:parseInt(digits.join(""), 8)
                   });
@@ -5909,7 +5909,7 @@ module.exports = (function(){
               }
               if (result0 !== null) {
                 result0 = (function(offset, line, column) {
-                    return new node({line:line,column:column,
+                    return new node({line:line,column:column,offset:offset,
                       type: "int",
                       value: 0
                     });
@@ -6097,7 +6097,7 @@ module.exports = (function(){
           result0 = (function(offset, line, column, digits) {
               digits[0] = digits[0].join("");
               digits[2] = digits[2].join("");
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "float",
                 value:parseFloat(digits.join(""))
               });
@@ -6149,7 +6149,7 @@ module.exports = (function(){
           }
           if (result0 !== null) {
             result0 = (function(offset, line, column, digits) {
-                return new node({line:line,column:column,
+                return new node({line:line,column:column,offset:offset,
                   type: "float",
                   value: parseFloat(digits[0].join("") + digits[1])
                 });
@@ -6303,7 +6303,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, value) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "bool",
               value: value == "true"
             });
@@ -6364,7 +6364,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, index) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "accessor",
               index: index
             });
@@ -6405,7 +6405,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, id) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "field_selector",
               selection: id.name
             })
@@ -6451,7 +6451,7 @@ module.exports = (function(){
           result0 = (function(offset, line, column, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new node({line:line,column:column,
+                result = new node({line:line,column:column,offset:offset,
                   type: "postfix",
                   operator: tail[i],
                   expression: result
@@ -6533,9 +6533,9 @@ module.exports = (function(){
           result0 = (function(offset, line, column, head, tail, rest) {
               var result = head;
               if(tail) {
-                result = new node({line:line,column:column,
+                result = new node({line:line,column:column,offset:offset,
                   type: "postfix",
-                  operator: new node({line:line,column:column,
+                  operator: new node({line:line,column:column,offset:offset,
                     id: next_id++,
                     type: "operator",
                     operator: tail
@@ -6544,7 +6544,7 @@ module.exports = (function(){
                 })
               }
               for (var i = 0; i < rest.length; i++) {
-                result = new node({line:line,column:column,
+                result = new node({line:line,column:column,offset:offset,
                   type: "postfix",
                   operator: rest[i],
                   expression: result
@@ -6672,7 +6672,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, function_name, parameters) {
-              var result = new node({line:line,column:column,
+              var result = new node({line:line,column:column,offset:offset,
                 type: "function_call",
                 function_name: function_name,
                 parameters: parameters
@@ -6801,10 +6801,10 @@ module.exports = (function(){
           result0 = (function(offset, line, column, head, tail) {
               result = tail
               if (head) {
-                result = new node({line:line,column:column,
+                result = new node({line:line,column:column,offset:offset,
                   type: "unary",
                   expression: result,
-                  operator: new node({line:line,column:column,
+                  operator: new node({line:line,column:column,offset:offset,
                     type: "operator",
                     operator: head
                   })
@@ -6887,7 +6887,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, operator) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "operator",
               operator: operator
             });
@@ -6979,7 +6979,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -7045,7 +7045,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "operator",
               operator: "+"
             });
@@ -7108,7 +7108,7 @@ module.exports = (function(){
           }
           if (result0 !== null) {
             result0 = (function(offset, line, column) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "operator",
                 operator: "-"
               });
@@ -7201,7 +7201,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -7267,7 +7267,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, operator) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "operator",
               operator: operator
             });
@@ -7359,7 +7359,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -7429,7 +7429,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, equal) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type: "operator",
               operator: "<" + equal
             });
@@ -7496,7 +7496,7 @@ module.exports = (function(){
           }
           if (result0 !== null) {
             result0 = (function(offset, line, column, equal) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "operator",
                 operator: ">" + equal
               });
@@ -7589,7 +7589,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -7625,7 +7625,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, operator) {
-             return new node({line:line,column:column,
+             return new node({line:line,column:column,offset:offset,
                type: "operator",
                operator: operator
              });
@@ -7717,7 +7717,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -7783,7 +7783,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column) {
-             return new node({line:line,column:column,
+             return new node({line:line,column:column,offset:offset,
                type: "operator",
                operator: "&"
              });
@@ -7875,7 +7875,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -7941,7 +7941,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column) {
-             return new node({line:line,column:column,
+             return new node({line:line,column:column,offset:offset,
                type: "operator",
                operator: "^"
              });
@@ -8033,7 +8033,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -8099,7 +8099,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column) {
-             return new node({line:line,column:column,
+             return new node({line:line,column:column,offset:offset,
                type: "operator",
                operator: "|"
              });
@@ -8191,7 +8191,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -8216,7 +8216,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column) {
-             return new node({line:line,column:column,
+             return new node({line:line,column:column,offset:offset,
                type: "operator",
                operator: "&&"
              });
@@ -8308,7 +8308,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -8333,7 +8333,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column) {
-             return new node({line:line,column:column,
+             return new node({line:line,column:column,offset:offset,
                type: "operator",
                operator: "^^"
              });
@@ -8425,7 +8425,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -8450,7 +8450,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column) {
-             return new node({line:line,column:column,
+             return new node({line:line,column:column,offset:offset,
                type: "operator",
                operator: "||"
              });
@@ -8542,7 +8542,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, head, tail) {
-              return daisy_chain(head, tail, line, column);
+              return daisy_chain(head, tail, line, column, offset);
             })(pos0.offset, pos0.line, pos0.column, result0[0], result0[1]);
         }
         if (result0 === null) {
@@ -8644,7 +8644,7 @@ module.exports = (function(){
           result0 = (function(offset, line, column, head, tail) {
               result = head;
               if (tail) {
-                result = new node({line:line,column:column,
+                result = new node({line:line,column:column,offset:offset,
                   type: "ternary",
                   condition: head,
                   is_true: tail[3],
@@ -8819,9 +8819,9 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, line, column, variable, operator, expression) {
-              return new node({line:line,column:column,
+              return new node({line:line,column:column,offset:offset,
                 type: "binary",
-                operator: new node({line:line,column:column,
+                operator: new node({line:line,column:column,offset:offset,
                   type: "operator",
                   operator: operator
                 }),
@@ -8942,10 +8942,10 @@ module.exports = (function(){
         };
       
         // Helper function to daisy chain together a series of binary operations.
-        function daisy_chain(head, tail, line, column) {
+        function daisy_chain(head, tail, line, column, offset) {
           var result = head;
           for (var i = 0; i < tail.length; i++) {
-            result = new node({line:line,column:column,
+            result = new node({line:line,column:column,offset:offset,
               type: "binary",
               operator: tail[i][1],
               left: result,

@@ -2,6 +2,10 @@
 
 update deconstruct/parse algorithm
 
+add hints to exercises
+mouseover on graph to see evaluation
+build localStorage system to save state
+
 
 
 introduction

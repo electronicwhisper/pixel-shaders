@@ -6,29 +6,39 @@ In addition to arithmetic operations, GLSL has several built-in mathematical *fu
 
 We'll start with `abs` which takes the *absolute value* of a number. It takes negative numbers to the positive version of the number and leaves positive numbers the same.
 
-<div class="evaluator">abs(-1.5)</div>
+<div class="evaluator">abs(-2.)</div>
 
-<div class="evaluator">abs(4.2)</div>
+<div class="evaluator">abs(4.)</div>
 
-<div class="evaluator">abs(0.0)</div>
-
-Notice how we write `abs` followed by parentheses with the *parameter* (the number we want to take the absolute value of) inside. This is how we apply functions in GLSL.
-
-Here is a line graph of `abs`:
+Here is a graph of `abs`:
 
 <div class="graph-example">abs(x)</div>
 
-In the above graph, `x` ranges horizontally and the value of the *expression*, in this case `abs(x)`, ranges vertically.
+Graphs are helpful for visualizing mathematical expressions so we'll be using them a lot.
 
-Graphs are helpful for visualizing functions so we'll be using them a lot. Here are a few other examples of graphs:
+Within the text box on top is an expression based on `x`. In this case it's `abs(x)`. You can experiment by changing the expression in the text box.
 
-<div class="graph-example">x</div>
+On the graph to the left, `x` goes across horizontally and the result of the expression is graphed vertically. You can move your mouse over the graph to see how the evaluation is carried out (TODO).
 
-<div class="graph-example">2. * x - 1.</div>
+Underneath the text box is a breakdown of the expression into sub-expressions. You can move your mouse over these sub-expressions to see their graphs.
 
-<!-- <div class="graph-example">-abs(x)</div> -->
+Here are a few variations using `abs`. Explore them by changing them and moving your mouse over them to understand how they work.
 
-The following exercises all use `abs` to create different graphs.
+<div class="graph-example">abs(x) + 1.</div>
+
+<div class="graph-example">abs(x + 1.)</div>
+
+<div class="graph-example">abs(x) * 2.</div>
+
+<div class="graph-example">1. - abs(x) * 2.</div>
+
+Notice how we use arithmetic operations to *transform* the basic `abs(x)` graph.
+
+We sometimes do arithmetic *inside* the function, for example `abs(x + 1.)`, and sometimes *outside* the function, for example `abs(x) + 1.`. Doing operations inside the function is called distorting the *domain* and doing operations outside the function is called distorting the *range*.
+
+We'll see this idea--distorting the domain and range of a function--again and again in the following exercises and later chapters. Look out for it!
+
+Transform `abs(x)` to construct the red graphs:
 
 <div class="graph-exercise">
   <div class="start">abs(x)</div>
@@ -38,7 +48,7 @@ The following exercises all use `abs` to create different graphs.
   <div class="solution">1.0 - abs(x - 0.5) * 2.0</div>
 </div>
 
-Now let's try using `abs` in shaders.
+Now let's try using `abs` in shaders:
 
 <div class="shader-exercise">
 <div class="start">

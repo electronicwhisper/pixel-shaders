@@ -39,10 +39,10 @@
   };
 
   // Helper function to daisy chain together a series of binary operations.
-  function daisy_chain(head, tail, line, column) {
+  function daisy_chain(head, tail, line, column, offset) {
     var result = head;
     for (var i = 0; i < tail.length; i++) {
-      result = new node({line:line,column:column,
+      result = new node({line:line,column:column,offset:offset,
         type: "binary",
         operator: tail[i][1],
         left: result,
@@ -123,7 +123,7 @@ right_brace   = _? "}" _?
 external_statement_list
   = statements:external_statement* {
       // Skip blank statements.  These were either whitespace or
-      var result = new node({line:line,column:column,
+      var result = new node({line:line,column:column,offset:offset,
         type: "root",
         statements: []
       });
@@ -168,7 +168,7 @@ preprocessor_operator
                    "version"/ "error" / "extension" /
                    "line")
     _ value:(defname:[^\n]* {return defname.join("")}) (newLine/EOF) {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "preprocessor",
       directive: "#" + directive,
       value: value
@@ -177,7 +177,7 @@ preprocessor_operator
 
 macro_identifier
   = head:[A-Za-z_] tail:[A-Za-z_0-9]* {
-     return new node({line:line,column:column,
+     return new node({line:line,column:column,offset:offset,
        type: "identifier",
        name: head + tail.join("")
      });
@@ -216,7 +216,7 @@ macro_call
     // Explicitly use "")" at the end of the line as to not eat any whitespace
     // after the macro call.
     parameters:(parameter_list?) ")" {
-      var result = new node({line:line,column:column,
+      var result = new node({line:line,column:column,offset:offset,
         type: "macro_call",
         macro_name: macro_name,
         parameters: parameters
@@ -240,7 +240,7 @@ preprocessor_define
     parameters:preprocessor_parameter_list?
     [ \t]* token_string:(defname:[^\n]* {return defname.join("")})
     (newLine/EOF) {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
          type: "preprocessor",
          directive: "#define",
          identifier: identifier.name,
@@ -252,7 +252,7 @@ preprocessor_define
 preprocessor_if
   = "#" _? directive:("ifdef" / "ifndef"/ "if")
      _ value:(defname:[^\n]* {return defname.join("")}) (newLine/EOF) {
-       return new node({line:line,column:column,
+       return new node({line:line,column:column,offset:offset,
          type: "preprocessor",
          directive: "#" + directive,
          value: value
@@ -262,7 +262,7 @@ preprocessor_if
 preprocessor_else_if
   = "#" _? "elif" _ value:(defname:[^\n]* {return defname.join("")})
     (newLine/EOF) {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "preprocessor",
         directive: "#elif",
         value: value
@@ -271,7 +271,7 @@ preprocessor_else_if
 
 preprocessor_else
   = "#" _? "else" noNewlineWhitespace? newLine {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "preprocessor",
       directive: "#else"
     });
@@ -298,7 +298,7 @@ preprocessor_statement_branch
 
 function_definition
   = prototype:function_prototype body:compound_statement {
-      result = new node({line:line,column:column,
+      result = new node({line:line,column:column,offset:offset,
         type: "function_declaration",
         name: prototype.name,
         returnType: prototype.returnType,
@@ -310,7 +310,7 @@ function_definition
 
 compound_statement
   = left_brace statements:statement_list? right_brace {
-      result = new node({line:line,column:column,
+      result = new node({line:line,column:column,offset:offset,
         type: "scope",
         statements: []
       });
@@ -352,7 +352,7 @@ selection_statement
   = "if" left_paren condition:expression right_paren
      if_body:statement_with_scope
      else_body:("else" (_)? statement_with_scope)? {
-       result = new node({line:line,column:column,
+       result = new node({line:line,column:column,offset:offset,
          type:"if_statement",
          condition:condition,
          body:if_body
@@ -369,7 +369,7 @@ for_loop
       condition:condition? semicolon
       increment:expression? right_paren
       body:statement_no_new_scope {
-        return new node({line:line,column:column,
+        return new node({line:line,column:column,offset:offset,
           type:"for_statement",
           initializer:initializer,
           condition:condition,
@@ -387,7 +387,7 @@ while_statement
 
 while_loop
   = w:while_statement body:statement_no_new_scope  {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "while_statement",
         condition: w.condition,
         body: body
@@ -396,7 +396,7 @@ while_loop
 
 do_while
   = "do" body:statement_with_scope w:while_statement {
-       return new node({line:line,column:column,
+       return new node({line:line,column:column,offset:offset,
          type: "do_statement",
          condition: w.condition,
          body: body
@@ -410,7 +410,7 @@ iteration_statement
 
 jump_statement
   = "return" expression:expression semicolon {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "return",
         value: expression
       });
@@ -421,14 +421,14 @@ jump_statement
           / (&{ return shaderType == "fs" }"discard"
              {return "discard";})
              semicolon) {
-            return new node({line:line,column:column,
+            return new node({line:line,column:column,offset:offset,
               type:type[0]
             });
           }
 
 expression_statement
   = e:expression? semicolon {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "expression",
         expression: e
       });
@@ -439,7 +439,7 @@ declaration "declaration"
       return function_prototype;
     }
   / type:locally_specified_type _ declarators:init_declarator_list semicolon {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "declarator",
         typeAttribute: type,
         declarators: declarators
@@ -449,13 +449,13 @@ declaration "declaration"
     "invariant" _ head:identifier tail:(comma identifier)* semicolon {
         var items = [ head ].concat(tail.map(function(item) {
           return item[1]; }));
-        return new node({line:line,column:column,
+        return new node({line:line,column:column,offset:offset,
           type: "invariant",
           identifiers: items
         });
       }
   / "precision" _ precission:precision_qualifier _ type:type_name semicolon {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type:"precision",
         precision: precission,
         typeName: type
@@ -465,14 +465,14 @@ declaration "declaration"
 global_declaration
   = declaration
   / type:fully_specified_type _ declarators:init_declarator_list semicolon {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "declarator",
       typeAttribute: type,
       declarators: declarators
     });
   }
   / type:attribute_type _ declarators:declarator_list_no_array semicolon {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "declarator",
       typeAttribute: type,
       declarators: declarators
@@ -491,7 +491,7 @@ function_prototype
   = type:(void_type/precision_type) _
     identifier:identifier left_paren
     parameters:function_prototype_parameter_list? right_paren {
-      result = new node({line:line,column:column,
+      result = new node({line:line,column:column,offset:offset,
         type:"function_prototype",
         name: identifier.name,
         returnType: type,
@@ -515,7 +515,7 @@ parameter_declaration
                                       constant_expression
                                       right_bracket)?
   {
-    var result = new node({line:line,column:column,
+    var result = new node({line:line,column:column,offset:offset,
       type: "parameter",
       type_name: type_name,
       name: identifier.name
@@ -556,7 +556,7 @@ declarator_list_arrays_have_size
 
 declarator_no_array
   = name:identifier {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "declarator_item",
         name:name
       });
@@ -564,7 +564,7 @@ declarator_no_array
 
 declarator_array_with_size
   = name:identifier left_bracket arraySize:constant_expression right_bracket {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "declarator_item",
         name: name,
         arraySize: arraySize,
@@ -575,7 +575,7 @@ declarator_array_with_size
 
 declarator
   = name:identifier left_bracket right_bracket {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "declarator_item",
         name: name,
         isArray: true
@@ -585,7 +585,7 @@ declarator
 
 init_declarator
   = name:identifier equals initializer:constant_expression {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "declarator_item",
         name: name,
         initializer:initializer
@@ -598,7 +598,7 @@ member_list
                  declarator_list_arrays_have_size
                  semicolon)+ {
      return declarators.map(function(item) {
-       return new node({line:line,column:column,
+       return new node({line:line,column:column,offset:offset,
          type: "declarator",
          typeAttribute: item[0],
          declarators: item[2]
@@ -611,7 +611,7 @@ struct_definition
     identifier:(_ identifier)? left_brace
     members:member_list
     right_brace declarators:declarator_list? semicolon {
-      var result = new node({line:line,column:column,
+      var result = new node({line:line,column:column,offset:offset,
         type: "struct_definition",
         members:members
       });
@@ -633,7 +633,7 @@ constant_expression
 
 precision_type
   = precision:(precision_qualifier _)? name:type_name {
-    var result = new node({line:line,column:column,
+    var result = new node({line:line,column:column,offset:offset,
       type: "type",
       name: name
     });
@@ -681,7 +681,7 @@ type_qualifier "type qualifier"
 
 void_type "void"
   = "void" {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "type",
       name: "void"
     })
@@ -705,7 +705,7 @@ type_name "type name"
 
 identifier "identifier"
   = !(keyword [^A-Za-z_0-9]) head:[A-Za-z_] tail:[A-Za-z_0-9]* {
-     return new node({line:line,column:column,
+     return new node({line:line,column:column,offset:offset,
        type: "identifier",
        name: head + tail.join("")
      });
@@ -730,25 +730,25 @@ single_underscore_identifier
 
 int_constant
   = head:[1-9] tail:[0-9]* {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "int",
         value: parseInt([head].concat(tail).join(""), 10)
       });
     }
   / "0"[Xx] digits:[0-9A-Fa-f]+ {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type:"int",
         value:parseInt(digits.join(""), 16)
       });
     }
   / "0" digits:[0-7]+ {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type:"int",
         value:parseInt(digits.join(""), 8)
       });
     }
   / "0" {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "int",
         value: 0
       });
@@ -759,13 +759,13 @@ float_constant
     {
       digits[0] = digits[0].join("");
       digits[2] = digits[2].join("");
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "float",
         value:parseFloat(digits.join(""))
       });
     }
   / digits:([0-9]+float_exponent) {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "float",
         value: parseFloat(digits[0].join("") + digits[1])
       });
@@ -783,7 +783,7 @@ paren_expression
 
 bool_constant
   = value:("true" / "false") {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "bool",
       value: value == "true"
     });
@@ -799,7 +799,7 @@ primary_expression
 
 index_accessor
   = left_bracket index:expression right_bracket {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "accessor",
       index: index
     });
@@ -807,7 +807,7 @@ index_accessor
 
 field_selector
   = "." id:identifier {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "field_selector",
       selection: id.name
     })
@@ -819,7 +819,7 @@ postfix_expression
     {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = new node({line:line,column:column,
+        result = new node({line:line,column:column,offset:offset,
           type: "postfix",
           operator: tail[i],
           expression: result
@@ -834,9 +834,9 @@ postfix_expression_no_repeat
     rest:(field_selector / index_accessor)* {
       var result = head;
       if(tail) {
-        result = new node({line:line,column:column,
+        result = new node({line:line,column:column,offset:offset,
           type: "postfix",
-          operator: new node({line:line,column:column,
+          operator: new node({line:line,column:column,offset:offset,
             id: next_id++,
             type: "operator",
             operator: tail
@@ -845,7 +845,7 @@ postfix_expression_no_repeat
         })
       }
       for (var i = 0; i < rest.length; i++) {
-        result = new node({line:line,column:column,
+        result = new node({line:line,column:column,offset:offset,
           type: "postfix",
           operator: rest[i],
           expression: result
@@ -863,7 +863,7 @@ parameter_list
 function_call
   = function_name:function_identifier left_paren
     parameters:(parameter_list?) right_paren {
-      var result = new node({line:line,column:column,
+      var result = new node({line:line,column:column,offset:offset,
         type: "function_call",
         function_name: function_name,
         parameters: parameters
@@ -882,10 +882,10 @@ unary_expression
     tail:postfix_expression_no_repeat {
       result = tail
       if (head) {
-        result = new node({line:line,column:column,
+        result = new node({line:line,column:column,offset:offset,
           type: "unary",
           expression: result,
-          operator: new node({line:line,column:column,
+          operator: new node({line:line,column:column,offset:offset,
             type: "operator",
             operator: head
           })
@@ -896,7 +896,7 @@ unary_expression
 
 multiplicative_operator
   = operator:("*" / "/" / "%") !"=" {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "operator",
       operator: operator
     });
@@ -905,18 +905,18 @@ multiplicative_operator
 multiplicative_expression
   = head:unary_expression
     tail:(_? multiplicative_operator _? unary_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 additive_operator
   = "+" !("+" / "=") {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "operator",
       operator: "+"
     });
   }
   / "-" !("-" / "=") {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "operator",
       operator: "-"
     });
@@ -925,12 +925,12 @@ additive_operator
 additive_expression
   = head:multiplicative_expression
     tail:(_? additive_operator _? multiplicative_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 shift_operator
   = operator:("<<" / ">>") !"=" {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "operator",
       operator: operator
     });
@@ -939,18 +939,18 @@ shift_operator
 shift_expression
   = head:additive_expression
     tail:(_? shift_operator _? additive_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 relational_operator
   = "<" !("<") equal:("=")? {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "operator",
       operator: "<" + equal
     });
   }
   / ">" !(">") equal:("=")? {
-    return new node({line:line,column:column,
+    return new node({line:line,column:column,offset:offset,
       type: "operator",
       operator: ">" + equal
     });
@@ -959,12 +959,12 @@ relational_operator
 relational_expression
   = head:shift_expression
     tail:(_? relational_operator _? shift_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 equality_operator
  = operator:("==" / "!=") {
-     return new node({line:line,column:column,
+     return new node({line:line,column:column,offset:offset,
        type: "operator",
        operator: operator
      });
@@ -973,12 +973,12 @@ equality_operator
 equality_expression
   = head:relational_expression
     tail:(_? equality_operator _? relational_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 bitwise_and_operator
   = "&" !("="/"&") {
-     return new node({line:line,column:column,
+     return new node({line:line,column:column,offset:offset,
        type: "operator",
        operator: "&"
      });
@@ -987,12 +987,12 @@ bitwise_and_operator
 bitwise_and_expression
   = head:equality_expression
     tail:(_? bitwise_and_operator _? equality_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 bitwise_xor_operator
   = "^" !("="/"^") {
-     return new node({line:line,column:column,
+     return new node({line:line,column:column,offset:offset,
        type: "operator",
        operator: "^"
      });
@@ -1001,12 +1001,12 @@ bitwise_xor_operator
 bitwise_xor_expression
   = head:bitwise_and_expression
     tail:(_? bitwise_xor_operator _? bitwise_and_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 bitwise_or_operator
   = "|" !("="/"|") {
-     return new node({line:line,column:column,
+     return new node({line:line,column:column,offset:offset,
        type: "operator",
        operator: "|"
      });
@@ -1015,12 +1015,12 @@ bitwise_or_operator
 bitwise_or_expression
   = head:bitwise_xor_expression
     tail:(_? bitwise_or_operator _? bitwise_xor_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 logical_and_operator
  = "&&" {
-     return new node({line:line,column:column,
+     return new node({line:line,column:column,offset:offset,
        type: "operator",
        operator: "&&"
      });
@@ -1029,12 +1029,12 @@ logical_and_operator
 logical_and_expression
   = head:bitwise_or_expression
     tail:(_? logical_and_operator _? bitwise_or_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 logical_xor_operator
  = "^^" {
-     return new node({line:line,column:column,
+     return new node({line:line,column:column,offset:offset,
        type: "operator",
        operator: "^^"
      });
@@ -1043,12 +1043,12 @@ logical_xor_operator
 logical_xor_expression
   = head:logical_and_expression
     tail:(_? logical_xor_operator _? logical_and_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 logical_or_operator
  = "||" {
-     return new node({line:line,column:column,
+     return new node({line:line,column:column,offset:offset,
        type: "operator",
        operator: "||"
      });
@@ -1057,7 +1057,7 @@ logical_or_operator
 logical_or_expression
   = head:logical_xor_expression
     tail:(_? logical_or_operator _? logical_xor_expression)* {
-      return daisy_chain(head, tail, line, column);
+      return daisy_chain(head, tail, line, column, offset);
     }
 
 conditional_expression
@@ -1065,7 +1065,7 @@ conditional_expression
     tail:(_? "?" _? expression _? ":" _? assignment_expression)? {
       result = head;
       if (tail) {
-        result = new node({line:line,column:column,
+        result = new node({line:line,column:column,offset:offset,
           type: "ternary",
           condition: head,
           is_true: tail[3],
@@ -1081,9 +1081,9 @@ assignment_expression
               "+=" / "-=" / "<<=" / ">>=" /
               "&=" / "^=" / "|=") _?
     expression:assignment_expression {
-      return new node({line:line,column:column,
+      return new node({line:line,column:column,offset:offset,
         type: "binary",
-        operator: new node({line:line,column:column,
+        operator: new node({line:line,column:column,offset:offset,
           type: "operator",
           operator: operator
         }),

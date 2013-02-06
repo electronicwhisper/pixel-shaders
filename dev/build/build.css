@@ -155,6 +155,7 @@
 
 
 
+
 ul.deconstruct-tree {
   overflow-x: auto;
   white-space: nowrap
@@ -180,8 +181,7 @@ ul.deconstruct-tree li {
 ul.deconstruct-tree li .deconstruct-node {
   cursor: default;
   display: block;
-  padding: 4px 5px 4px 5px;
-  margin-left: 29px;
+  padding: 4px 34px;
   white-space: normal;
   letter-spacing: normal
 }

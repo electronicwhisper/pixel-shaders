@@ -1,0 +1,7 @@
+{
+  "name": "ast",
+  "dependencies": {
+    "component/underscore": "*"
+  },
+  "scripts": ["index.js"]
+}
