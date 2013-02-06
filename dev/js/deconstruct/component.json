@@ -6,8 +6,8 @@
   },
   "local": [
     "ast",
-    "codemirror",
-    "parse"
+    "parse-glsl",
+    "codemirror"
   ],
   "scripts": [
     "index.js"

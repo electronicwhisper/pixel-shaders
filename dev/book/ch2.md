@@ -36,7 +36,7 @@ Notice how we use arithmetic operations to *transform* the basic `abs(x)` graph.
 
 We sometimes do arithmetic *inside* the function, for example `abs(x + 1.)`, and sometimes *outside* the function, for example `abs(x) + 1.`. Doing operations inside the function is called distorting the *domain* and doing operations outside the function is called distorting the *range*.
 
-We'll see this idea--distorting the domain and range of a function--again and again in the following exercises and later chapters. Look out for it!
+Distorting the domain and range of a function--or both--is a powerful technique. We'll see it again and again in the following exercises and later chapters. Look out for it!
 
 Transform `abs(x)` to construct the red graphs:
 
@@ -123,8 +123,3 @@ Now let's try using `abs` in shaders:
 </div>
 </div>
 
-In the above exercises, you sometimes needed to modify the expression *inside* the `abs` function, for example changing `abs(x)` to `abs(x - 0.5)`. This is called distorting the *domain* of the function.
-
-You also sometimes needed to modify the expression *outside* of the function, for example changing `abs(x)` to `abs(x) - 0.5`. This is called distorting the *range* of the function.
-
-We'll see this idea--distorting the domain and range of a function--again and again in later chapters. Look out for it!

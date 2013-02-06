@@ -1,26 +1,28 @@
 $ = require("jquery")
 _ = require("underscore")
 
+ast = require("ast")
+
 module.exports = (opts) ->
   $div = $(opts.div)
   src = opts.src
   
-  tree = require("parse").parse(src)
+  node = require("parse-glsl").parse(src, "assignment_expression")
   
-  stringify = (node) ->
-    if _.isArray(node)
-      _.flatten(node).join("")
-    else
-      node
+  ast.markEnds(node, src.length)
+  breakdown = ast.breakdown(node)
   
-  htmlify = (node) ->
-    s = "<li><span class='deconstruct-node'>#{stringify(node)}</span>"
-    if _.isArray(node)
-      s += "<ul>#{node.filter(_.isArray).map(htmlify).join("")}</ul>"
-    s += "</li>"
+  htmlify = (children) ->
+    s = "<ul class='deconstruct-tree'>"
+    for child in children
+      s += "<li><span class='deconstruct-node'>#{ast.stringify(child.node, src)}</span>"
+      if child.children.length > 0
+        s += htmlify(child.children)
+      s += "</li>"
+    s += "</ul>"
     return s
   
-  html = "<ul class='deconstruct-tree'>#{htmlify(tree)}</ul>"
+  html = htmlify(breakdown)
   
   $div.html(html)
   

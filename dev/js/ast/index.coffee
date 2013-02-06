@@ -1,20 +1,6 @@
 _ = require("underscore")
 
 
-compareLineColumn = (a, b) ->
-  if a.line == b.line
-    return a.column - b.column
-  else
-    return a.line - b.line
-
-getEnd = (src) ->
-  lines = src.split("\n")
-  {
-    line: lines.length
-    column: lines[lines.length-1].length
-  }
-
-
 
 extractChildren = (ast, recursing=false) ->
   if recursing && ast.type
@@ -27,22 +13,39 @@ extractChildren = (ast, recursing=false) ->
     return []
 
 
-markEnds = (node, end) ->
-  node.end = end
+markEnds = (node, endOffset) ->
+  node.endOffset = endOffset
   
   children = extractChildren(node)
-  children.sort(compareLineColumn)
+  children = _.sortBy(children, "offset")
   
   for child, i in children
     if i == children.length - 1
-      childEnd = end
+      childEndOffset = endOffset
     else
       nextChild = children[i+1]
-      childEnd = {
-        line: nextChild.line
-        column: nextChild.column - 1
-      }
-    markEnds(child, childEnd)
+      childEndOffset = nextChild.offset
+    markEnds(child, childEndOffset)
+
+
+stringify = (ast, src) ->
+  s = src.substring(ast.offset, ast.endOffset)
+  
+  # remove trailing white space
+  s = s.replace(/\s+$/, "")
+  
+  # remove unbalanced parentheses from the end
+  # this is super hacky that you even have to do this -Toby
+  endParens = 0
+  for ch in s
+    if ch == "("
+      endParens--
+    else if ch == ")"
+      endParens++
+  s = s.substr(0, s.length - endParens)
+  
+  return s
+
 
 
 breakdownTypes = ["identifier", "unary", "binary", "function_call"]
@@ -51,11 +54,19 @@ breakdownWorthy = (node) ->
 
 # returns a tree of the form {node, children} where each node is "worthy" of breaking down
 breakdown = (node) ->
-  ""
+  children = _.flatten(_.map(extractChildren(node), breakdown))
+  if breakdownWorthy(node)
+    return [{
+      node: node
+      children: children
+    }]
+  else
+    return children
 
 
 module.exports = {
-  getEnd: getEnd
   markEnds: markEnds
   extractChildren: extractChildren
+  breakdown: breakdown
+  stringify: stringify
 }
