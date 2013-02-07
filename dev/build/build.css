@@ -16,100 +16,6 @@
 .tip-hide {
   opacity: 0
 }
-.tip {
-  font-size: 11px
-}
-
-.tip-inner {
-  background-color: rgba(0,0,0,.75);
-  color: #fff;
-  padding: 8px 10px 7px 10px;
-  text-align: center
-}
-
-.tip-inner {
-  border-radius: 3px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px
-}
-
-.tip-arrow {
-  position: absolute;
-  width: 0;
-  height: 0;
-  line-height: 0;
-  border: 5px dashed rgba(0,0,0,.75)
-}
-
-.tip-arrow-south {
-  border-bottom-color: rgba(0,0,0,.75)
-}
-
-.tip-arrow-north {
-  border-top-color: rgba(0,0,0,.75)
-}
-
-.tip-arrow-west {
-  border-left-color: rgba(0,0,0,.75)
-}
-
-.tip-arrow-east {
-  border-right-color: rgba(0,0,0,.75)
-}
-
-.tip-south .tip-arrow {
-  top: 0px;
-  left: 50%;
-  margin-left: -5px;
-  border-bottom-style: solid;
-  border-top: none;
-  border-left-color: transparent;
-  border-right-color: transparent
-}
-
-.tip-north .tip-arrow {
-  bottom: 0;
-  left: 50%;
-  margin-left: -5px;
-  border-top-style: solid;
-  border-bottom: none;
-  border-left-color: transparent;
-  border-right-color: transparent
-}
-
-.tip-west .tip-arrow,
-.tip-north-west .tip-arrow,
-.tip-south-west .tip-arrow {
-  right: 0;
-  top: 50%;
-  margin-top: -5px;
-  border-left-style: solid;
-  border-right: none;
-  border-top-color: transparent;
-  border-bottom-color: transparent
-}
-
-.tip-east .tip-arrow,
-.tip-north-east .tip-arrow,
-.tip-south-east .tip-arrow {
-  left: 0;
-  top: 50%;
-  margin-top: -5px;
-  border-right-style: solid;
-  border-left: none;
-  border-top-color: transparent;
-  border-bottom-color: transparent
-}
-
-.tip-north-west .tip-arrow,
-.tip-north-east .tip-arrow {
-  top: 25%
-}
-
-.tip-south-west .tip-arrow,
-.tip-south-east .tip-arrow {
-  top: 75%
-}
 
 
 
@@ -694,4 +600,98 @@ body > .book-text {
   width: 540px;
   margin-left: 324px;
   box-sizing: border-box
+}
+
+.tip {
+
+}
+
+.tip-inner {
+  background-color: rgba(0,0,0,.1);
+  padding: 8px 10px 7px 10px;
+  font-size: 14px
+}
+
+.tip-inner {
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px
+}
+
+.tip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  line-height: 0;
+  border: 5px dashed rgba(0,0,0,.1)
+}
+
+.tip-arrow-south {
+  border-bottom-color: rgba(0,0,0,.1)
+}
+
+.tip-arrow-north {
+  border-top-color: rgba(0,0,0,.1)
+}
+
+.tip-arrow-west {
+  border-left-color: rgba(0,0,0,.1)
+}
+
+.tip-arrow-east {
+  border-right-color: rgba(0,0,0,.1)
+}
+
+.tip-south .tip-arrow {
+  top: 0px;
+  left: 50%;
+  margin-left: -5px;
+  border-bottom-style: solid;
+  border-top: none;
+  border-left-color: transparent;
+  border-right-color: transparent
+}
+
+.tip-north .tip-arrow {
+  bottom: 0;
+  left: 50%;
+  margin-left: -5px;
+  border-top-style: solid;
+  border-bottom: none;
+  border-left-color: transparent;
+  border-right-color: transparent
+}
+
+.tip-west .tip-arrow,
+.tip-north-west .tip-arrow,
+.tip-south-west .tip-arrow {
+  right: 0;
+  top: 50%;
+  margin-top: -5px;
+  border-left-style: solid;
+  border-right: none;
+  border-top-color: transparent;
+  border-bottom-color: transparent
+}
+
+.tip-east .tip-arrow,
+.tip-north-east .tip-arrow,
+.tip-south-east .tip-arrow {
+  left: 0;
+  top: 50%;
+  margin-top: -5px;
+  border-right-style: solid;
+  border-left: none;
+  border-top-color: transparent;
+  border-bottom-color: transparent
+}
+
+.tip-north-west .tip-arrow,
+.tip-north-east .tip-arrow {
+  top: 25%
+}
+
+.tip-south-west .tip-arrow,
+.tip-south-east .tip-arrow {
+  top: 75%
 }

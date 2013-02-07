@@ -12,7 +12,7 @@
 <h1 id="working-with-functions">Working with Functions</h1>
 <h2 id="abs"><code>abs</code></h2>
 <p>In addition to arithmetic operations, GLSL has several built-in mathematical <em>functions</em> that are very useful.</p>
-<p>We’ll start with <code>abs</code> which takes the <em>absolute value</em> of a number. It takes negative numbers to the positive version of the number and leaves positive numbers the same.</p>
+<p>We’ll start with <code>abs</code> which takes the <em>absolute value</em> of a number. It takes negative numbers to the positive version of the number and leaves positive numbers the same. For example:</p>
 <div class="evaluator">
 abs(-2.)
 </div>
@@ -22,15 +22,27 @@ abs(4.)
 </div>
 
 <p>Here is a graph of <code>abs</code>:</p>
+<div style="padding-top: 60px">
 <div class="graph-example">
 abs(x)
+<div class="explain" select=".book-editor" position="north">
+<p>An expression based on <code>x</code>, in this case <code>abs(x)</code>.</p>
+Experiment by changing this!
+</div>
+<div class="explain" select=".deconstruct li:first" position="north east">
+<p>A breakdown of the expression into sub-expressions.</p>
+Move your mouse over these to see their graphs.
+</div>
+<div class="explain" select=".left canvas" position="south">
+<p>On this graph, <code>x</code> goes across horizontally and the result of the expression <code>abs(x)</code> is graphed vertically.</p>
+Move your mouse over the graph to see how the evaluation is carried out (TODO).
+</div>
+</div>
 </div>
 
-<p>Graphs are helpful for visualizing mathematical expressions so we’ll be using them a lot.</p>
-<p>Within the text box on top is an expression based on <code>x</code>. In this case it’s <code>abs(x)</code>. You can experiment by changing the expression in the text box.</p>
-<p>On the graph to the left, <code>x</code> goes across horizontally and the result of the expression is graphed vertically. You can move your mouse over the graph to see how the evaluation is carried out (TODO).</p>
-<p>Underneath the text box is a breakdown of the expression into sub-expressions. You can move your mouse over these sub-expressions to see their graphs.</p>
-<p>Here are a few variations using <code>abs</code>. Explore them by changing them and moving your mouse over them to understand how they work.</p>
+<p>The purpose of a graph is to visualize a mathematical expression. Further, we want to mentally connect the <em>visual</em> representation (graph) and the <em>symbolic</em> representation (code).</p>
+<p>Compare the graphs for <code>x</code> and <code>abs(x)</code>. Notice how <code>abs</code> “flips” negative values to be positive.</p>
+<p>Here are a few variations using <code>abs</code> and arithmetic. Move your mouse over the sub-expressions to understand how they work or experiment by changing them.</p>
 <div class="graph-example">
 abs(x) + 1.
 </div>
@@ -48,8 +60,8 @@ abs(x) * 2.
 </div>
 
 <p>Notice how we use arithmetic operations to <em>transform</em> the basic <code>abs(x)</code> graph.</p>
-<p>We sometimes do arithmetic <em>inside</em> the function, for example <code>abs(x + 1.)</code>, and sometimes <em>outside</em> the function, for example <code>abs(x) + 1.</code>. Doing operations inside the function is called distorting the <em>domain</em> and doing operations outside the function is called distorting the <em>range</em>.</p>
-<p>Distorting the domain and range of a function–or both–is a powerful technique. We’ll see it again and again in the following exercises and later chapters. Look out for it!</p>
+<p>We sometimes do arithmetic <em>inside</em> the function, for example <code>abs(x + 1.)</code>, and sometimes <em>outside</em> the function, for example <code>abs(x) + 1.</code>. Doing operations inside the function is called transforming the <em>domain</em> and doing operations outside the function is called transforming the <em>range</em>.</p>
+<p>Transforming the domain and range of a function–or both–is a powerful technique. We’ll see it again and again in the following exercises and later chapters. Look out for it!</p>
 <p>Transform <code>abs(x)</code> to construct the red graphs:</p>
 <div class="graph-exercise">
   <div class="start">

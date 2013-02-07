@@ -61,6 +61,15 @@ makeEqualObservables = (o1, o2) ->
       o1(value)
 
 
+
+
+showTip = ($el, position, message) ->
+  Tip = require("tip")
+  tip = new Tip("<div style='width: 270px'>#{message}</div>")
+  tip.suggested = () -> undefined # hack to stop it jumping around
+  tip.position(position).show($el[0])
+
+
 # ======================================================= Shader Model
 
 # TODO: this will be part of the uniform itself, so we can have separate, controllable timelines
@@ -271,6 +280,8 @@ buildShaderExample = ($replace) ->
   
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0]) # for sizing, this has to be after the div has been added to the body
+  
+  return $div
 
 
 # ======================================================= Shader Exercise
@@ -356,6 +367,8 @@ buildShaderExercise = ($replace) ->
   
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0])
+  
+  return $div
 
 
 # ======================================================= Evaluator
@@ -391,6 +404,8 @@ buildEvaluator = ($replace) ->
   
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0])
+  
+  return $div
 
 
 # ======================================================= Graph Example
@@ -415,6 +430,8 @@ buildGraphExample = ($replace) ->
   
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0])
+  
+  return $div
 
 
 # ======================================================= Graph Exercise
@@ -494,6 +511,8 @@ buildGraphExercise = ($replace) ->
   
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0])
+  
+  return $div
 
 
 
@@ -504,7 +523,19 @@ buildGraphExercise = ($replace) ->
 
 build = ($selection, buildFunction) ->
   $selection.each () ->
-    buildFunction($(this))
+    $replace = $(this)
+    $explains = $replace.find(".explain")
+    $explains.remove()
+    
+    $div = buildFunction($replace)
+    
+    $explains.each () ->
+      $explain = $(this)
+      select = $explain.attr("select")
+      position = $explain.attr("position")
+      message = $explain.html()
+      
+      showTip($div.find(select), position, message)
 
 
 # ======================================================= Build

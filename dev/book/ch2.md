@@ -4,7 +4,7 @@
 
 In addition to arithmetic operations, GLSL has several built-in mathematical *functions* that are very useful.
 
-We'll start with `abs` which takes the *absolute value* of a number. It takes negative numbers to the positive version of the number and leaves positive numbers the same.
+We'll start with `abs` which takes the *absolute value* of a number. It takes negative numbers to the positive version of the number and leaves positive numbers the same. For example:
 
 <div class="evaluator">abs(-2.)</div>
 
@@ -12,17 +12,27 @@ We'll start with `abs` which takes the *absolute value* of a number. It takes ne
 
 Here is a graph of `abs`:
 
-<div class="graph-example">abs(x)</div>
+<div style="padding-top: 60px">
+<div class="graph-example">abs(x)
+<div class="explain" select=".book-editor" position="north">
+An expression based on `x`, in this case `abs(x)`.
 
-Graphs are helpful for visualizing mathematical expressions so we'll be using them a lot.
+Experiment by changing this!
+</div>
+<div class="explain" select=".deconstruct li:first" position="north east">A breakdown of the expression into sub-expressions.
 
-Within the text box on top is an expression based on `x`. In this case it's `abs(x)`. You can experiment by changing the expression in the text box.
+Move your mouse over these to see their graphs.</div>
+<div class="explain" select=".left canvas" position="south">On this graph, `x` goes across horizontally and the result of the expression `abs(x)` is graphed vertically.
 
-On the graph to the left, `x` goes across horizontally and the result of the expression is graphed vertically. You can move your mouse over the graph to see how the evaluation is carried out (TODO).
+Move your mouse over the graph to see how the evaluation is carried out (TODO).</div>
+</div>
+</div>
 
-Underneath the text box is a breakdown of the expression into sub-expressions. You can move your mouse over these sub-expressions to see their graphs.
+The purpose of a graph is to visualize a mathematical expression. Further, we want to mentally connect the *visual* representation (graph) and the *symbolic* representation (code).
 
-Here are a few variations using `abs`. Explore them by changing them and moving your mouse over them to understand how they work.
+Compare the graphs for `x` and `abs(x)`. Notice how `abs` "flips" negative values to be positive.
+
+Here are a few variations using `abs` and arithmetic. Move your mouse over the sub-expressions to understand how they work or experiment by changing them.
 
 <div class="graph-example">abs(x) + 1.</div>
 
@@ -34,9 +44,9 @@ Here are a few variations using `abs`. Explore them by changing them and moving 
 
 Notice how we use arithmetic operations to *transform* the basic `abs(x)` graph.
 
-We sometimes do arithmetic *inside* the function, for example `abs(x + 1.)`, and sometimes *outside* the function, for example `abs(x) + 1.`. Doing operations inside the function is called distorting the *domain* and doing operations outside the function is called distorting the *range*.
+We sometimes do arithmetic *inside* the function, for example `abs(x + 1.)`, and sometimes *outside* the function, for example `abs(x) + 1.`. Doing operations inside the function is called transforming the *domain* and doing operations outside the function is called transforming the *range*.
 
-Distorting the domain and range of a function--or both--is a powerful technique. We'll see it again and again in the following exercises and later chapters. Look out for it!
+Transforming the domain and range of a function--or both--is a powerful technique. We'll see it again and again in the following exercises and later chapters. Look out for it!
 
 Transform `abs(x)` to construct the red graphs:
 

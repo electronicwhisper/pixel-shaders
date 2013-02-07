@@ -5,7 +5,8 @@
   "dependencies": {
     "component/jquery": "*",
     "component/underscore": "*",
-    "component/raf": "*"
+    "component/raf": "*",
+    "component/tip": "*"
   },
   "local": [
     "knockout",
