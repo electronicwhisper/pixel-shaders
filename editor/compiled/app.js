@@ -810,6 +810,11 @@
   };
 
 }).call(this);
+}, "graph/labels": function(exports, require, module) {(function() {
+
+  module.exports = function(ctx) {};
+
+}).call(this);
 }, "graphEditor": function(exports, require, module) {(function() {
   var evaluate, util,
     __slice = Array.prototype.slice;
@@ -1162,6 +1167,24 @@
         hint: null
       });
     });
+  };
+
+}).call(this);
+}, "panAndZoom": function(exports, require, module) {
+/*
+Takes in:
+  div (will register appropriate mousedown, mousemove, mouseup, and mousescroll events)
+  xmin, xmax, ymin, ymax - these properties are also exposed
+  flipy - makes y go from bottom to top
+  listen(callback) - calls callback whenever bounds change due to mouse interaction
+*/
+
+(function() {
+
+  module.exports = function(opts) {
+    var $div, bounds;
+    $div = $(opts.div);
+    return bounds = opts.bounds;
   };
 
 }).call(this);

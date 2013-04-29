@@ -100,20 +100,20 @@ ko.bindingHandlers.editorShader = {
       src: o.src()
       multiline: o.multiline
     })
-    
+
     editor.on "change", () ->
       o.src(editor.src())
-    
+
     o.src.subscribe (newSrc) ->
       if newSrc != editor.src()
         editor.codemirror.setValue(newSrc)
-    
+
     if o.errors
       ko.computed () ->
         editor.set({
           errors: o.errors()
         })
-    
+
     if o.annotations
       ko.computed () ->
         editor.set({
@@ -127,14 +127,14 @@ ko.bindingHandlers.editorShader = {
 ko.bindingHandlers.drawGraph = {
   init: (element, valueAccessor) ->
     o = valueAccessor()
-    
+
     sizeCanvas(element)
     ctx = element.getContext("2d")
-    
+
     ko.computed () ->
       f = o.f()
       bounds = o.bounds()
-      
+
       if f
         clear(ctx)
         require("graph-line")({
@@ -169,22 +169,22 @@ void main() {
 ko.bindingHandlers.drawShader = {
   init: (element, valueAccessor) ->
     o = valueAccessor()
-    
+
     shader = require("shader")({
       canvas: element
       vertex: vertexShaderSource
       fragment: o.src()
     })
     element.shader = shader
-    
+
     draw = () ->
       shader.draw()
-    
+
     # src updates
     ko.computed () ->
       shader.set({fragment: o.src()})
       draw()
-    
+
     # bounds updates
     ko.computed () ->
       uniformValues = {}
@@ -192,7 +192,7 @@ ko.bindingHandlers.drawShader = {
       uniformValues.boundsMax = [o.bounds().maxX, o.bounds().maxY]
       shader.set({uniforms: uniformValues})
       draw()
-    
+
     # uniforms updates
     ko.computed () ->
       uniforms = o.uniforms()

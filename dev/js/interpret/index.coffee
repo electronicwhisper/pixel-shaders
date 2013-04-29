@@ -85,17 +85,17 @@ builtin = do ->
     for component in v
       total += component * component
     [Math.sqrt(total)]
-  
+
   return {
     float: vec(1)
     vec2: vec(2)
     vec3: vec(3)
     vec4: vec(4)
-    
+
     length: length
     distance: (v, w) ->
       length(operators.sub(v, w))
-    
+
     abs: zip Math.abs
     mod: zip (x, y) -> x - y * Math.floor(x/y)
     floor: zip Math.floor
@@ -118,11 +118,11 @@ builtin = do ->
 
 makeEnv = () ->
   store = {}
-  
+
   env = {}
   env.get = (key) -> store[key]
   env.set = (key, value) -> store[key] = value
-  
+
   return env
 
 makeEnvFromHash = (hash) ->
@@ -135,14 +135,14 @@ makeEnvFromHash = (hash) ->
 evaluate = (env, ast) ->
   # console.log "evaluating", ast
   type = ast.type
-  
+
   if type == "root"
     for statement in ast.statements
       evaluate(env, statement)
-  
+
   else if type == "precision"
     # done
-  
+
   else if type == "declarator"
     declaredType = ast.typeAttribute.name
     for declarator in ast.declarators
@@ -156,30 +156,30 @@ evaluate = (env, ast) ->
           evaluate(env, declarator.initializer)
           setAll(env.get(name), declarator.initializer.evaluated)
           ast.evaluated = declarator.initializer.evaluated
-  
+
   else if type == "function_declaration"
     if ast.name == "main"
       evaluate(env, ast.body)
     else
       # TODO add it to the env
-  
+
   else if type == "scope"
     # TODO make a nested env
     for statement in ast.statements
       evaluate(env, statement)
-  
+
   else if type == "expression"
     if ast.expression != "" # handle an empty statement
       evaluate(env, ast.expression)
       ast.evaluated = ast.expression.evaluated
-  
+
   else if type == "identifier"
     name = ast.name
     ast.evaluated = env.get(name)
-  
+
   else if type == "float"
     ast.evaluated = [ast.value]
-  
+
   else if type == "postfix"
     operator_type = ast.operator.type
     if operator_type == "field_selector"
@@ -188,7 +188,7 @@ evaluate = (env, ast) ->
       ast.evaluated = select(ast.expression.evaluated, selection)
     else
       throw "Unsupported postfix operator: #{operator_type}"
-  
+
   else if type == "unary"
     operator = ast.operator.operator
     evaluate(env, ast.expression)
@@ -198,7 +198,7 @@ evaluate = (env, ast) ->
       ast.evaluated = ast.expression.evaluated
     else
       throw "Unsupported unary operator: #{operator}"
-  
+
   else if type == "binary"
     operator = ast.operator.operator
     if operator != "="
@@ -223,7 +223,7 @@ evaluate = (env, ast) ->
       ast.evaluated = operators.div(ast.left.evaluated, ast.right.evaluated)
     else
       throw "Unsupported binary operator: #{operator}"
-  
+
   else if type == "function_call"
     function_name = ast.function_name
     if builtin[function_name]
@@ -233,7 +233,7 @@ evaluate = (env, ast) ->
       ast.evaluated = builtin[function_name](evaluatedParameters...)
     else
       throw "Unsupported function: #{function_name}"
-  
+
   else
     throw "Unsupported type: #{type}"
 
@@ -253,7 +253,7 @@ floatToString = (n, significantDigits) ->
   s = "" + n
   # if !s.indexOf(".")
   #   s = s + "."
-  # 
+  #
   # s = n.toFixed(significantDigits)
   if s.indexOf(".") == -1
     s = s + "."
@@ -262,7 +262,7 @@ floatToString = (n, significantDigits) ->
 vecToString = (x, significantDigits) ->
   fts = (n) ->
     floatToString(n, significantDigits)
-  
+
   if x.length == 1
     fts(x[0])
   else
@@ -278,7 +278,7 @@ extractStatements = (ast, result = []) ->
           line: statement.line - 1 # pegjs does 1-based line numbering
           message: vecToString(statement.evaluated, 5)
         })
-  
+
   # recurse
   if _.isObject(ast)
     for own k, v of ast
@@ -286,7 +286,7 @@ extractStatements = (ast, result = []) ->
   else if _.isArray(ast)
     for a in ast
       extractStatements(a, result)
-  
+
   return result
 
 

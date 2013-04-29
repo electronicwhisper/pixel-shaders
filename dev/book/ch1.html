@@ -167,11 +167,11 @@ void main() {
 </ul>
 <p>You’ll also need to use parentheses to group terms. Contrast these:</p>
 <div class="book-text"><div class="evaluator">
-1.0 + 1.0 * 3.0
+3.0 * 1.0 + 1.0
 </div></div>
 
 <div class="book-text"><div class="evaluator">
-(1.0 + 1.0) * 3.0
+3.0 * (1.0 + 1.0)
 </div></div>
 
 <div class="shader-exercise">
@@ -243,14 +243,122 @@ void main() {
 </div>
 
 
-<h2 id="feedback">Feedback</h2>
-<p><em> This chapter is about halfway done. If you’ve gotten this far, I’d love to hear your thoughts. Did it make sense? Did the exercises feel in flow with the content? How is the pacing? <script type="text/javascript">
-<!--
-h='&#x61;&#108;&#x75;&#x6d;&#46;&#x6d;&#x69;&#116;&#46;&#x65;&#100;&#x75;';a='&#64;';n='&#116;&#x71;&#x73;';e=n+a+h;
-document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'">'+'Send me an email'+'<\/'+'a'+'>');
-// -->
-</script><noscript>&#x53;&#x65;&#110;&#100;&#32;&#x6d;&#x65;&#32;&#x61;&#110;&#32;&#x65;&#x6d;&#x61;&#x69;&#108;&#32;&#40;&#116;&#x71;&#x73;&#32;&#x61;&#116;&#32;&#x61;&#108;&#x75;&#x6d;&#32;&#100;&#x6f;&#116;&#32;&#x6d;&#x69;&#116;&#32;&#100;&#x6f;&#116;&#32;&#x65;&#100;&#x75;&#x29;</noscript>. Thanks!</p>
-<p>Toby </em></p>
+<h2 id="time">Time</h2>
+<p>We’ve seen how to make static images with our shaders, but how do we make animated images–images that change over time?</p>
+<p>We can introduce <code>time</code> which will be a number representing the amount of time, in seconds, that our shader has been running.</p>
+<p>For example:</p>
+<div class="shader-example">
+
+<pre><code>precision mediump float;
+
+uniform float time;
+
+void main() {
+  gl_FragColor.r = time;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}</code></pre>
+</div>
+
+<p>You’ll need to hit the ** button on the above to reset <code>time</code> to <code>0.0</code>. Once <code>time</code> goes above <code>1.0</code>–which only takes a second–the shader is fully red. Remember, if we set any color to a value above <code>1.0</code>, the color maxes out. The shader just treats it as <code>1.0</code>–it can’t get redder than fully red.</p>
+<p>Say we wanted to make the shader take 15 seconds to become fully red instead of 1 second. Can we do that with some arithmetic?</p>
+<div class="shader-exercise">
+<div class="start">
+
+<pre><code>precision mediump float;
+
+uniform float time;
+
+void main() {
+  gl_FragColor.r = time;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+uniform float time;
+
+void main() {
+  gl_FragColor.r = time / 15.;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}</code></pre>
+</div>
+</div>
+
+<p>Here’s how I think about the above problem. I know the red value can only range between <code>0.</code> and <code>1.</code>. But I want the time range from <code>0.</code> to <code>15.</code> to <em>map</em> to this <code>0.</code> to <code>1.</code> range. So, I want:</p>
+<table>
+  <tr><th>
+Time
+</th><th>
+Redness
+</th></tr>
+  <tr><td>
+at <code>0.</code> seconds
+</td><td>
+<code>0.</code>
+</td></tr>
+  <tr><td>
+at <code>15.</code> seconds
+</td><td>
+<code>1.</code>
+</td></tr>
+</table>
+
+<p>So to do this, I’m going to take <code>time</code> and divide it by <code>15.</code>.</p>
+<div class="shader-example">
+
+<pre><code>precision mediump float;
+
+uniform float time;
+
+void main() {
+  gl_FragColor.r = time / 15.;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}</code></pre>
+</div>
+
+<div class="shader-exercise">
+<div class="start">
+
+<pre><code>precision mediump float;
+
+uniform float time;
+
+void main() {
+  gl_FragColor.r = time;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}</code></pre>
+</div>
+<div class="solution">
+
+<pre><code>precision mediump float;
+
+uniform float time;
+
+void main() {
+  gl_FragColor.r = 1. - time;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}</code></pre>
+</div>
+</div>
+
+
+<h2 id="repeating">Repeating</h2>
+<p>Now say we want our animation to repeat over and over again. For example we want it to go from black to red and then black to red, over and over again.</p>
+<p>We can’t do this with our basic arithmetic operations.</p>
 
 
 <script src="../build/build.js"></script>

@@ -103,13 +103,29 @@ li, .book-text {
   margin: 16px 0px;
 }
 
-h1, h2, h3, body > p, body > ul, body > ol, body > .book-text {
+h1, h2, h3, body > p, body > table, body > ul, body > ol, body > .book-text {
   width: 540px;
   margin-left: 324px;
   box-sizing: border-box;
 }
 
-
+table {
+  border: 1px solid #ccc;
+  border-width: 1px 1px 0px 0px;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+td, th {
+  border: 1px solid #ccc;
+  border-width: 0px 0px 1px 1px;
+  margin: 0;
+  padding: 4px;
+}
+th {
+  text-align: left;
+  font-weight: bold;
+  background-color: #eee;
+}
 
 
 
@@ -143,7 +159,7 @@ h1, h2, h3, body > p, body > ul, body > ol, body > .book-text {
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
 }
-  
+
 .tip-arrow {
   position: absolute;
   width: 0;
@@ -151,12 +167,12 @@ h1, h2, h3, body > p, body > ul, body > ol, body > .book-text {
   line-height: 0;
   border: 5px dashed rgba(0,0,0,.1);
 }
-  
+
 .tip-arrow-south { border-bottom-color: rgba(0,0,0,.1) }
 .tip-arrow-north { border-top-color: rgba(0,0,0,.1) }
 .tip-arrow-west { border-left-color: rgba(0,0,0,.1) }
 .tip-arrow-east { border-right-color: rgba(0,0,0,.1) }
-  
+
 .tip-south .tip-arrow {
   top: 0px;
   left: 50%;

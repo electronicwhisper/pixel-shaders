@@ -24,7 +24,7 @@ srcTrim = (s) ->
 XRegExp = require('xregexp').XRegExp
 parseUniforms = (src) ->
   regex = XRegExp('uniform +(?<type>[^ ]+) +(?<name>[^ ;]+) *;', 'g')
-  
+
   uniforms = {}
   XRegExp.forEach(src, regex, (match) ->
     uniforms[match.name] = {
@@ -47,13 +47,13 @@ rafAnimate = (callback) ->
 
 makeEqualObservables = (o1, o2) ->
   value = undefined
-  
+
   ko.computed () ->
     newValue = o1()
     if value != newValue
       value = newValue
       o2(value)
-  
+
   ko.computed () ->
     newValue = o2()
     if value != newValue
@@ -74,20 +74,24 @@ showTip = ($el, position, message) ->
 
 # TODO: this will be part of the uniform itself, so we can have separate, controllable timelines
 startTime = Date.now()
-updateUniforms = (uniformsObservable) ->
-  uniforms = uniformsObservable()
+updateUniforms = (model) ->
+  uniforms = model.uniforms()
   changed = false
-  
+
   for own name, uniform of uniforms
     if name == "time" && uniform.type == "float"
-      uniform.value = (Date.now() - startTime) / 1000
-      changed = true
+      if model.playing()
+        model.time(Date.now() - model.playing())
+      time = model.time() / 1000
+      if uniform.value != time
+        uniform.value = model.time() / 1000
+        changed = true
     else if name == "webcam" && uniform.type == "sampler2D"
       uniform.value = require("webcam")()
       changed = true
-  
+
   if changed
-    uniformsObservable(uniforms)
+    model.uniforms(uniforms)
 
 
 shaderModel = (src) ->
@@ -103,33 +107,46 @@ shaderModel = (src) ->
     errors: ko.observable([])
     annotations: ko.observable([])
     uniforms: ko.observable({})
+    playing: ko.observable(false)
+    time: ko.observable(0)
     position: ko.observable([0.3, 0.4])
   }
-  
+
   rafAnimate () ->
-    updateUniforms(model.uniforms)
-  
+    updateUniforms(model)
+
+  model.play = ->
+    model.playing(Date.now() - model.time())
+  model.pause = ->
+    model.playing(false)
+  model.rewind = ->
+    model.time(0)
+    if model.playing()
+      model.playing(Date.now() - model.time())
+
+  model.play()
+
   # compile and mark errors
   ko.computed () ->
     src = model.src()
     errors = require("glsl-error")(src)
     model.errors(errors)
-    
+
     if !_.some(errors)
       model.compiledSrc(src)
-  
+
   # update uniforms
   ko.computed () ->
     src = model.compiledSrc()
     # TODO: make it not clear set values, we'll need to .peek() at uniforms
     model.uniforms(parseUniforms(src))
-  
+
   # parse the src
   parsedSrc = ko.computed () ->
     src = model.compiledSrc()
     try
       require("parse-glsl").parse(src, "fragment_start")
-  
+
   # interpret based on position and annotate the line-by-line evaluation
   (ko.computed () ->
     position = model.position()
@@ -139,7 +156,7 @@ shaderModel = (src) ->
         mult = Math.pow(10, 3)
         Math.round(x*mult) / mult
       position = (round(x) for x in position)
-      
+
       ast = parsedSrc()
       uniforms = model.uniforms()
       env = {
@@ -157,7 +174,7 @@ shaderModel = (src) ->
         console.log ast
         # throw e
   ).extend({ throttle: 1 })
-  
+
   return model
 
 
@@ -174,7 +191,7 @@ graphModel = (src, $deconstruct) ->
     src: ko.observable(src) # what's in the editor
     compiledSrc: ko.observable(src) # last src that successfully compiled
     showSrc: ko.observable(src) # what the graph shows
-    
+
     annotations: ko.observable([])
     errors: ko.observable([])
     bounds: ko.observable({
@@ -185,7 +202,7 @@ graphModel = (src, $deconstruct) ->
     })
     f: ko.observable(false)
   }
-  
+
   ko.computed () ->
     src = model.src()
     compiled = false
@@ -198,14 +215,14 @@ graphModel = (src, $deconstruct) ->
       model.errors([])
     else
       model.errors([{line: 0, message: ""}])
-  
+
   ko.computed () ->
     model.showSrc(model.compiledSrc())
-  
+
   ko.computed () ->
     src = model.showSrc()
     model.f(makeGraphF(src))
-  
+
   if $deconstruct
     ko.computed () ->
       src = model.compiledSrc()
@@ -221,7 +238,7 @@ graphModel = (src, $deconstruct) ->
     $deconstruct.on("mouseout", ".deconstruct-node", (e) ->
       model.showSrc(model.compiledSrc())
     )
-  
+
   return model
 
 
@@ -233,12 +250,12 @@ exerciseModel = (startSrc, solutionSrcs) ->
     solutionSrcs: solutionSrcs
     workSrc: ko.observable(startSrc)
     solutionSrc: ko.observable(solutionSrcs[0])
-    
+
     solved: ko.observable(false)
     currentExercise: ko.observable(0)
     numExercises: solutionSrcs.length
   }
-  
+
   model.onFirst = ko.computed () -> model.currentExercise() == 0
   model.onLast = ko.computed () -> model.currentExercise() == model.numExercises - 1
   model.previous = () ->
@@ -247,17 +264,17 @@ exerciseModel = (startSrc, solutionSrcs) ->
   model.next = () ->
     if !model.onLast()
       model.currentExercise(model.currentExercise() + 1)
-  
+
   ko.computed () ->
     currentExercise = model.currentExercise()
     model.solutionSrc(model.solutionSrcs[currentExercise])
     if model.workSrcs[currentExercise]
       model.workSrc(model.workSrcs[currentExercise])
-  
+
   ko.computed () ->
     workSrc = model.workSrc()
     model.workSrcs[model.currentExercise.peek()] = workSrc
-  
+
   return model
 
 
@@ -266,21 +283,48 @@ exerciseModel = (startSrc, solutionSrcs) ->
 buildShaderExample = ($replace) ->
   src = srcTrim($replace.text())
   model = shaderModel(src)
-  
+
   $div = $("""
   <div class="book-view-edit">
     <div class="book-view" data-bind="panAndZoom: {bounds: bounds, position: position}">
       <canvas data-bind="drawShader: {bounds: bounds, src: compiledSrc, uniforms: uniforms}"></canvas>
       <canvas class="book-grid" data-bind="drawGrid: {bounds: bounds, color: 'white'}"></canvas>
       <!--<div class="book-crosshair" data-bind="relPosition: {bounds: bounds, position: position}"></div>-->
+      <!--<div style="position: absolute">
+        <div data-bind="click: play">Play</div>
+        <div data-bind="click: pause">Pause</div>
+        <div data-bind="click: rewind">Rewind</div>
+      </div>-->
     </div>
     <div class="book-edit book-editor" data-bind="editorShader: {src: src, multiline: true, errors: errors, annotations: annotations}"></div>
   </div>
   """)
-  
+
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0]) # for sizing, this has to be after the div has been added to the body
-  
+
+  return $div
+
+
+buildShaderTemp = ($replace) ->
+  src = srcTrim($replace.find(".code").text())
+  shown = srcTrim($replace.find(".shown").text())
+  model = shaderModel(src)
+  model.shown = ko.observable(shown)
+
+  $div = $("""
+  <div class="book-view-edit">
+    <div class="book-view" data-bind="panAndZoom: {bounds: bounds, position: position}">
+      <canvas data-bind="drawShader: {bounds: bounds, src: compiledSrc, uniforms: uniforms}"></canvas>
+      <canvas class="book-grid" data-bind="drawGrid: {bounds: bounds, color: 'white'}"></canvas>
+    </div>
+    <div class="book-edit book-editor" data-bind="editorShader: {src: shown, multiline: true, errors: errors, annotations: annotations}"></div>
+  </div>
+  """)
+
+  $replace.replaceWith($div)
+  ko.applyBindings(model, $div[0]) # for sizing, this has to be after the div has been added to the body
+
   return $div
 
 
@@ -288,7 +332,7 @@ buildShaderExample = ($replace) ->
 
 testEqualPixelArrays = (p1, p2) ->
   len = p1.length
-  
+
   # sample 1000 random locations to test equivalence
   equivalent = true
   for i in [0...1000]
@@ -296,7 +340,7 @@ testEqualPixelArrays = (p1, p2) ->
     diff = Math.abs(p1[location] - p2[location])
     if diff > 2
       equivalent = false
-  
+
   return equivalent
 
 
@@ -313,7 +357,7 @@ buildShaderExercise = ($replace) ->
     </div>
     <div class="book-view-edit">
       <div class="book-view" data-bind="panAndZoom: {bounds: work.bounds, position: work.position}">
-        <canvas class="shader-solution" data-bind="drawShader: {bounds: work.bounds, src: solution.compiledSrc, uniforms: solution.uniforms}"></canvas>
+        <canvas class="shader-solution" data-bind="drawShader: {bounds: work.bounds, src: solution.compiledSrc, uniforms: work.uniforms}"></canvas>
         <canvas class="book-grid" data-bind="drawGrid: {bounds: work.bounds, color: 'white'}"></canvas>
       </div>
       <div class="book-edit" style="font-family: helvetica; font-size: 30px;" data-bind="with: exercise">
@@ -337,37 +381,37 @@ buildShaderExercise = ($replace) ->
     </div>
   </div>
   """)
-  
+
   startSrc = srcTrim($replace.find(".start").text())
   solutionSrcs = $replace.find(".solution").map () ->
     srcTrim($(this).text())
-  
+
   model = {
     exercise: exerciseModel(startSrc, solutionSrcs)
     work: shaderModel(startSrc)
     solution: shaderModel(solutionSrcs[0])
   }
-  
+
   makeEqualObservables(model.solution.src, model.exercise.solutionSrc)
   makeEqualObservables(model.work.src, model.exercise.workSrc)
-  
+
   ko.computed () ->
     model.work.compiledSrc()
     model.solution.compiledSrc()
     setTimeout(checkSolved, 0)
-  
+
   checkSolved = () ->
     workPixels = $div.find(".shader-work")[0].shader?.readPixels()
     solutionPixels = $div.find(".shader-solution")[0].shader?.readPixels()
-    
+
     if workPixels && solutionPixels
       solved = testEqualPixelArrays(workPixels, solutionPixels)
       model.exercise.solved(solved)
-  
-  
+
+
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0])
-  
+
   return $div
 
 
@@ -380,20 +424,20 @@ buildEvaluator = ($replace) ->
     <div class="book-editor" data-bind="editorShader: {src: src, multiline: false, annotations: annotations, errors: errors}"></div>
   </div>
   """)
-  
+
   model = {
     src: ko.observable(src)
     annotations: ko.observable([])
     errors: ko.observable([])
   }
-  
+
   ko.computed () ->
     src = model.src()
     try
       ast = require("parse-glsl").parse(src, "assignment_expression")
       # console.log ast
       require("interpret")({}, ast)
-      
+
       result = require("interpret").vecToString(ast.evaluated, 3)
       # console.log result
       model.annotations([{line: 0, message: result}])
@@ -401,10 +445,10 @@ buildEvaluator = ($replace) ->
     catch e
       model.annotations([])
       model.errors([{line: 0, message: ""}])
-  
+
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0])
-  
+
   return $div
 
 
@@ -424,13 +468,13 @@ buildGraphExample = ($replace) ->
     </div>
   </div>
   """)
-  
+
   $deconstruct = $div.find(".deconstruct")
   model = graphModel(src, $deconstruct)
-  
+
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0])
-  
+
   return $div
 
 
@@ -444,7 +488,7 @@ testEqualGraphs = (f1, f2) ->
     diff = Math.abs(f1(x) - f2(x))
     if diff > .0001
       equivalent = false
-  
+
   return equivalent
 
 
@@ -482,22 +526,22 @@ buildGraphExercise = ($replace) ->
     </div>
   </div>
   """)
-  
+
   startSrc = srcTrim($replace.find(".start").text())
   solutionSrcs = $replace.find(".solution").map () ->
     srcTrim($(this).text())
-  
+
   $deconstruct = $div.find(".deconstruct")
-  
+
   model = {
     exercise: exerciseModel(startSrc, solutionSrcs)
     work: graphModel(startSrc, $deconstruct)
     solution: graphModel(solutionSrcs[0])
   }
-  
+
   makeEqualObservables(model.solution.src, model.exercise.solutionSrc)
   makeEqualObservables(model.work.src, model.exercise.workSrc)
-  
+
   ko.computed () ->
     model.work.compiledSrc()
     model.solution.f()
@@ -508,10 +552,10 @@ buildGraphExercise = ($replace) ->
     catch e
       solved = false
     model.exercise.solved(solved)
-  
+
   $replace.replaceWith($div)
   ko.applyBindings(model, $div[0])
-  
+
   return $div
 
 
@@ -526,15 +570,15 @@ build = ($selection, buildFunction) ->
     $replace = $(this)
     $explains = $replace.find(".explain")
     $explains.remove()
-    
+
     $div = buildFunction($replace)
-    
+
     $explains.each () ->
       $explain = $(this)
       select = $explain.attr("select")
       position = $explain.attr("position")
       message = $explain.html()
-      
+
       showTip($div.find(select), position, message)
 
 
@@ -546,7 +590,8 @@ do ->
   build($(".evaluator"), buildEvaluator)
   build($(".graph-example"), buildGraphExample)
   build($(".graph-exercise"), buildGraphExercise)
-  
+  build($(".shader-temp"), buildShaderTemp)
+
   $("code").each () ->
     CodeMirror.runMode($(this).text(), "text/x-glsl", this)
     $(this).addClass("cm-s-default")

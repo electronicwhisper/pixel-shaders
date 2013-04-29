@@ -1,3 +1,28 @@
+options
+  annotate
+  panAndZoom
+
+Need to make pausing work, reset time
+
+
+
+
+
+
+Asides
+  Make your favorite color
+
+
+
+
+
+
+
+
+
+
+
+
 
 add hints to exercises
 mouseover on graph to see evaluation

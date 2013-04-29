@@ -24,7 +24,7 @@ Colors also have an alpha component. Alpha represents how opaque (`1.0`) or tran
 <div class="solution">
 
     precision mediump float;
-  
+
     void main() {
       gl_FragColor.r = 0.0;
       gl_FragColor.g = 0.0;
@@ -48,7 +48,7 @@ Colors also have an alpha component. Alpha represents how opaque (`1.0`) or tran
 <div class="solution">
 
     precision mediump float;
-  
+
     void main() {
       gl_FragColor.r = 1.0;
       gl_FragColor.g = 0.5;
@@ -98,9 +98,9 @@ To make the program output different colors for different pixels, we can introdu
 <div class="start">
 
     precision mediump float;
-    
+
     varying vec2 position;
-    
+
     void main() {
       gl_FragColor.r = position.x;
       gl_FragColor.g = 0.0;
@@ -112,9 +112,9 @@ To make the program output different colors for different pixels, we can introdu
 <div class="solution">
 
     precision mediump float;
-    
+
     varying vec2 position;
-    
+
     void main() {
       gl_FragColor.r = 0.0;
       gl_FragColor.g = 0.0;
@@ -126,9 +126,9 @@ To make the program output different colors for different pixels, we can introdu
 <div class="solution">
 
     precision mediump float;
-    
+
     varying vec2 position;
-    
+
     void main() {
       gl_FragColor.r = position.x;
       gl_FragColor.g = position.x;
@@ -140,9 +140,9 @@ To make the program output different colors for different pixels, we can introdu
 <div class="solution">
 
     precision mediump float;
-    
+
     varying vec2 position;
-    
+
     void main() {
       gl_FragColor.r = position.x;
       gl_FragColor.g = 0.0;
@@ -176,9 +176,9 @@ GLSL supports the standard arithmetic operations:
 
 You'll also need to use parentheses to group terms. Contrast these:
 
-<div class="book-text"><div class="evaluator">1.0 + 1.0 * 3.0</div></div>
+<div class="book-text"><div class="evaluator">3.0 * 1.0 + 1.0</div></div>
 
-<div class="book-text"><div class="evaluator">(1.0 + 1.0) * 3.0</div></div>
+<div class="book-text"><div class="evaluator">3.0 * (1.0 + 1.0)</div></div>
 
 <div class="shader-exercise">
 <div class="start">
@@ -254,10 +254,123 @@ You'll also need to use parentheses to group terms. Contrast these:
 </div>
 
 
-## Feedback
+## Time
 
-<em>
-This chapter is about halfway done. If you've gotten this far, I'd love to hear your thoughts. Did it make sense? Did the exercises feel in flow with the content? How is the pacing? [Send me an email](mailto:tqs@alum.mit.edu). Thanks!
+We've seen how to make static images with our shaders, but how do we make animated images--images that change over time?
 
-Toby
-</em>
+We can introduce `time` which will be a number representing the amount of time, in seconds, that our shader has been running.
+
+For example:
+
+<div class="shader-example">
+
+    precision mediump float;
+
+    uniform float time;
+
+    void main() {
+      gl_FragColor.r = time;
+      gl_FragColor.g = 0.0;
+      gl_FragColor.b = 0.0;
+      gl_FragColor.a = 1.0;
+    }
+
+</div>
+
+You'll need to hit the ** button on the above to reset `time` to `0.0`. Once `time` goes above `1.0`--which only takes a second--the shader is fully red. Remember, if we set any color to a value above `1.0`, the color maxes out. The shader just treats it as `1.0`--it can't get redder than fully red.
+
+Say we wanted to make the shader take 15 seconds to become fully red instead of 1 second. Can we do that with some arithmetic?
+
+<div class="shader-exercise">
+<div class="start">
+
+    precision mediump float;
+
+    uniform float time;
+
+    void main() {
+      gl_FragColor.r = time;
+      gl_FragColor.g = 0.;
+      gl_FragColor.b = 0.;
+      gl_FragColor.a = 1.;
+    }
+
+</div>
+<div class="solution">
+
+    precision mediump float;
+
+    uniform float time;
+
+    void main() {
+      gl_FragColor.r = time / 15.;
+      gl_FragColor.g = 0.;
+      gl_FragColor.b = 0.;
+      gl_FragColor.a = 1.;
+    }
+
+</div>
+</div>
+
+Here's how I think about the above problem. I know the red value can only range between `0.` and `1.`. But I want the time range from `0.` to `15.` to *map* to this `0.` to `1.` range. So, I want:
+
+<table>
+  <tr><th>Time</th><th>Redness</th></tr>
+  <tr><td>at `0.` seconds</td><td>`0.`</td></tr>
+  <tr><td>at `15.` seconds</td><td>`1.`</td></tr>
+</table>
+
+So to do this, I'm going to take `time` and divide it by `15.`.
+
+<div class="shader-example">
+
+    precision mediump float;
+
+    uniform float time;
+
+    void main() {
+      gl_FragColor.r = time / 15.;
+      gl_FragColor.g = 0.;
+      gl_FragColor.b = 0.;
+      gl_FragColor.a = 1.;
+    }
+
+</div>
+
+<div class="shader-exercise">
+<div class="start">
+
+    precision mediump float;
+
+    uniform float time;
+
+    void main() {
+      gl_FragColor.r = time;
+      gl_FragColor.g = 0.;
+      gl_FragColor.b = 0.;
+      gl_FragColor.a = 1.;
+    }
+
+</div>
+<div class="solution">
+
+    precision mediump float;
+
+    uniform float time;
+
+    void main() {
+      gl_FragColor.r = 1. - time;
+      gl_FragColor.g = 0.;
+      gl_FragColor.b = 0.;
+      gl_FragColor.a = 1.;
+    }
+
+</div>
+</div>
+
+
+## Repeating
+
+Now say we want our animation to repeat over and over again. For example we want it to go from black to red and then black to red, over and over again.
+
+We can't do this with our basic arithmetic operations.

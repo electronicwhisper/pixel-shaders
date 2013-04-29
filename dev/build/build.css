@@ -49,11 +49,8 @@
 .editor-annotation {
   position: absolute;
   margin-left: 7px;
-  margin-top: 5px;
-  font-size: 14px;
-  padding: 0px 6px 1px 6px;
-  border-radius: 3px;
-  background-color: rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+  opacity: 0.6;
   white-space: nowrap;
   pointer-events: none
 }
@@ -594,12 +591,34 @@ h1,
 h2,
 h3,
 body > p,
+body > table,
 body > ul,
 body > ol,
 body > .book-text {
   width: 540px;
   margin-left: 324px;
   box-sizing: border-box
+}
+
+table {
+  border: 1px solid #ccc;
+  border-width: 1px 1px 0px 0px;
+  border-spacing: 0;
+  border-collapse: collapse
+}
+
+td,
+th {
+  border: 1px solid #ccc;
+  border-width: 0px 0px 1px 1px;
+  margin: 0;
+  padding: 4px
+}
+
+th {
+  text-align: left;
+  font-weight: bold;
+  background-color: #eee
 }
 
 .tip {
