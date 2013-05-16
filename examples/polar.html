@@ -1,0 +1,229 @@
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 p = (position - 0.5) * 2.;
+
+  float radius = length(p);
+  float angle = atan(p.y, p.x);
+
+  float brightness = radius;
+
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 p = (position - 0.5) * 2.;
+
+  float radius = length(p);
+  float angle = atan(p.y, p.x);
+
+  float brightness = fract(radius * 5.);
+
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 p = (position - 0.5) * 2.;
+
+  float radius = length(p);
+  float angle = atan(p.y, p.x);
+
+  float brightness = fract(angle / 6.28);
+
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 p = (position - 0.5) * 2.;
+
+  float radius = length(p);
+  float angle = atan(p.y, p.x);
+
+  float brightness = fract(angle * 5. / 6.28);
+
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 p = (position - 0.5) * 2.;
+
+  float radius = length(p);
+  float angle = atan(p.y, p.x);
+
+  gl_FragColor.r = radius;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 p = (position - 0.5) * 2.;
+
+  float radius = length(p);
+  float angle = atan(p.y, p.x);
+
+  gl_FragColor.r = 0.;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = fract(angle / 6.28);
+  gl_FragColor.a = 1.;
+}
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 p = (position - 0.5) * 2.;
+
+  float radius = length(p);
+  float angle = atan(p.y, p.x);
+
+  gl_FragColor.r = sin(radius * 30.);
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 p = (position - 0.5) * 2.;
+
+  float radius = length(p);
+  float angle = atan(p.y, p.x);
+
+  gl_FragColor.r = sin(radius * 30. + angle);
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  vec2 p = (position - 0.5) * 2.;
+
+  float radius = length(p);
+  float angle = atan(p.y, p.x);
+
+  gl_FragColor.r = sin(radius * 30. + angle * 2.);
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}
+
+
+

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Pixelshaders Examples</title>
+
+<script src="../vendor/CodeMirror-2.33/lib/codemirror.js"></script>
+<script src="../vendor/CodeMirror-2.33/lib/util/runmode.js"></script>
+<script src="../vendor/glsl.js"></script>
+<script src="../vendor/numeric-1.2.2.min.js"></script>
+<script src="../vendor/jquery-1.8.1.min.js"></script>
+<script src="../vendor/underscore-min.js"></script>
+<script src="../vendor/xregexp-min.js"></script>
+<script src="../vendor/jquery.tipsy.js"></script>
+<script src="../vendor/rAF.js"></script>
+<script src="../vendor/knockout-2.1.0.js"></script>
+
+<link rel="stylesheet" href="../vendor/font/font-awesome.css">
+<link rel="stylesheet" href="../vendor/ContrailOne/ContrailOne.css">
+<link rel="stylesheet" href="../vendor/CodeMirror-2.33/lib/codemirror.css">
+<link rel="stylesheet" href="../vendor/tipsy.css">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+void main() {
+  vec2 p = position;
+  float brightness = noise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+float stepNoise(vec2 p) {
+  return noise(floor(p));
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = stepNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+vec2 sw(vec2 p) {return vec2( floor(p.x) , floor(p.y) );}
+vec2 se(vec2 p) {return vec2( ceil(p.x)  , floor(p.y) );}
+vec2 nw(vec2 p) {return vec2( floor(p.x) , ceil(p.y)  );}
+vec2 ne(vec2 p) {return vec2( ceil(p.x)  , ceil(p.y)  );}
+
+float smoothNoise(vec2 p) {
+  vec2 inter = smoothstep(0., 1., fract(p));
+  float s = mix(noise(sw(p)), noise(se(p)), inter.x);
+  float n = mix(noise(nw(p)), noise(ne(p)), inter.x);
+  return mix(s, n, inter.y);
+  return noise(nw(p));
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = smoothNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+vec2 sw(vec2 p) {return vec2( floor(p.x) , floor(p.y) );}
+vec2 se(vec2 p) {return vec2( ceil(p.x)  , floor(p.y) );}
+vec2 nw(vec2 p) {return vec2( floor(p.x) , ceil(p.y)  );}
+vec2 ne(vec2 p) {return vec2( ceil(p.x)  , ceil(p.y)  );}
+
+float smoothNoise(vec2 p) {
+  vec2 inter = smoothstep(0., 1., fract(p));
+  float s = mix(noise(sw(p)), noise(se(p)), inter.x);
+  float n = mix(noise(nw(p)), noise(ne(p)), inter.x);
+  return mix(s, n, inter.y);
+  return noise(nw(p));
+}
+
+float fractalNoise(vec2 p) {
+  float total = 0.0;
+  total += smoothNoise(p);
+  total += smoothNoise(p*2.) / 2.;
+  total += smoothNoise(p*4.) / 4.;
+  total += smoothNoise(p*8.) / 8.;
+  total += smoothNoise(p*16.) / 16.;
+  total /= 1. + 1./2. + 1./4. + 1./8. + 1./16.;
+  return total;
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = fractalNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+vec2 sw(vec2 p) {return vec2( floor(p.x) , floor(p.y) );}
+vec2 se(vec2 p) {return vec2( ceil(p.x)  , floor(p.y) );}
+vec2 nw(vec2 p) {return vec2( floor(p.x) , ceil(p.y)  );}
+vec2 ne(vec2 p) {return vec2( ceil(p.x)  , ceil(p.y)  );}
+
+float smoothNoise(vec2 p) {
+  vec2 inter = smoothstep(0., 1., fract(p));
+  float s = mix(noise(sw(p)), noise(se(p)), inter.x);
+  float n = mix(noise(nw(p)), noise(ne(p)), inter.x);
+  return mix(s, n, inter.y);
+  return noise(nw(p));
+}
+
+float movingNoise(vec2 p) {
+  float total = 0.0;
+  total += smoothNoise(p     - time);
+  total += smoothNoise(p*2.  + time) / 2.;
+  total += smoothNoise(p*4.  - time) / 4.;
+  total += smoothNoise(p*8.  + time) / 8.;
+  total += smoothNoise(p*16. - time) / 16.;
+  total /= 1. + 1./2. + 1./4. + 1./8. + 1./16.;
+  return total;
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = movingNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+vec2 sw(vec2 p) {return vec2( floor(p.x) , floor(p.y) );}
+vec2 se(vec2 p) {return vec2( ceil(p.x)  , floor(p.y) );}
+vec2 nw(vec2 p) {return vec2( floor(p.x) , ceil(p.y)  );}
+vec2 ne(vec2 p) {return vec2( ceil(p.x)  , ceil(p.y)  );}
+
+float smoothNoise(vec2 p) {
+  vec2 inter = smoothstep(0., 1., fract(p));
+  float s = mix(noise(sw(p)), noise(se(p)), inter.x);
+  float n = mix(noise(nw(p)), noise(ne(p)), inter.x);
+  return mix(s, n, inter.y);
+  return noise(nw(p));
+}
+
+float movingNoise(vec2 p) {
+  float total = 0.0;
+  total += smoothNoise(p     - time);
+  total += smoothNoise(p*2.  + time) / 2.;
+  total += smoothNoise(p*4.  - time) / 4.;
+  total += smoothNoise(p*8.  + time) / 8.;
+  total += smoothNoise(p*16. - time) / 16.;
+  total /= 1. + 1./2. + 1./4. + 1./8. + 1./16.;
+  return total;
+}
+
+float nestedNoise(vec2 p) {
+  float x = movingNoise(p);
+  float y = movingNoise(p + 100.);
+  return movingNoise(p + vec2(x, y));
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = nestedNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<script src="../editor/compiled/app.js"></script>
+<script>
+require("pages/book")()
+</script>
+</body>
+</html>

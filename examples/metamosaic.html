@@ -1,0 +1,119 @@
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+vec4 pixelate(vec2 p, float steps) {
+  p = floor(p * steps) / steps;
+  return texture2D(webcam, p);
+}
+
+void main() {
+  gl_FragColor = pixelate(position, 8.);
+}
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+vec4 pixelate(vec2 p, float steps) {
+  p = floor(p * steps) / steps;
+  return texture2D(webcam, p);
+}
+
+vec4 repeat(vec2 p, float steps) {
+  p = fract(p * steps);
+  return texture2D(webcam, p);
+}
+
+void main() {
+  gl_FragColor = repeat(position, 8.);
+}
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+vec4 pixelate(vec2 p, float steps) {
+  p = floor(p * steps) / steps;
+  return texture2D(webcam, p);
+}
+
+vec4 repeat(vec2 p, float steps) {
+  p = fract(p * steps);
+  return texture2D(webcam, p);
+}
+
+void main() {
+  float steps = 8.;
+  gl_FragColor = repeat(position, steps) * pixelate(position, steps);
+}
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+vec4 pixelate(vec2 p, float steps) {
+  p = floor(p * steps) / steps;
+  return texture2D(webcam, p);
+}
+
+vec4 repeat(vec2 p, float steps) {
+  p = fract(p * steps);
+  return texture2D(webcam, p);
+}
+
+void main() {
+  float steps = mod(time*10., 60.)+1.;
+  gl_FragColor = repeat(position, steps) * pixelate(position, steps);
+}
+
+
+
+
+
+
+
+
+
+
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+vec4 pixelate(vec2 p, float steps) {
+  p = floor(p * steps) / steps;
+  return texture2D(webcam, p+.5);
+}
+
+vec4 repeat(vec2 p, float steps) {
+  p = fract(p * steps);
+  return texture2D(webcam, p);
+}
+
+void main() {
+  vec2 p = position - 0.5;
+  float steps = mod(time*10., 60.)+1.;
+  gl_FragColor = repeat(p, steps) * pixelate(p, steps);
+}
