@@ -83,7 +83,9 @@
       var exercise;
       exercise = exercises[i];
       console.log(exercise);
-      if (exercise.start) editor.set(exercise.start);
+      if (exercise.start) {
+        editor.set(exercise.start);
+      }
       return makeEditor.set(exercise.solution);
     };
   };
@@ -160,7 +162,7 @@
     };
     errorLines = [];
     markErrors = function(errors) {
-      var error, line, _i, _j, _len, _len2, _results;
+      var error, line, _i, _j, _len, _len1, _results;
       for (_i = 0, _len = errorLines.length; _i < _len; _i++) {
         line = errorLines[_i];
         cm.setLineClass(line, null, null);
@@ -169,7 +171,7 @@
       errorLines = [];
       $.fn.tipsy.revalidate();
       _results = [];
-      for (_j = 0, _len2 = errors.length; _j < _len2; _j++) {
+      for (_j = 0, _len1 = errors.length; _j < _len1; _j++) {
         error = errors[_j];
         line = cm.getLineHandle(error.lineNum - 1);
         errorLines.push(line);
@@ -189,9 +191,13 @@
         markErrors([]);
         findUniforms();
         renderer.link();
-        if (!drawEveryFrame) draw();
+        if (!drawEveryFrame) {
+          draw();
+        }
       }
-      if (changeCallback) return changeCallback(src);
+      if (changeCallback) {
+        return changeCallback(src);
+      }
     };
     cm = CodeMirror($code[0], {
       value: src,
@@ -203,7 +209,9 @@
     cm.setSize("100%", $code.innerHeight());
     refreshCode();
     update = function() {
-      if (drawEveryFrame) draw();
+      if (drawEveryFrame) {
+        draw();
+      }
       return requestAnimationFrame(update);
     };
     update();
@@ -292,7 +300,9 @@
     XRegExp.forEach(s, /([0-9]*\.[0-9]*)|[0-9]+/, function(match) {
       var number;
       number = match[0];
-      if (number.indexOf(".") === -1) return ret = true;
+      if (number.indexOf(".") === -1) {
+        return ret = true;
+      }
     });
     return ret;
   };
@@ -323,13 +333,17 @@
       return outputValue;
     },
     functionOfX: function(s) {
-      if (hasIntegers(s)) return errorValue;
+      if (hasIntegers(s)) {
+        return errorValue;
+      }
       return evalInContext("(function (x) {return " + s + ";})");
     },
     hasIntegers: hasIntegers,
     stepped: function(s, precision) {
       var ast, pad, ret, step;
-      if (precision == null) precision = 4;
+      if (precision == null) {
+        precision = 4;
+      }
       ast = require("parsing/expression").parse(s);
       pad = function(s, length) {
         var n, spaces;
@@ -392,12 +406,16 @@
       };
       find = function(tree, start) {
         var found, node, _i, _len;
-        if (start == null) start = 0;
+        if (start == null) {
+          start = 0;
+        }
         s = start;
         found = [s, length(tree)];
         for (_i = 0, _len = tree.length; _i < _len; _i++) {
           node = tree[_i];
-          if (s > cStart) break;
+          if (s > cStart) {
+            break;
+          }
           if (s + length(node) < cEnd) {
             s += length(node);
           } else {
@@ -419,7 +437,9 @@
       spider = function(tree) {
         var node, _i, _len, _results;
         if (_.isArray(tree)) {
-          if (hasX(tree)) subExprs.push(tree);
+          if (hasX(tree)) {
+            subExprs.push(tree);
+          }
           _results = [];
           for (_i = 0, _len = tree.length; _i < _len; _i++) {
             node = tree[_i];
@@ -480,15 +500,17 @@
   template = "<div style=\"overflow: hidden\" class=\"workspace env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"margin-left: 324px; border: 1px solid #ccc\"></div>\n</div>\n\n<div style=\"overflow: hidden; margin-top: 24px\" class=\"solution env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"display: none\"></div>\n  <div style=\"margin-left: 324px; font-size: 30px; font-family: helvetica; height: 300px\">\n    <div style=\"float: left\">\n      <i class=\"icon-arrow-left\" style=\"font-size: 26px\"></i>\n    </div>\n    <div style=\"margin-left: 30px\">\n      <div>\n        Make this\n      </div>\n      <div style=\"font-size: 48px\">\n        <span style=\"color: #090\" data-bind=\"visible: solved\"><i class=\"icon-ok\"></i> <span style=\"font-size: 42px; font-weight: bold\">Solved</span></span>&nbsp;\n      </div>\n      <div>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onFirst, event: {click: previous}\">&#x2190;</button>\n        <span data-bind=\"text: currentExercise()+1\"></span> of <span data-bind=\"text: exercises.length\"></span>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onLast, event: {click: next}\">&#x2192;</button>\n      </div>\n    </div>\n    \n  </div>\n</div>";
 
   testEqualEditors = function(e1, e2) {
-    var diff, equivalent, i, len, location, p1, p2;
+    var diff, equivalent, i, len, location, p1, p2, _i;
     p1 = e1.readPixels();
     p2 = e2.readPixels();
     len = p1.length;
     equivalent = true;
-    for (i = 0; i < 1000; i++) {
+    for (i = _i = 0; _i < 1000; i = ++_i) {
       location = Math.floor(Math.random() * len);
       diff = Math.abs(p1[location] - p2[location]);
-      if (diff > 2) equivalent = false;
+      if (diff > 2) {
+        equivalent = false;
+      }
     }
     return equivalent;
   };
@@ -540,7 +562,9 @@
     ko.computed(function() {
       var e;
       e = exercises[exercise.currentExercise()];
-      if (e.workspace) editorWorkspace.set(e.workspace);
+      if (e.workspace) {
+        editorWorkspace.set(e.workspace);
+      }
       return editorSolution.set(e.solution);
     });
     ko.computed(function() {
@@ -557,7 +581,7 @@
 }).call(this);
 }, "flatRenderer": function(exports, require, module) {(function() {
   var bufferAttribute, compileShader, fragmentShaderSource, getShaderError, makeFlatRenderer, vertexShaderSource,
-    __hasProp = Object.prototype.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty;
 
   vertexShaderSource = "precision mediump float;\n\nattribute vec3 vertexPosition;\nvarying vec2 position;\n\nvoid main() {\n  gl_Position = vec4(vertexPosition, 1.0);\n  position = (vertexPosition.xy + 1.0) * 0.5;\n}";
 
@@ -583,7 +607,9 @@
 
   bufferAttribute = function(gl, program, attrib, data, size) {
     var buffer, location;
-    if (size == null) size = 2;
+    if (size == null) {
+      size = 2;
+    }
     location = gl.getAttribLocation(program, attrib);
     buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -648,12 +674,16 @@
       },
       draw: function(uniforms) {
         var location, name, value;
-        if (uniforms == null) uniforms = {};
+        if (uniforms == null) {
+          uniforms = {};
+        }
         for (name in uniforms) {
           if (!__hasProp.call(uniforms, name)) continue;
           value = uniforms[name];
           location = gl.getUniformLocation(program, name);
-          if (typeof value === "number") value = [value];
+          if (typeof value === "number") {
+            value = [value];
+          }
           switch (value.length) {
             case 1:
               gl.uniform1fv(location, value);
@@ -711,7 +741,7 @@
       return [x, y];
     };
     draw = function() {
-      var cx, cy, equation, f, i, origin, resolution, x, xi, xmax, xmin, y, yi, ymax, ymin, _i, _j, _len, _len2, _ref, _ref10, _ref11, _ref12, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
+      var cx, cy, equation, f, i, origin, resolution, x, xi, xmax, xmin, y, yi, ymax, ymin, _i, _j, _k, _l, _len, _len1, _m, _ref, _ref1, _ref10, _ref11, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9, _results;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, width, height);
       origin = toCanvasCoords([0, 0]);
@@ -728,13 +758,13 @@
       ctx.font = "12px verdana";
       ctx.fillStyle = "#666";
       _ref = fromCanvasCoords([0, height]), xmin = _ref[0], ymin = _ref[1];
-      _ref2 = fromCanvasCoords([width, 0]), xmax = _ref2[0], ymax = _ref2[1];
+      _ref1 = fromCanvasCoords([width, 0]), xmax = _ref1[0], ymax = _ref1[1];
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
-      for (xi = _ref3 = Math.ceil(xmin / o.label), _ref4 = Math.floor(xmax / o.label); _ref3 <= _ref4 ? xi <= _ref4 : xi >= _ref4; _ref3 <= _ref4 ? xi++ : xi--) {
+      for (xi = _i = _ref2 = Math.ceil(xmin / o.label), _ref3 = Math.floor(xmax / o.label); _ref2 <= _ref3 ? _i <= _ref3 : _i >= _ref3; xi = _ref2 <= _ref3 ? ++_i : --_i) {
         if (xi !== 0) {
           x = xi * o.label;
-          _ref5 = toCanvasCoords([x, 0]), cx = _ref5[0], cy = _ref5[1];
+          _ref4 = toCanvasCoords([x, 0]), cx = _ref4[0], cy = _ref4[1];
           ctx.beginPath();
           ctx.moveTo(cx, cy - o.labelSize);
           ctx.lineTo(cx, cy + o.labelSize);
@@ -744,10 +774,10 @@
       }
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
-      for (yi = _ref6 = Math.ceil(ymin / o.label), _ref7 = Math.floor(ymax / o.label); _ref6 <= _ref7 ? yi <= _ref7 : yi >= _ref7; _ref6 <= _ref7 ? yi++ : yi--) {
+      for (yi = _j = _ref5 = Math.ceil(ymin / o.label), _ref6 = Math.floor(ymax / o.label); _ref5 <= _ref6 ? _j <= _ref6 : _j >= _ref6; yi = _ref5 <= _ref6 ? ++_j : --_j) {
         if (yi !== 0) {
           y = yi * o.label;
-          _ref8 = toCanvasCoords([0, y]), cx = _ref8[0], cy = _ref8[1];
+          _ref7 = toCanvasCoords([0, y]), cx = _ref7[0], cy = _ref7[1];
           ctx.beginPath();
           ctx.moveTo(cx - o.labelSize, cy);
           ctx.lineTo(cx + o.labelSize, cy);
@@ -756,14 +786,14 @@
         }
       }
       ctx.lineWidth = 2;
-      _ref9 = o.equations;
-      for (_i = 0, _len = _ref9.length; _i < _len; _i++) {
-        equation = _ref9[_i];
+      _ref8 = o.equations;
+      for (_k = 0, _len = _ref8.length; _k < _len; _k++) {
+        equation = _ref8[_k];
         ctx.strokeStyle = equation.color;
         f = equation.f;
         ctx.beginPath();
         resolution = 0.25;
-        for (i = 0, _ref10 = width / resolution; 0 <= _ref10 ? i <= _ref10 : i >= _ref10; 0 <= _ref10 ? i++ : i--) {
+        for (i = _l = 0, _ref9 = width / resolution; 0 <= _ref9 ? _l <= _ref9 : _l >= _ref9; i = 0 <= _ref9 ? ++_l : --_l) {
           cx = i * resolution;
           x = fromCanvasCoords([cx, 0])[0];
           y = f(x);
@@ -774,13 +804,13 @@
       }
       if (o.hint || o.hint === 0) {
         ctx.lineWidth = 0.25;
-        _ref11 = o.equations;
+        _ref10 = o.equations;
         _results = [];
-        for (_j = 0, _len2 = _ref11.length; _j < _len2; _j++) {
-          equation = _ref11[_j];
+        for (_m = 0, _len1 = _ref10.length; _m < _len1; _m++) {
+          equation = _ref10[_m];
           x = o.hint;
           y = equation.f(o.hint);
-          _ref12 = toCanvasCoords([x, y]), cx = _ref12[0], cy = _ref12[1];
+          _ref11 = toCanvasCoords([x, y]), cx = _ref11[0], cy = _ref11[1];
           ctx.strokeStyle = "#000";
           ctx.beginPath();
           ctx.moveTo.apply(ctx, toCanvasCoords([x, 0]));
@@ -817,7 +847,7 @@
 }).call(this);
 }, "graphEditor": function(exports, require, module) {(function() {
   var evaluate, util,
-    __slice = Array.prototype.slice;
+    __slice = [].slice;
 
   util = require("util");
 
@@ -1179,12 +1209,14 @@ Takes in:
   listen(callback) - calls callback whenever bounds change due to mouse interaction
 */
 
+
 (function() {
 
-  module.exports = function(opts) {
-    var $div, bounds;
-    $div = $(opts.div);
-    return bounds = opts.bounds;
+  module.exports = function(o) {
+    var $div;
+    $div = $(o.div);
+    o.listen = function(callback) {};
+    return o;
   };
 
 }).call(this);
@@ -1200,7 +1232,9 @@ Takes in:
       index = 0;
       while (index >= 0) {
         index = error.indexOf("ERROR: 0:", index);
-        if (index < 0) break;
+        if (index < 0) {
+          break;
+        }
         index += 9;
         indexEnd = error.indexOf(':', index);
         if (indexEnd > index) {
@@ -2209,11 +2243,7 @@ function convertBytesToHex( byteArray ) {
     var error, success;
     success = function(stream) {
       console.log("received stream");
-      if (navigator.mozGetUserMedia !== void 0) {
-        video.src = stream;
-      } else {
-        video.src = window.URL.createObjectURL(stream);
-      }
+      video.src = window.URL.createObjectURL(stream);
       video.play();
       return streaming = true;
     };
