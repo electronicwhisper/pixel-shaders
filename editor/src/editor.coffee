@@ -6,29 +6,29 @@ startTime = Date.now()
 
 
 makeEditor = (opts) ->
-  
+
   src = opts.src
   $output = $(opts.output)
   $code = $(opts.code)
-  
+
   $canvas = $("<canvas />")
   canvas = $canvas[0]
   $output.append($canvas)
   util.expandCanvas($canvas)
   ctx = $canvas[0].getContext("experimental-webgl", {premultipliedAlpha: false})
-  
+
   renderer = flatRenderer(ctx)
-  
+
   drawEveryFrame = false
-  
+
   changeCallback = null
-  
+
   uniforms = {}
-  
-  
-  
-  
-  
+
+
+
+
+
   # hacked in
   gl = ctx
   texture = gl.createTexture()
@@ -39,34 +39,35 @@ makeEditor = (opts) ->
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-  
+
   updateWebcam = () ->
     webcamVideo = require("webcam")()
     if webcamVideo
       # Upload the image into the texture.
-      gl.activeTexture(gl.TEXTURE0)
-      gl.bindTexture(gl.TEXTURE_2D, texture)
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, webcamVideo)
-  
-  
-  
-  
-  
-  
-  
+      try
+        gl.activeTexture(gl.TEXTURE0)
+        gl.bindTexture(gl.TEXTURE_2D, texture)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, webcamVideo)
+
+
+
+
+
+
+
   draw = () ->
-    
+
     if uniforms.webcam
       # hack
       updateWebcam()
       renderer.hackSetUniformInt("webcam", 0)
-    
-    
+
+
     renderer.draw({
       time: (Date.now() - startTime)/1000
       resolution: [canvas.width, canvas.height]
     })
-  
+
   findUniforms = () ->
     uniforms = {}
     newUniforms = require("parse").uniforms(src)
@@ -75,7 +76,7 @@ makeEditor = (opts) ->
       uniforms[u.name] = u.type
       if u.name == "time" || u.name == "webcam"
         drawEveryFrame = true
-  
+
   errorLines = []
   markErrors = (errors) ->
     # clear previous error lines
@@ -84,14 +85,14 @@ makeEditor = (opts) ->
       cm.clearMarker(line)
     errorLines = []
     $.fn.tipsy.revalidate()
-    
+
     # mark new errors
     for error in errors
       line = cm.getLineHandle(error.lineNum - 1)
       errorLines.push(line)
       cm.setLineClass(line, null, "errorLine")
       cm.setMarker(line, "<div class='errorMessage'>#{error.error}</div>%N%", "errorMarker")
-  
+
   refreshCode = () ->
     src = cm.getValue()
     err = renderer.loadFragmentShader(src)
@@ -106,8 +107,8 @@ makeEditor = (opts) ->
         draw()
     if changeCallback
       changeCallback(src)
-  
-  
+
+
   cm = CodeMirror($code[0], {
     value: src
     mode: "text/x-glsl"
@@ -116,18 +117,18 @@ makeEditor = (opts) ->
     onChange: refreshCode
   })
   cm.setSize("100%", $code.innerHeight())
-  
+
   refreshCode()
-  
+
   update = () ->
     if drawEveryFrame
       draw()
     requestAnimationFrame(update)
   update()
-  
+
   # redraw when the window gains focus (to eliminate glitches)
   $(window).focus(draw)
-  
+
   editor = {
     get: () -> src
     set: (newSrc) ->
@@ -155,10 +156,10 @@ makeEditor = (opts) ->
     onchange: (callback) ->
       changeCallback = callback
   }
-  
+
   # for debugging
   $canvas.data("editor", editor)
-  
+
   return editor
 
 

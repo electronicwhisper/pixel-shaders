@@ -46,28 +46,28 @@ bufferAttribute = (gl, program, attrib, data, size=2) ->
 
 makeFlatRenderer = (gl) ->
   program = gl.createProgram()
-  
+
   shaders = {} # used to keep track of the shaders we've attached to program, so that we can detach them later
-  
+
   shaders[gl.VERTEX_SHADER] = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER)
   shaders[gl.FRAGMENT_SHADER] = compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER)
-  
+
   gl.attachShader(program, shaders[gl.VERTEX_SHADER])
   gl.attachShader(program, shaders[gl.FRAGMENT_SHADER])
-  
+
   gl.linkProgram(program)
-  
+
   gl.useProgram(program)
-  
+
   bufferAttribute(gl, program, "vertexPosition", [
-    -1.0, -1.0, 
-     1.0, -1.0, 
-    -1.0,  1.0, 
-    -1.0,  1.0, 
-     1.0, -1.0, 
+    -1.0, -1.0,
+     1.0, -1.0,
+    -1.0,  1.0,
+    -1.0,  1.0,
+     1.0, -1.0,
      1.0,  1.0
   ])
-  
+
   replaceShader = (shaderSource, shaderType) ->
     shader = compileShader(gl, shaderSource, shaderType)
     err = getShaderError(gl, shader)
@@ -78,22 +78,22 @@ makeFlatRenderer = (gl) ->
       # detach and delete old shader
       gl.detachShader(program, shaders[shaderType])
       gl.deleteShader(shaders[shaderType])
-      
+
       # attach new shader, keep track of it in shaders
       gl.attachShader(program, shader)
       shaders[shaderType] = shader
-      
+
       return null
-  
+
   flatRenderer = {
     loadFragmentShader: (shaderSource) ->
       replaceShader(shaderSource, gl.FRAGMENT_SHADER)
-    
+
     link: () ->
       gl.linkProgram(program)
       # TODO check for errors
       return null
-    
+
     # setUniform: (name, value, size) ->
     #   location = gl.getUniformLocation(program, name)
     #   if typeof value == "number"
@@ -105,22 +105,22 @@ makeFlatRenderer = (gl) ->
     #     when 2 then gl.uniform2fv(location, value)
     #     when 3 then gl.uniform3fv(location, value)
     #     when 4 then gl.uniform4fv(location, value)
-    
+
     createTexture: (image) ->
       texture = gl.createTexture()
       gl.bindTexture(gl.TEXTURE_2D, texture)
-      
+
       # Set the parameters so we can render any size image.
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-      
+
       # Upload the image into the texture.
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
-      
+
       return texture
-    
+
     readPixels: () ->
       flatRenderer.draw()
       w = gl.drawingBufferWidth
@@ -128,7 +128,7 @@ makeFlatRenderer = (gl) ->
       arr = new Uint8Array(w * h * 4)
       gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, arr)
       return arr
-    
+
     draw: (uniforms={}) ->
       # set uniforms
       for own name, value of uniforms
@@ -140,16 +140,16 @@ makeFlatRenderer = (gl) ->
           when 2 then gl.uniform2fv(location, value)
           when 3 then gl.uniform3fv(location, value)
           when 4 then gl.uniform4fv(location, value)
-      
+
       # draw
       gl.drawArrays(gl.TRIANGLES, 0, 6)
-    
+
     #
     hackSetUniformInt: (name, value) ->
       location = gl.getUniformLocation(program, name)
       gl.uniform1i(location, value)
   }
-  
+
   return flatRenderer
 
 

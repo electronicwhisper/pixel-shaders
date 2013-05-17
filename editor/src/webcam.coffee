@@ -4,7 +4,6 @@ streaming = false
 askForCam = () ->
   success = (stream) ->
     console.log "received stream"
-    video.crossOrigin = "anonymous"
     video.src = window.URL.createObjectURL(stream)
     video.play()
     streaming = true
