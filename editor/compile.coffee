@@ -6,13 +6,12 @@
 
 
 stitch = require("stitch")
-stylus = require('stylus')
 fs = require('fs')
 
-package = stitch.createPackage(
+p = stitch.createPackage(
   # Specify the paths you want Stitch to automatically bundle up
   paths: [ __dirname + "/src" ]
-  
+
   # Specify your base libraries
   dependencies: [
     # __dirname + '/lib/jquery.js'
@@ -21,7 +20,7 @@ package = stitch.createPackage(
 
 
 compile = () ->
-  package.compile (err, source) ->
+  p.compile (err, source) ->
     fs.writeFile 'compiled/app.js', source, (err) ->
       if (err) then throw err
       console.log('Compiled app.js')
