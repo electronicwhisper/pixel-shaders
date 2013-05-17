@@ -160,8 +160,8 @@ float wave(vec2 p, float angle) {
   return cos(dot(p, direction));
 }
 
-float wrap(float n) {
-  return abs(mod(n, 2.)-1.)*-1. + 1.;
+float wrap(float x) {
+  return abs(mod(x, 2.)-1.);
 }
 
 void main() {
@@ -190,8 +190,8 @@ float wave(vec2 p, float angle) {
   return cos(dot(p, direction));
 }
 
-float wrap(float n) {
-  return abs(mod(n, 2.)-1.)*-1. + 1.;
+float wrap(float x) {
+  return abs(mod(x, 2.)-1.);
 }
 
 void main() {
@@ -221,8 +221,8 @@ float wave(vec2 p, float angle) {
   return cos(dot(p, direction));
 }
 
-float wrap(float n) {
-  return abs(mod(n, 2.)-1.)*-1. + 1.;
+float wrap(float x) {
+  return abs(mod(x, 2.)-1.);
 }
 
 void main() {
@@ -252,8 +252,8 @@ float wave(vec2 p, float angle) {
   return cos(dot(p, direction));
 }
 
-float wrap(float n) {
-  return abs(mod(n, 2.)-1.)*-1. + 1.;
+float wrap(float x) {
+  return abs(mod(x, 2.)-1.);
 }
 
 void main() {

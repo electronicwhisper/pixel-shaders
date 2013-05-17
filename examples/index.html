@@ -30,7 +30,11 @@ The following collections each explore a topic in pixel shaders. Each consists o
 </p>
 
 <p>
-I haven't yet written the accompanying text or produced the diagrams, exercises, tools, and interactions that I would like to, to fully support the development of these topics. But don't let this stop you from developing your own understanding through exploration and experimentation!
+In the future I'd like to produce accompanying text, diagrams, exercises, tools, etc. to fully support the development of these topics. But in the meantime don't let this stop you from developing your own understanding through exploration and experimentation!
+</p>
+
+<p>
+<em>Note: many of these examples use webcam input which presently only works in Chrome.</em>
 </p>
 
 
@@ -63,10 +67,11 @@ precision mediump float;
 
 varying vec2 position;
 uniform sampler2D webcam;
+uniform float time;
 
 void main() {
   vec2 p = position;
-  p.x = p.x + sin(p.y*80.)*0.01;
+  p.x = p.x + sin(p.y*80.+time*6.)*0.03;
   gl_FragColor = texture2D(webcam, p);
 }
 </div>
@@ -98,6 +103,32 @@ void main() {
 </div>
 
 
+<h2><a href="patterns.html">Case Study: Patterns</a></h2>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+float wrap(float x) {
+  return abs(mod(x, 2.)-1.);
+}
+
+void main() {
+  vec2 p = position;
+
+  float size = 0.1;
+  p.x = mod(p.x, size);
+  p.x = abs(p.x - size/2.);
+  p.x = wrap(p.x + time/6.);
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
 <h2><a href="quasicrystal.html">Case Study: Quasicrystal</a></h2>
 
 <div class="book-shader">
@@ -111,8 +142,8 @@ float wave(vec2 p, float angle) {
   return cos(dot(p, direction));
 }
 
-float wrap(float n) {
-  return abs(mod(n, 2.)-1.)*-1. + 1.;
+float wrap(float x) {
+  return abs(mod(x, 2.)-1.);
 }
 
 void main() {
