@@ -1,4 +1,20 @@
-# Sampling
+<div class="book-shader-manual" style="width: 100vw; height: 100vh; position: relative; top: -96px; left: -372px;">
+<div class="output" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;"></div>
+<div class="code" style="display: none">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor = color;
+}
+</div>
+<h1 style="position: absolute; font-size: 96px; left: 372px; top: 50vh; color: #fff; text-shadow: 0px 0px 8px rgba(0,0,0,0.9), 0px 4px 2px rgba(0, 0, 0, 0.8);">
+Sampling
+</h1>
+</div>
 
 In this chapter we'll learn how to *sample* colors from input images. We'll be sampling from the live webcam video.
 
@@ -26,6 +42,8 @@ This line is the important one:
 `vec4 color = texture2D(webcam, position)`
 
 It samples from the webcam at the current position and puts the result into `color`. We then set `gl_FragColor` (our output color) based on `color` (our webcam color).
+
+We'll learn more about `texture2D` in later chapters.
 
 In the next example, we're only setting the output's red color to the webcam's red color, and we're setting the output's green and blue to `0.`.
 
@@ -209,59 +227,11 @@ void main() {
 
 In the last chapter we learned how to make gradients by setting the color components of `gl_FragColor` based on `position`. In this chapter we learned how to set colors based on the webcam, along with inverting colors and mixing up the components.
 
-If you combine the ideas from these two chapters, you can make some interesting color effects. Experiment and see what you come up with!
+What kind of effects can you make by combining these two ideas?
 
-<div class="book-shader">
-precision mediump float;
-
-varying vec2 position;
-uniform sampler2D webcam;
-
-void main() {
-  vec4 color = texture2D(webcam, position);
-  gl_FragColor.r = 1. - color.r;
-  gl_FragColor.g = position.y;
-  gl_FragColor.b = color.g;
-  gl_FragColor.a = 1.;
-}
-</div>
-
-<!-- ## Challenges
-
-The following exercises use the gradient techniques from the previous chapter combined with sampling from the webcam and inverting colors.
-
-Hint: they only sample from the red component of the webcam, that is only `color.r` is used.
-
-<div class="book-exercise">
-<div class="book-workspace">
-precision mediump float;
-
-varying vec2 position;
-uniform sampler2D webcam;
-
-void main() {
-  vec4 color = texture2D(webcam, position);
-  gl_FragColor.r = 0.;
-  gl_FragColor.g = 1. - color.r;
-  gl_FragColor.b = position.x;
-  gl_FragColor.a = 1.;
-}
-</div>
-<div class="book-solution">
-precision mediump float;
-
-varying vec2 position;
-uniform sampler2D webcam;
-
-void main() {
-  vec4 color = texture2D(webcam, position);
-  gl_FragColor.r = 0.;
-  gl_FragColor.g = 1. - color.r;
-  gl_FragColor.b = position.y;
-  gl_FragColor.a = 1.;
-}
-</div>
-<div class="book-solution">
+<div class="book-shader-manual capture-idle" style="width: 100vw; height: 100vh; position: relative; overflow: hidden; top: 96px; left: -372px;">
+<div class="output" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;"></div>
+<div class="code fade-out" style="position: absolute; width: 50vw; height: 260px; right: 24px; bottom: 24px; background-color: #fff; box-shadow: 0px 3px 3px rgba(0,0,0,0.4)">
 precision mediump float;
 
 varying vec2 position;
@@ -270,38 +240,9 @@ uniform sampler2D webcam;
 void main() {
   vec4 color = texture2D(webcam, position);
   gl_FragColor.r = color.r;
-  gl_FragColor.g = 1. - color.r;
-  gl_FragColor.b = position.y;
-  gl_FragColor.a = 1.;
-}
-</div>
-<div class="book-solution">
-precision mediump float;
-
-varying vec2 position;
-uniform sampler2D webcam;
-
-void main() {
-  vec4 color = texture2D(webcam, position);
-  gl_FragColor.r = color.r;
-  gl_FragColor.g = position.y;
-  gl_FragColor.b = 1. - color.r;
-  gl_FragColor.a = 1.;
-}
-</div>
-<div class="book-solution">
-precision mediump float;
-
-varying vec2 position;
-uniform sampler2D webcam;
-
-void main() {
-  vec4 color = texture2D(webcam, position);
-  gl_FragColor.r = 1. - color.r;
-  gl_FragColor.g = position.y;
-  gl_FragColor.b = color.r;
+  gl_FragColor.g = color.g;
+  gl_FragColor.b = color.b;
   gl_FragColor.a = 1.;
 }
 </div>
 </div>
- -->

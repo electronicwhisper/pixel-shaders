@@ -11,9 +11,23 @@ getText = ($el) ->
 
 
 module.exports = () ->
+
+
   $("code").each () ->
     CodeMirror.runMode($(this).text(), "text/x-glsl", this)
     $(this).addClass("cm-s-default")
+
+  $(".book-shader-manual").each () ->
+    $div = $(this)
+    $output = $div.find(".output")
+    $code = $div.find(".code")
+    src = getText($code)
+    $code.html("")
+    require("../editor")({
+      src: src
+      output: $output
+      code: $code
+    })
 
   $(".book-shader").each () ->
     $div = $(this)
@@ -43,3 +57,19 @@ module.exports = () ->
       div: $div
       exercises: exercises
     })
+
+
+  $(".capture-idle").each () ->
+    $el = $(this)
+    timeout = null
+    mousemove = ->
+      if timeout
+        $el.removeClass("idle")
+        clearTimeout(timeout)
+      timeout = setTimeout(() ->
+        $el.addClass("idle")
+      , 2500)
+    mousemove()
+    $el.on "mousemove", mousemove
+
+

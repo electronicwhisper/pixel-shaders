@@ -18,13 +18,15 @@ img {
 }
 
 
-
+html {
+  margin: 0;
+}
 body {
   font-family: georgia;
   font-size: 16px;
   line-height: 1.5;
   color: #282828;
-  margin: 96px 48px 144px 372px;
+  margin: 96px 48px 96px 372px;
 }
 a {
   color: #900;
@@ -115,3 +117,14 @@ canvas {
 }
 
 
+
+.fade-out {
+  opacity: 1.0;
+  transition: opacity 0.5s;
+}
+.idle .fade-out {
+  opacity: 0.0;
+}
+.fade-out:hover {
+  opacity: 1.0;
+}

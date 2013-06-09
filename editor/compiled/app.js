@@ -1001,6 +1001,19 @@
       CodeMirror.runMode($(this).text(), "text/x-glsl", this);
       return $(this).addClass("cm-s-default");
     });
+    $(".book-shader-manual").each(function() {
+      var $code, $div, $output, src;
+      $div = $(this);
+      $output = $div.find(".output");
+      $code = $div.find(".code");
+      src = getText($code);
+      $code.html("");
+      return require("../editor")({
+        src: src,
+        output: $output,
+        code: $code
+      });
+    });
     $(".book-shader").each(function() {
       var $div, $shaderDiv, src;
       $div = $(this);
@@ -1013,7 +1026,7 @@
         code: $shaderDiv.find(".code")
       });
     });
-    return $(".book-exercise").each(function() {
+    $(".book-exercise").each(function() {
       var $div, exercises;
       $div = $(this);
       exercises = [];
@@ -1030,6 +1043,22 @@
         div: $div,
         exercises: exercises
       });
+    });
+    return $(".capture-idle").each(function() {
+      var $el, mousemove, timeout;
+      $el = $(this);
+      timeout = null;
+      mousemove = function() {
+        if (timeout) {
+          $el.removeClass("idle");
+          clearTimeout(timeout);
+        }
+        return timeout = setTimeout(function() {
+          return $el.addClass("idle");
+        }, 2500);
+      };
+      mousemove();
+      return $el.on("mousemove", mousemove);
     });
   };
 
