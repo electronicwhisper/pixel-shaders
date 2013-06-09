@@ -51,6 +51,11 @@ h2 {
   margin-top: 72px;
 }
 
+code {
+  background-color: #eee;
+  padding: 0px 4px;
+}
+
 
 .env {
   overflow: hidden;
@@ -73,6 +78,9 @@ h2 {
   border: 1px solid #ccc;
   margin-left: 324px;
 }
+
+
+
 
 
 

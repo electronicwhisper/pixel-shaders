@@ -152,9 +152,13 @@ void main() {
 </div>
 </div>
 
-## Switching Colors
+## Swizzling Colors
 
-We don't always need to have the output colors correspond to the webcam colors. We can mix things up. For example in the following the red and blue color channels are switched.
+We don't always need to have the output colors correspond to the webcam colors. We can mix things up. We can rearrange how the colors match up between input and output, or we can reuse the same input color for multiple output colors.
+
+The graphics slang for this technique is *swizzling*.
+
+For example in the following, the red and blue color channels are switched.
 
 <div class="book-exercise">
 <div class="book-workspace">
@@ -201,8 +205,28 @@ void main() {
 </div>
 </div>
 
+## Challenge
 
-## Challenges
+In the last chapter we learned how to make gradients by setting the color components of `gl_FragColor` based on `position`. In this chapter we learned how to set colors based on the webcam, along with inverting colors and mixing up the components.
+
+If you combine the ideas from these two chapters, you can make some interesting color effects. Experiment and see what you come up with!
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 1. - color.r;
+  gl_FragColor.g = position.y;
+  gl_FragColor.b = color.g;
+  gl_FragColor.a = 1.;
+}
+</div>
+
+<!-- ## Challenges
 
 The following exercises use the gradient techniques from the previous chapter combined with sampling from the webcam and inverting colors.
 
@@ -280,3 +304,4 @@ void main() {
 }
 </div>
 </div>
+ -->

@@ -172,8 +172,10 @@ void main() {
 </div>
 
 
-<h2>Switching Colors</h2>
-<p>We don’t always need to have the output colors correspond to the webcam colors. We can mix things up. For example in the following the red and blue color channels are switched.</p>
+<h2>Swizzling Colors</h2>
+<p>We don’t always need to have the output colors correspond to the webcam colors. We can mix things up. We can rearrange how the colors match up between input and output, or we can reuse the same input color for multiple output colors.</p>
+<p>The graphics slang for this technique is <em>swizzling</em>.</p>
+<p>For example in the following, the red and blue color channels are switched.</p>
 <div class="book-exercise">
 <div class="book-workspace">
 precision mediump float;
@@ -220,10 +222,31 @@ void main() {
 </div>
 
 
+<h2>Challenge</h2>
+<p>In the last chapter we learned how to make gradients by setting the color components of <code>gl_FragColor</code> based on <code>position</code>. In this chapter we learned how to set colors based on the webcam, along with inverting colors and mixing up the components.</p>
+<p>If you combine the ideas from these two chapters, you can make some interesting color effects. Experiment and see what you come up with!</p>
+<div class="book-shader">
+precision mediump float;
 
-<h2>Challenges</h2>
-<p>The following exercises use the gradient techniques from the previous chapter combined with sampling from the webcam and inverting colors.</p>
-<p>Hint: they only sample from the red component of the webcam, that is only <code>color.r</code> is used.</p>
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 1. - color.r;
+  gl_FragColor.g = position.y;
+  gl_FragColor.b = color.g;
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<!-- ## Challenges
+
+The following exercises use the gradient techniques from the previous chapter combined with sampling from the webcam and inverting colors.
+
+Hint: they only sample from the red component of the webcam, that is only `color.r` is used.
+
 <div class="book-exercise">
 <div class="book-workspace">
 precision mediump float;
@@ -296,7 +319,7 @@ void main() {
 }
 </div>
 </div>
-
+ -->
 
 
 
