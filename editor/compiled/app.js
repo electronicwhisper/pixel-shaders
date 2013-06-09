@@ -1044,7 +1044,7 @@
         exercises: exercises
       });
     });
-    return $(".capture-idle").each(function() {
+    $(".capture-idle").each(function() {
       var $el, mousemove, timeout;
       $el = $(this);
       timeout = null;
@@ -1054,11 +1054,26 @@
           clearTimeout(timeout);
         }
         return timeout = setTimeout(function() {
-          return $el.addClass("idle");
+          if ($el.find(".CodeMirror-focused").size() === 0) {
+            return $el.addClass("idle");
+          }
         }, 2500);
       };
       mousemove();
-      return $el.on("mousemove", mousemove);
+      $el.on("mousemove", mousemove);
+      return $el.on("mouseup", mousemove);
+    });
+    return $(".capture-webcam").each(function() {
+      var $el, test;
+      $el = $(this);
+      test = function() {
+        if (require("webcam")()) {
+          return $el.addClass("webcam");
+        } else {
+          return setTimeout(test, 100);
+        }
+      };
+      return test();
     });
   };
 

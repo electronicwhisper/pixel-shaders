@@ -1,3 +1,10 @@
+<div class="prompt-webcam capture-webcam">
+  <div style="position: absolute; left: 372px; font-size: 42px; margin-top: -63px; top: 50vh;">
+  Examples in this chapter use the webcam.<br>
+  Please allow access above. Thanks!
+  </div>
+</div>
+
 <div class="book-shader-manual" style="width: 100vw; height: 100vh; position: relative; top: -96px; left: -372px;">
 <div class="output" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;"></div>
 <div class="code" style="display: none">
@@ -11,7 +18,7 @@ void main() {
   gl_FragColor = color;
 }
 </div>
-<h1 style="position: absolute; font-size: 96px; left: 372px; top: 50vh; color: #fff; text-shadow: 0px 0px 8px rgba(0,0,0,0.9), 0px 4px 2px rgba(0, 0, 0, 0.8);">
+<h1 style="position: absolute; left: 372px; top: 50vh; color: #fff; font-size: 96px; line-height: 200px; margin-top: -100px; text-shadow: 0px 0px 8px rgba(0,0,0,0.9), 0px 4px 2px rgba(0, 0, 0, 0.8);">
 Sampling
 </h1>
 </div>
@@ -37,13 +44,23 @@ void main() {
 }
 </div>
 
-This line is the important one:
+Here's what's new:
 
-`vec4 color = texture2D(webcam, position)`
+    uniform sampler2D webcam;
 
-It samples from the webcam at the current position and puts the result into `color`. We then set `gl_FragColor` (our output color) based on `color` (our webcam color).
+This declares that we'll be grabbing from the webcam.
 
-We'll learn more about `texture2D` in later chapters.
+    vec4 color = texture2D(webcam, position)
+
+This samples from the webcam at the current position and puts the result into `color`.
+
+    gl_FragColor.r = color.r;
+    gl_FragColor.g = color.g;
+    gl_FragColor.b = color.b;
+
+We then set `gl_FragColor` (our output color) based on `color` (our webcam color).
+
+(We'll learn more details about `uniform sampler2D` and `texture2D` in later chapters.)
 
 In the next example, we're only setting the output's red color to the webcam's red color, and we're setting the output's green and blue to `0.`.
 

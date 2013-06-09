@@ -57,6 +57,15 @@ code {
   background-color: #eee;
   padding: 0px 4px;
 }
+body > pre {
+  padding: 12px;
+  background-color: #eee;
+  width: 540px;
+}
+body > pre code {
+  background-color: transparent;
+  padding: 0px;
+}
 
 
 .env {
@@ -118,6 +127,8 @@ canvas {
 
 
 
+
+
 .fade-out {
   opacity: 1.0;
   transition: opacity 0.5s;
@@ -127,4 +138,17 @@ canvas {
 }
 .fade-out:hover {
   opacity: 1.0;
+}
+
+
+.prompt-webcam {
+  position: fixed;
+  z-index: 30;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #000;
+  color: #fff;
+  font-family: 'Contrail One';
+}
+.prompt-webcam.webcam {
+  display: none;
 }

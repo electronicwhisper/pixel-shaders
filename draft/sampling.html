@@ -24,6 +24,14 @@
 </head>
 
 <body>
+<div class="prompt-webcam capture-webcam">
+  <div style="position: absolute; left: 372px; font-size: 42px; margin-top: -63px; top: 50vh;">
+  Examples in this chapter use the webcam.<br>
+  Please allow access above. Thanks!
+  </div>
+</div>
+
+
 <div class="book-shader-manual" style="width: 100vw; height: 100vh; position: relative; top: -96px; left: -372px;">
 <div class="output" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;"></div>
 <div class="code" style="display: none">
@@ -37,7 +45,7 @@ void main() {
   gl_FragColor = color;
 }
 </div>
-<h1 style="position: absolute; font-size: 96px; left: 372px; top: 50vh; color: #fff; text-shadow: 0px 0px 8px rgba(0,0,0,0.9), 0px 4px 2px rgba(0, 0, 0, 0.8);">
+<h1 style="position: absolute; left: 372px; top: 50vh; color: #fff; font-size: 96px; line-height: 200px; margin-top: -100px; text-shadow: 0px 0px 8px rgba(0,0,0,0.9), 0px 4px 2px rgba(0, 0, 0, 0.8);">
 Sampling
 </h1>
 </div>
@@ -62,10 +70,16 @@ void main() {
 </div>
 
 
-<p>This line is the important one:</p>
-<p><code>vec4 color = texture2D(webcam, position)</code></p>
-<p>It samples from the webcam at the current position and puts the result into <code>color</code>. We then set <code>gl_FragColor</code> (our output color) based on <code>color</code> (our webcam color).</p>
-<p>We’ll learn more about <code>texture2D</code> in later chapters.</p>
+<p>Here’s what’s new:</p>
+<pre><code>uniform sampler2D webcam;</code></pre>
+<p>This declares that we’ll be grabbing from the webcam.</p>
+<pre><code>vec4 color = texture2D(webcam, position)</code></pre>
+<p>This samples from the webcam at the current position and puts the result into <code>color</code>.</p>
+<pre><code>gl_FragColor.r = color.r;
+gl_FragColor.g = color.g;
+gl_FragColor.b = color.b;</code></pre>
+<p>We then set <code>gl_FragColor</code> (our output color) based on <code>color</code> (our webcam color).</p>
+<p>(We’ll learn more details about <code>uniform sampler2D</code> and <code>texture2D</code> in later chapters.)</p>
 <p>In the next example, we’re only setting the output’s red color to the webcam’s red color, and we’re setting the output’s green and blue to <code>0.</code>.</p>
 <div class="book-exercise">
 <div class="book-workspace">

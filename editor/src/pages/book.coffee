@@ -67,9 +67,20 @@ module.exports = () ->
         $el.removeClass("idle")
         clearTimeout(timeout)
       timeout = setTimeout(() ->
-        $el.addClass("idle")
+        if $el.find(".CodeMirror-focused").size() == 0
+          $el.addClass("idle")
       , 2500)
     mousemove()
     $el.on "mousemove", mousemove
+    $el.on "mouseup", mousemove
 
+
+  $(".capture-webcam").each () ->
+    $el = $(this)
+    test = ->
+      if require("webcam")()
+        $el.addClass("webcam")
+      else
+        setTimeout(test, 100)
+    test()
 
