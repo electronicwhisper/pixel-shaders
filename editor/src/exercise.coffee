@@ -26,7 +26,7 @@ template = """
         <button style="vertical-align: middle" data-bind="disable: onLast, event: {click: next}">&#x2192;</button>
       </div>
     </div>
-    
+
   </div>
 </div>
 """
@@ -35,12 +35,12 @@ template = """
 testEqualEditors = (e1, e2) ->
   # The following doesn't seem to work if there are minor pixel differences (due to, say, floating point rounding errors)
   # e1.snapshot(300,300) == e2.snapshot(300,300)
-  
+
   p1 = e1.readPixels()
   p2 = e2.readPixels()
-  
+
   len = p1.length
-  
+
   # sample 1000 random locations to test equivalence
   equivalent = true
   for i in [0...1000]
@@ -48,29 +48,29 @@ testEqualEditors = (e1, e2) ->
     diff = Math.abs(p1[location] - p2[location])
     if diff > 2
       equivalent = false
-  
+
   return equivalent
 
 
 module.exports = (opts) ->
   exercises = opts.exercises
   $div = $(opts.div)
-  
+
   $div.html(template)
-  
+
   editorWorkspace = editor({
     src: exercises[0].workspace
     code: $div.find(".workspace .code")
     output: $div.find(".workspace .output")
   })
-  
+
   editorSolution = editor({
     src: exercises[0].solution
     code: $div.find(".solution .code")
     output: $div.find(".solution .output")
   })
-  
-  
+
+
   exercise = {
     workspace: ko.observable("")
     solution: ko.observable("")
@@ -84,25 +84,27 @@ module.exports = (opts) ->
       if !exercise.onLast()
         exercise.currentExercise(exercise.currentExercise() + 1)
   }
-  
+
   exercise.onFirst = ko.computed () -> exercise.currentExercise() == 0
   exercise.onLast = ko.computed () -> exercise.currentExercise() == exercise.exercises.length - 1
-  
+
   editorWorkspace.onchange (src) -> exercise.workspace(src)
   editorSolution.onchange (src) -> exercise.solution(src)
-  
+
   ko.computed () ->
     e = exercises[exercise.currentExercise()]
     if e.workspace
       editorWorkspace.set(e.workspace)
     editorSolution.set(e.solution)
-  
-  ko.computed () ->
+
+  testSolved = ->
     exercise.workspace()
     exercise.solution()
     exercise.solved(testEqualEditors(editorWorkspace, editorSolution))
-  
+  ko.computed testSolved
+  setInterval(testSolved, 2000)
+
   ko.computed () ->
     exercises[exercise.currentExercise()].workspace = exercise.workspace()
-  
+
   ko.applyBindings(exercise, $div[0])

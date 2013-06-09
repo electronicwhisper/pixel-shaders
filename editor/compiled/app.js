@@ -499,7 +499,7 @@
 
   editor = require("editor");
 
-  template = "<div style=\"overflow: hidden\" class=\"workspace env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"margin-left: 324px; border: 1px solid #ccc\"></div>\n</div>\n\n<div style=\"overflow: hidden; margin-top: 24px\" class=\"solution env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"display: none\"></div>\n  <div style=\"margin-left: 324px; font-size: 30px; font-family: helvetica; height: 300px\">\n    <div style=\"float: left\">\n      <i class=\"icon-arrow-left\" style=\"font-size: 26px\"></i>\n    </div>\n    <div style=\"margin-left: 30px\">\n      <div>\n        Make this\n      </div>\n      <div style=\"font-size: 48px\">\n        <span style=\"color: #090\" data-bind=\"visible: solved\"><i class=\"icon-ok\"></i> <span style=\"font-size: 42px; font-weight: bold\">Solved</span></span>&nbsp;\n      </div>\n      <div>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onFirst, event: {click: previous}\">&#x2190;</button>\n        <span data-bind=\"text: currentExercise()+1\"></span> of <span data-bind=\"text: exercises.length\"></span>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onLast, event: {click: next}\">&#x2192;</button>\n      </div>\n    </div>\n    \n  </div>\n</div>";
+  template = "<div style=\"overflow: hidden\" class=\"workspace env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"margin-left: 324px; border: 1px solid #ccc\"></div>\n</div>\n\n<div style=\"overflow: hidden; margin-top: 24px\" class=\"solution env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"display: none\"></div>\n  <div style=\"margin-left: 324px; font-size: 30px; font-family: helvetica; height: 300px\">\n    <div style=\"float: left\">\n      <i class=\"icon-arrow-left\" style=\"font-size: 26px\"></i>\n    </div>\n    <div style=\"margin-left: 30px\">\n      <div>\n        Make this\n      </div>\n      <div style=\"font-size: 48px\">\n        <span style=\"color: #090\" data-bind=\"visible: solved\"><i class=\"icon-ok\"></i> <span style=\"font-size: 42px; font-weight: bold\">Solved</span></span>&nbsp;\n      </div>\n      <div>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onFirst, event: {click: previous}\">&#x2190;</button>\n        <span data-bind=\"text: currentExercise()+1\"></span> of <span data-bind=\"text: exercises.length\"></span>\n        <button style=\"vertical-align: middle\" data-bind=\"disable: onLast, event: {click: next}\">&#x2192;</button>\n      </div>\n    </div>\n\n  </div>\n</div>";
 
   testEqualEditors = function(e1, e2) {
     var diff, equivalent, i, len, location, p1, p2, _i;
@@ -518,7 +518,7 @@
   };
 
   module.exports = function(opts) {
-    var $div, editorSolution, editorWorkspace, exercise, exercises;
+    var $div, editorSolution, editorWorkspace, exercise, exercises, testSolved;
     exercises = opts.exercises;
     $div = $(opts.div);
     $div.html(template);
@@ -569,11 +569,13 @@
       }
       return editorSolution.set(e.solution);
     });
-    ko.computed(function() {
+    testSolved = function() {
       exercise.workspace();
       exercise.solution();
       return exercise.solved(testEqualEditors(editorWorkspace, editorSolution));
-    });
+    };
+    ko.computed(testSolved);
+    setInterval(testSolved, 2000);
     ko.computed(function() {
       return exercises[exercise.currentExercise()].workspace = exercise.workspace();
     });
@@ -984,26 +986,49 @@
 
 }).call(this);
 }, "pages/book": function(exports, require, module) {(function() {
-  var shaderTemplate;
+  var getText, shaderTemplate;
 
   shaderTemplate = "<div style=\"overflow: hidden\" class=\"workspace env\">\n  <div class=\"output canvas\" style=\"width: 300px; height: 300px; float: left;\"></div>\n  <div class=\"code\" style=\"margin-left: 324px; border: 1px solid #ccc\"></div>\n</div>";
+
+  getText = function($el) {
+    var text;
+    text = $el.text();
+    return text = text.trim();
+  };
 
   module.exports = function() {
     $("code").each(function() {
       CodeMirror.runMode($(this).text(), "text/x-glsl", this);
       return $(this).addClass("cm-s-default");
     });
-    return $(".book-shader").each(function() {
+    $(".book-shader").each(function() {
       var $div, $shaderDiv, src;
       $div = $(this);
-      src = $div.text();
-      src = src.trim();
+      src = getText($div);
       $shaderDiv = $(shaderTemplate);
       $div.replaceWith($shaderDiv);
       return require("../editor")({
         src: src,
         output: $shaderDiv.find(".output"),
         code: $shaderDiv.find(".code")
+      });
+    });
+    return $(".book-exercise").each(function() {
+      var $div, exercises;
+      $div = $(this);
+      exercises = [];
+      $div.find(".book-solution").each(function(i) {
+        var exercise;
+        exercise = {};
+        if (i === 0) {
+          exercise.workspace = getText($div.find(".book-workspace"));
+        }
+        exercise.solution = getText($(this));
+        return exercises.push(exercise);
+      });
+      return require("../exercise")({
+        div: $div,
+        exercises: exercises
       });
     });
   };

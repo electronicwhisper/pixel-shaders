@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Pixelshaders</title>
+
+<script src="../vendor/CodeMirror-2.33/lib/codemirror.js"></script>
+<script src="../vendor/CodeMirror-2.33/lib/util/runmode.js"></script>
+<script src="../vendor/glsl.js"></script>
+<script src="../vendor/numeric-1.2.2.min.js"></script>
+<script src="../vendor/jquery-1.8.1.min.js"></script>
+<script src="../vendor/underscore-min.js"></script>
+<script src="../vendor/xregexp-min.js"></script>
+<script src="../vendor/jquery.tipsy.js"></script>
+<script src="../vendor/rAF.js"></script>
+<script src="../vendor/knockout-2.1.0.js"></script>
+
+<link rel="stylesheet" href="../vendor/font/font-awesome.css">
+<link rel="stylesheet" href="../vendor/ContrailOne/ContrailOne.css">
+<link rel="stylesheet" href="../vendor/CodeMirror-2.33/lib/codemirror.css">
+<link rel="stylesheet" href="../vendor/tipsy.css">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+<h1>Sampling</h1>
+<p>In this chapter we’ll learn how to <em>sample</em> colors from input images. We’ll be sampling from the live webcam video.</p>
+<p>For historical reasons, input images are called <em>textures</em>, because in 3D applications they’re usually used as textures for 3D objects.</p>
+<p>Here’s a shader which simply draws the current webcam image to the screen.</p>
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = color.g;
+  gl_FragColor.b = color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<p>This line is the important one:</p>
+<p><code>vec4 color = texture2D(webcam, position)</code></p>
+<p>It samples from the webcam at the current position and puts the result into <code>color</code>. We then set <code>gl_FragColor</code> (our output color) based on <code>color</code> (our webcam color).</p>
+<p>In the next example, we’re only setting the output’s red color to the webcam’s red color, and we’re setting the output’s green and blue to <code>0.</code>.</p>
+<div class="book-exercise">
+<div class="book-workspace">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 0.;
+  gl_FragColor.g = color.g;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 0.;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+</div>
+
+
+
+<h2>Inverting Colors</h2>
+<p>Remember that a color value ranges between <code>0.</code> and <code>1.</code>. So we can <em>invert</em> or flip a color value by subtracing it from <code>1.</code>.</p>
+<div class="book-exercise">
+<div class="book-workspace">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 1. - color.r;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 0.;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 1. - color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 1. - color.r;
+  gl_FragColor.g = 1. - color.g;
+  gl_FragColor.b = 1. - color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = 1. - color.g;
+  gl_FragColor.b = 1. - color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+</div>
+
+
+<h2>Switching Colors</h2>
+<p>We don’t always need to have the output colors correspond to the webcam colors. We can mix things up. For example in the following the red and blue color channels are switched.</p>
+<div class="book-exercise">
+<div class="book-workspace">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.b;
+  gl_FragColor.g = color.g;
+  gl_FragColor.b = color.r;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.g;
+  gl_FragColor.g = color.r;
+  gl_FragColor.b = color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = color.r;
+  gl_FragColor.b = color.r;
+  gl_FragColor.a = 1.;
+}
+</div>
+</div>
+
+
+
+<h2>Challenges</h2>
+<p>The following exercises use the gradient techniques from the previous chapter combined with sampling from the webcam and inverting colors.</p>
+<p>Hint: they only sample from the red component of the webcam, that is only <code>color.r</code> is used.</p>
+<div class="book-exercise">
+<div class="book-workspace">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 0.;
+  gl_FragColor.g = 1. - color.r;
+  gl_FragColor.b = position.x;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 0.;
+  gl_FragColor.g = 1. - color.r;
+  gl_FragColor.b = position.y;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = 1. - color.r;
+  gl_FragColor.b = position.y;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = position.y;
+  gl_FragColor.b = 1. - color.r;
+  gl_FragColor.a = 1.;
+}
+</div>
+<div class="book-solution">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 1. - color.r;
+  gl_FragColor.g = position.y;
+  gl_FragColor.b = color.r;
+  gl_FragColor.a = 1.;
+}
+</div>
+</div>
+
+
+
+
+<script src="../editor/compiled/app.js"></script>
+<script>
+require("pages/book")()
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Pixelshaders</title>
+
+<script src="../vendor/CodeMirror-2.33/lib/codemirror.js"></script>
+<script src="../vendor/CodeMirror-2.33/lib/util/runmode.js"></script>
+<script src="../vendor/glsl.js"></script>
+<script src="../vendor/numeric-1.2.2.min.js"></script>
+<script src="../vendor/jquery-1.8.1.min.js"></script>
+<script src="../vendor/underscore-min.js"></script>
+<script src="../vendor/xregexp-min.js"></script>
+<script src="../vendor/jquery.tipsy.js"></script>
+<script src="../vendor/rAF.js"></script>
+<script src="../vendor/knockout-2.1.0.js"></script>
+
+<link rel="stylesheet" href="../vendor/font/font-awesome.css">
+<link rel="stylesheet" href="../vendor/ContrailOne/ContrailOne.css">
+<link rel="stylesheet" href="../vendor/CodeMirror-2.33/lib/codemirror.css">
+<link rel="stylesheet" href="../vendor/tipsy.css">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+<h1>Time</h1>
+<p>In this chapter, we’ll learn how to make shaders that change over time–animations. We’ll also start working with <em>functions</em>, which let us manipulate numbers in ways that we couldn’t do with just arithmetic.</p>
+<p>We’ve seen how every pixel is an independent computer which has to compute what color to be. To do this computation, the pixel can use its <code>position</code> in the image. It can also use other information that we pass in to it.</p>
+<p>In this case, we’ll pass in <code>time</code>, which is a <code>float</code> (decimal number) that counts the number of seconds since the shader started running.</p>
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+void main() {
+  gl_FragColor.r = 0.;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = fract(time);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<p>In the above shader, we’re using <code>fract</code> of <code>time</code> to determine the blue value of the image.</p>
+<p><code>fract</code> is a function that gives us just the <em>fractional</em> part of a number. In other words, just the part of the number after the decimal point. More precisely, it gives the amount that the number exceeds the whole number below it.</p>
+<ul>
+<li><code>fract(3.4) = 0.4</code></li>
+<li><code>fract(4.0) = 0.0</code></li>
+<li><code>fract(0.8) = 0.8</code></li>
+<li><code>fract(-2.3) = 0.7</code></li>
+</ul>
+<p><code>fract</code> is an example of a <em>function</em>. In general, a function is a mathematical operation that takes in one or more <em>inputs</em> and spits out an <em>output</em>. Other examples of functions are <code>sin</code>, <code>cos</code>, <code>abs</code> (the absolute value), etc. We’ll see how to use these functions later in the book.</p>
+<p>When creating shaders, we <em>combine</em> functions and arithmetic to manipulate numbers to do just what we want them to do.</p>
+<p>Let’s practice combining <code>fract</code> and arithmetic to make different timings for the above animation.</p>
+
+
+<script src="../editor/compiled/app.js"></script>
+<script>
+require("pages/book")()
+</script>
+</body>
+</html>
