@@ -1,0 +1,154 @@
+.cm-s-default .cm-comment {color: #06f !important; font-style: italic !important;}
+.cm-s-default .cm-keyword {color: #809 !important;}
+/* There's a bug with codemirror where runmode won't add the cm- prefix to classes beyond the first */
+.cm-s-default .cm-int, .cm-s-default .int {color: #d00 !important;}
+.cm-s-default .cm-float, .cm-s-default .float {color: #295 !important;}
+.cm-s-default .cm-property {color: #910 !important;}
+
+
+
+img {
+  width: 540px;
+}
+.book-shader {
+  white-space: pre;
+}
+.workspace {
+  margin-bottom: 24px;
+}
+
+
+html {
+  margin: 0;
+}
+body {
+  font-family: georgia;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #282828;
+  margin: 96px 48px 96px 372px;
+}
+a {
+  color: #900;
+}
+a:hover {
+  color: #d00;
+}
+
+h1, h2, p, body > ul, body > ol {
+  width: 540px;
+}
+
+h1, h2 {
+  font-family: 'Contrail One';
+  color: #000;
+  font-weight: normal;
+}
+
+h1 {
+  font-size: 60px;
+}
+h2 {
+  font-size: 42px;
+  margin-top: 72px;
+}
+
+code {
+  background-color: #eee;
+  padding: 0px 4px;
+}
+body > pre {
+  padding: 12px;
+  background-color: #eee;
+  width: 540px;
+}
+body > pre code {
+  background-color: transparent;
+  padding: 0px;
+}
+
+
+.env {
+  overflow: hidden;
+  font-family: monospace;
+  margin-left: -324px;
+}
+.env .canvas {
+  float: left;
+  width: 300px;
+  height: 300px;
+  background: url(../editor/checker.png);
+  cursor: crosshair;
+}
+.env .canvas canvas {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+}
+.env .code {
+  border: 1px solid #ccc;
+  margin-left: 324px;
+}
+
+
+
+
+
+
+* {
+  box-sizing: border-box;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+}
+
+
+.errorLine {
+  background: #fee !important;
+  margin: 0px -7px -1px -6px !important;
+}
+.errorMarker {
+  color: #900 !important;
+}
+.errorMessage {
+  display: none;
+}
+
+.tipsy {
+  font-size: 13px;
+  font-family: monospace;
+}
+.tipsy-inner {
+  max-width: 270px;
+  text-align: left;
+}
+
+
+
+
+
+.fade-out {
+  opacity: 1.0;
+  transition: opacity 0.5s;
+}
+.idle .fade-out {
+  opacity: 0.0;
+}
+.fade-out:hover {
+  opacity: 1.0;
+}
+
+
+.prompt-webcam {
+  position: fixed;
+  z-index: 30;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #000;
+  color: #fff;
+  font-family: 'Contrail One';
+}
+.prompt-webcam.webcam {
+  display: none;
+}
