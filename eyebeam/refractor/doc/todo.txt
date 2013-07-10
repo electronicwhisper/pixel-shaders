@@ -1,0 +1,13 @@
+get it working with touch on a tablet
+
+build next version of internal representation
+  build ui for it
+
+
+make it centered, not stretched
+show where identity is?
+
+
+minor
+  make it not clamp to edge but be transparent/black
+  make resize work in shader.coffee
