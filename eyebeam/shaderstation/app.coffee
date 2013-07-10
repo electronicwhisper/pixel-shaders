@@ -17,7 +17,7 @@ $("#shadersrcs").html("")
 
 
 
-
+require("webcam")()
 require("pages/book")()
 
 cm = $(".CodeMirror")[0].CodeMirror
@@ -56,5 +56,17 @@ $(document).on "keydown", (e) ->
     changeSrc(-1)
   else if e.keyCode == 113 # f2
     changeSrc(1)
+
+
+
+lastTime = Date.now()
+keepAlive = ->
+  time = Date.now()
+  diff = time - lastTime
+  if diff > 600
+    loadSrc(current)
+  lastTime = Date.now()
+  requestAnimationFrame(keepAlive)
+keepAlive()
 
 
