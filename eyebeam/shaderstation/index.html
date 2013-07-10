@@ -65,7 +65,851 @@ void main() {
 </div>
 
 
+
+
+
+
+
+
+
+
+
+
 <div id="shadersrcs" style="display: none">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+precision mediump float;
+
+void main() {
+  gl_FragColor.r = 1.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+void main() {
+  gl_FragColor.r = 0.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 1.0;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+void main() {
+  gl_FragColor.r = 1.0;
+  gl_FragColor.g = 1.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+void main() {
+  gl_FragColor.r = 1.0;
+  gl_FragColor.g = 0.5;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+void main() {
+  gl_FragColor.r = 0.5;
+  gl_FragColor.g = 0.5;
+  gl_FragColor.b = 0.5;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = position.x;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 0.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = position.y;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = position.x;
+  gl_FragColor.g = position.x;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = position.x;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = position.y;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 1.0 - position.x;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 0.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 1.0 - position.y;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = 1.0 - position.x;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = position.x;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = (position.x + position.y) / 2.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+void main() {
+  gl_FragColor.r = (position.x + 1.0 - position.y) / 2.0;
+  gl_FragColor.g = 0.0;
+  gl_FragColor.b = 0.0;
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = color.g;
+  gl_FragColor.b = color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = 0.;
+  gl_FragColor.b = 0.;
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = color.r;
+  gl_FragColor.g = color.g;
+  gl_FragColor.b = 1. - color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = 1. - color.r;
+  gl_FragColor.g = 1. - color.g;
+  gl_FragColor.b = 1. - color.b;
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  float average = (color.r + color.g + color.b) / 3.;
+  gl_FragColor.r = average;
+  gl_FragColor.g = average;
+  gl_FragColor.b = average;
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+float wave(float x, float amount) {
+  return (sin(x * amount) + 1.) * .5;
+}
+
+void main() {
+  vec4 color = texture2D(webcam, position);
+  gl_FragColor.r = wave(color.r, 10.);
+  gl_FragColor.g = wave(color.g, 20.);
+  gl_FragColor.b = wave(color.b, 40.);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  p.x = 1. - p.x;
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  p.x = abs(p.x - 0.5) + 0.5;
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  p.x = 0.5;
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+void main() {
+  vec2 p = position;
+  p.x = fract(time*.1);
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  p.x = p.x + sin(p.y*80.)*0.01;
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+void main() {
+  vec2 p = position;
+  p.x = p.x + sin(p.y*80.+time*6.)*0.03;
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  p.x = floor(p.x*6.)/6.;
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  p = fract(p * 6.);
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  p = floor(p * 6.)/6.;
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+float stripes(vec2 p, float steps) {
+  return fract(p.x*steps);
+}
+
+void main() {
+  vec2 p = position;
+
+  float brightness = stripes(p, 10.);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+float stripes(vec2 p, float steps) {
+  return fract(p.x*steps);
+}
+
+void main() {
+  vec2 p = position;
+  vec4 color = texture2D(webcam, p);
+
+  p.x += color.r * 0.1;
+
+  float brightness = stripes(p, 10.);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+float stripes(vec2 p, float steps) {
+  return fract(p.x*steps);
+}
+
+void main() {
+  vec2 p = position;
+  vec4 color = texture2D(webcam, p);
+
+  p.x += color.r * 0.1 * sin(time);
+
+  float brightness = stripes(p, 10.);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+float checkerboard(vec2 p, float steps) {
+  float x = floor(p.x * steps);
+  float y = floor(p.y * steps);
+  return mod(x + y, 2.);
+}
+
+void main() {
+  vec2 p = position;
+
+  float brightness = checkerboard(p, 20.);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+float checkerboard(vec2 p, float steps) {
+  float x = floor(p.x * steps);
+  float y = floor(p.y * steps);
+  return mod(x + y, 2.);
+}
+
+void main() {
+  vec2 p = position;
+  vec4 color = texture2D(webcam, p);
+
+  p += color.r * 0.1;
+
+  float brightness = checkerboard(p, 20.);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+float checkerboard(vec2 p, float steps) {
+  float x = floor(p.x * steps);
+  float y = floor(p.y * steps);
+  return mod(x + y, 2.);
+}
+
+void main() {
+  vec2 p = position;
+  vec4 color = texture2D(webcam, p);
+
+  p.y += color.r * 0.2 * (sin(time)+1.);
+
+  float brightness = checkerboard(p, 20.);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+
+  float size = 0.2;
+  p.x = mod(p.x, size);
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+
+  float size = 0.2;
+  p.x = mod(p.x, size);
+  p.x = p.x - size/2.;
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+
+void main() {
+  vec2 p = position;
+
+  float size = 0.2;
+  p.x = mod(p.x, size);
+  p.x = abs(p.x - size/2.);
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+void main() {
+  vec2 p = position;
+
+  float size = 0.2;
+  p.x = mod(p.x, size);
+  p.x = abs(p.x - size/2.);
+  p.x = fract(p.x + time/6.);
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+float wrap(float x) {
+  return abs(mod(x, 2.)-1.);
+}
+
+void main() {
+  vec2 p = position;
+
+  float size = 0.2;
+  p.x = mod(p.x, size);
+  p.x = abs(p.x - size/2.);
+  p.x = wrap(p.x + time/6.);
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+float wrap(float x) {
+  return abs(mod(x, 2.)-1.);
+}
+
+void main() {
+  vec2 p = position;
+
+  float size = 0.1;
+  p.x = mod(p.x, size);
+  p.x = abs(p.x - size/2.);
+  p.x = wrap(p.x + time/6.);
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+float wrap(float x) {
+  return abs(mod(x, 2.)-1.);
+}
+
+void main() {
+  vec2 p = position;
+
+  float size = 0.04;
+  p.x = mod(p.x, size);
+  p.x = abs(p.x - size/2.);
+  p.x = wrap(p.x + time/20.);
+
+  gl_FragColor = texture2D(webcam, p);
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <div class="book-shader">
 precision mediump float;
@@ -313,6 +1157,278 @@ void main() {
   gl_FragColor.a = 1.;
 }
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+void main() {
+  vec2 p = position;
+  float brightness = noise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+float stepNoise(vec2 p) {
+  return noise(floor(p));
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = stepNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+vec2 sw(vec2 p) {return vec2( floor(p.x) , floor(p.y) );}
+vec2 se(vec2 p) {return vec2( ceil(p.x)  , floor(p.y) );}
+vec2 nw(vec2 p) {return vec2( floor(p.x) , ceil(p.y)  );}
+vec2 ne(vec2 p) {return vec2( ceil(p.x)  , ceil(p.y)  );}
+
+float smoothNoise(vec2 p) {
+  vec2 inter = smoothstep(0., 1., fract(p));
+  float s = mix(noise(sw(p)), noise(se(p)), inter.x);
+  float n = mix(noise(nw(p)), noise(ne(p)), inter.x);
+  return mix(s, n, inter.y);
+  return noise(nw(p));
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = smoothNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+vec2 sw(vec2 p) {return vec2( floor(p.x) , floor(p.y) );}
+vec2 se(vec2 p) {return vec2( ceil(p.x)  , floor(p.y) );}
+vec2 nw(vec2 p) {return vec2( floor(p.x) , ceil(p.y)  );}
+vec2 ne(vec2 p) {return vec2( ceil(p.x)  , ceil(p.y)  );}
+
+float smoothNoise(vec2 p) {
+  vec2 inter = smoothstep(0., 1., fract(p));
+  float s = mix(noise(sw(p)), noise(se(p)), inter.x);
+  float n = mix(noise(nw(p)), noise(ne(p)), inter.x);
+  return mix(s, n, inter.y);
+  return noise(nw(p));
+}
+
+float fractalNoise(vec2 p) {
+  float total = 0.0;
+  total += smoothNoise(p);
+  total += smoothNoise(p*2.) / 2.;
+  total += smoothNoise(p*4.) / 4.;
+  total += smoothNoise(p*8.) / 8.;
+  total += smoothNoise(p*16.) / 16.;
+  total /= 1. + 1./2. + 1./4. + 1./8. + 1./16.;
+  return total;
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = fractalNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+vec2 sw(vec2 p) {return vec2( floor(p.x) , floor(p.y) );}
+vec2 se(vec2 p) {return vec2( ceil(p.x)  , floor(p.y) );}
+vec2 nw(vec2 p) {return vec2( floor(p.x) , ceil(p.y)  );}
+vec2 ne(vec2 p) {return vec2( ceil(p.x)  , ceil(p.y)  );}
+
+float smoothNoise(vec2 p) {
+  vec2 inter = smoothstep(0., 1., fract(p));
+  float s = mix(noise(sw(p)), noise(se(p)), inter.x);
+  float n = mix(noise(nw(p)), noise(ne(p)), inter.x);
+  return mix(s, n, inter.y);
+  return noise(nw(p));
+}
+
+float movingNoise(vec2 p) {
+  float total = 0.0;
+  total += smoothNoise(p     - time);
+  total += smoothNoise(p*2.  + time) / 2.;
+  total += smoothNoise(p*4.  - time) / 4.;
+  total += smoothNoise(p*8.  + time) / 8.;
+  total += smoothNoise(p*16. - time) / 16.;
+  total /= 1. + 1./2. + 1./4. + 1./8. + 1./16.;
+  return total;
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = movingNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+float random(float p) {
+  return fract(sin(p)*10000.);
+}
+
+float noise(vec2 p) {
+  return random(p.x + p.y*10000.);
+}
+
+vec2 sw(vec2 p) {return vec2( floor(p.x) , floor(p.y) );}
+vec2 se(vec2 p) {return vec2( ceil(p.x)  , floor(p.y) );}
+vec2 nw(vec2 p) {return vec2( floor(p.x) , ceil(p.y)  );}
+vec2 ne(vec2 p) {return vec2( ceil(p.x)  , ceil(p.y)  );}
+
+float smoothNoise(vec2 p) {
+  vec2 inter = smoothstep(0., 1., fract(p));
+  float s = mix(noise(sw(p)), noise(se(p)), inter.x);
+  float n = mix(noise(nw(p)), noise(ne(p)), inter.x);
+  return mix(s, n, inter.y);
+  return noise(nw(p));
+}
+
+float movingNoise(vec2 p) {
+  float total = 0.0;
+  total += smoothNoise(p     - time);
+  total += smoothNoise(p*2.  + time) / 2.;
+  total += smoothNoise(p*4.  - time) / 4.;
+  total += smoothNoise(p*8.  + time) / 8.;
+  total += smoothNoise(p*16. - time) / 16.;
+  total /= 1. + 1./2. + 1./4. + 1./8. + 1./16.;
+  return total;
+}
+
+float nestedNoise(vec2 p) {
+  float x = movingNoise(p);
+  float y = movingNoise(p + 100.);
+  return movingNoise(p + vec2(x, y));
+}
+
+void main() {
+  vec2 p = position * 6.;
+  float brightness = nestedNoise(p);
+  gl_FragColor.rgb = vec3(brightness);
+  gl_FragColor.a = 1.;
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </div>
 
