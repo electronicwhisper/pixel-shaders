@@ -197,6 +197,9 @@ module.exports = (opts) ->
       # call this when the canvas's width or height change
       # TODO
     ctx: () -> gl
+    toDataURL: () ->
+      draw()
+      o.canvas.toDataURL('image/jpeg', 0.5)
   }
 
 

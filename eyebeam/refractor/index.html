@@ -112,9 +112,17 @@ button {
     <button class="button-reset"><span class="typicn refresh"></span> Reset</button>
   </div>
 
+  <div class="section row">
+    <button class="button-publish">Publish</button>
+  </div>
+
 </div>
 
 <div id="debug" style="display: none; position: absolute; top: 40px; left: 40px; color: #f00"></div>
+
+
+<div style="position: absolute; top: 50%; left: 50%; width: 400px; margin-left: -200px; margin-top: -100px; background-color: #333; color: #fff; text-align: center; padding: 50px 0px; line-height: 2; display: none;" id="publisher"></div>
+
 
 <script src="vendor/underscore-min.js"></script>
 <script src="vendor/jquery-1.8.3.min.js"></script>
@@ -123,6 +131,7 @@ button {
 <script src="vendor/pointerevents.min.js"></script>
 <script src="vendor/knockout-2.2.1.js"></script>
 
+<script src="http://api.filepicker.io/v1/filepicker.js"></script>
 
 <script src="compiled/app.js"></script>
 

@@ -29,6 +29,8 @@ s = shader({
   uniforms: generate.uniforms()
 })
 
+canvas.shader = s
+
 s.set({uniforms: require("bounds")()})
 
 

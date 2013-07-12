@@ -293,6 +293,11 @@
     return false;
   });
 
+  onclick(".button-publish", function(e) {
+    require("publish")();
+    return false;
+  });
+
   $(document).on("change", "input[type='checkbox']", function(e) {
     return setTimeout(function() {
       return state.apply(function() {
@@ -371,6 +376,8 @@
     fragment: generate.code(),
     uniforms: generate.uniforms()
   });
+
+  canvas.shader = s;
 
   s.set({
     uniforms: require("bounds")()
@@ -500,6 +507,82 @@
   };
 
   module.exports = generate;
+
+}).call(this);
+}, "publish": function(exports, require, module) {(function() {
+  var $c, FILEPICKER_API_KEY, IMAGE_SERVER, canvas, generateDataUrl, lastimg, publish;
+
+  FILEPICKER_API_KEY = "AaqPpE9LORQel03S9cCl7z";
+
+  IMAGE_SERVER = "http://i.meemoo.me/";
+
+  filepicker.setKey(FILEPICKER_API_KEY);
+
+  $c = $("#c");
+
+  canvas = $c[0];
+
+  generateDataUrl = function() {
+    return canvas.shader.toDataURL();
+  };
+
+  lastimg = "";
+
+  publish = function() {
+    var b64, dataurl, ext, fileinfo, split, type;
+    dataurl = generateDataUrl();
+    if (lastimg === dataurl) {
+      return;
+    }
+    lastimg = dataurl;
+    split = dataurl.split(',', 2);
+    type = split[0].split(':')[1].split(';')[0];
+    ext = type.split('/')[1];
+    b64 = split[1];
+    fileinfo = {
+      mimetype: type,
+      location: 'S3',
+      path: 'openart/meemoo/',
+      filename: 'pixelshaders.refractor.' + ext,
+      access: 'public',
+      base64decode: true
+    };
+    $("#publisher").text("Publishing...");
+    $("#publisher").show();
+    return filepicker.store(b64, fileinfo, function(file) {
+      var data, s3url;
+      s3url = IMAGE_SERVER + file.key;
+      console.log("got here", s3url);
+      data = {
+        "_csrf": "Hkge_JRS92Kv_j97ADBHGzpT",
+        "title": "Pixel Shaders Refractor",
+        "description": "made with refractor.pixelshaders.com at Open(Art), Eyebeam NYC",
+        "url": s3url,
+        "image": s3url,
+        "author": "author"
+      };
+      $.ajax({
+        type: "POST",
+        url: "http://fast-crag-2176.herokuapp.com/post",
+        data: data,
+        success: function(event) {
+          return console.log(event);
+        }
+      });
+      $("#publisher").text("Find your image at openart.eyebeam.org/gallery");
+      return setTimeout(function() {
+        return $("#publisher").hide();
+      }, 2000);
+    }, function(error) {
+      console.log("error");
+      lastimg = "";
+      return $("#publisher").hide();
+    }, function(percent) {
+      return $("#publisher").text(percent + "% Uploaded");
+    });
+  };
+
+  module.exports = publish;
 
 }).call(this);
 }, "shader": function(exports, require, module) {
@@ -679,6 +762,10 @@ to set uniforms,
       resize: function() {},
       ctx: function() {
         return gl;
+      },
+      toDataURL: function() {
+        draw();
+        return o.canvas.toDataURL('image/jpeg', 0.5);
       }
     };
   };
