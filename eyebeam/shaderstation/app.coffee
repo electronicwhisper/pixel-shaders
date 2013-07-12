@@ -36,6 +36,7 @@ loadSrc = (i) ->
   head = cm.getCursor("head")
   cm.setValue(src)
   cm.setSelection(anchor, head)
+  window.startTime = Date.now()
 
 
 current = 0

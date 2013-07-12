@@ -35,7 +35,8 @@
     anchor = cm.getCursor("anchor");
     head = cm.getCursor("head");
     cm.setValue(src);
-    return cm.setSelection(anchor, head);
+    cm.setSelection(anchor, head);
+    return window.startTime = Date.now();
   };
 
   current = 0;
