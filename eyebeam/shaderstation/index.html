@@ -1417,9 +1417,820 @@ void main() {
 
 
 
+<div class="book-shader">
+/*
+Iterated Fractional Brownian Motion
+Based on:
+  http://www.iquilezles.org/www/articles/warp/warp.htm
+*/
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+// makes a pseudorandom number between 0 and 1
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+// smoothsteps a grid of random numbers at the integers
+float noise(vec2 p) {
+  vec2 w = floor(p);
+  vec2 k = fract(p);
+  k = k*k*(3.-2.*k); // smooth it
+
+  float n = w.x + w.y*57.;
+
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+57.);
+  float d = hash(n+58.);
+
+  return mix(
+    mix(a, b, k.x),
+    mix(c, d, k.x),
+    k.y);
+}
+
+// rotation matrix
+mat2 m = mat2(0.6,0.8,-0.8,0.6);
+
+// fractional brownian motion (i.e. photoshop clouds)
+float fbm(vec2 p) {
+  float f = 0.;
+  f += 0.5000*noise(p); p *= 2.02*m;
+  f += 0.2500*noise(p); p *= 2.01*m;
+  f += 0.1250*noise(p); p *= 2.03*m;
+  f += 0.0625*noise(p);
+  f /= 0.9375;
+  return f;
+}
+
+void main() {
+  // relative coordinates
+  vec2 p = vec2(position*6.);
+  float t = time * .009;
+
+  // calling fbm on itself
+  vec2 a = vec2(fbm(p+t*3.), fbm(p-t*3.+8.1));
+  vec2 b = vec2(fbm(p+t*4. + a*7. + 3.1), fbm(p-t*4. + a*7. + 91.1));
+  float c = fbm(b*9. + t*20.);
+
+  // increase contrast
+  c = smoothstep(0.15,0.98,c);
+
+  // mix in some color
+  vec3 col = vec3(c);
+  col.rb += b*0.17;
+
+  gl_FragColor = vec4(col, 1.);
+}
+</div>
 
 
 
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+/*
+Iterated Fractional Brownian Motion
+Based on:
+  http://www.iquilezles.org/www/articles/warp/warp.htm
+*/
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform sampler2D webcam;
+
+// makes a pseudorandom number between 0 and 1
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+// smoothsteps a grid of random numbers at the integers
+float noise(vec2 p) {
+  vec2 w = floor(p);
+  vec2 k = fract(p);
+  k = k*k*(3.-2.*k); // smooth it
+
+  float n = w.x + w.y*57.;
+
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+57.);
+  float d = hash(n+58.);
+
+  return mix(
+    mix(a, b, k.x),
+    mix(c, d, k.x),
+    k.y);
+}
+
+// rotation matrix
+mat2 m = mat2(0.6,0.8,-0.8,0.6);
+
+// fractional brownian motion (i.e. photoshop clouds)
+float fbm(vec2 p) {
+  float f = 0.;
+  f += 0.5000*noise(p); p *= 2.02*m;
+  f += 0.2500*noise(p); p *= 2.01*m;
+  f += 0.1250*noise(p); p *= 2.03*m;
+  f += 0.0625*noise(p);
+  f /= 0.9375;
+  return f;
+}
+
+void main() {
+  // relative coordinates
+  vec2 p = vec2(position*3.);
+  float t = time * .05;
+
+  // calling fbm on itself
+  vec2 a = vec2(fbm(p+t*3.), fbm(p-t*3.+8.1));
+  vec2 b = vec2(fbm(p+t*4. + a*5. + 3.1), fbm(p-t*4. + a*5. + 91.1));
+
+
+
+  gl_FragColor = texture2D(webcam, b);
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+
+// makes a pseudorandom number between 0 and 1
+float hash(float n) {
+  return fract(sin(n)*93942.234);
+}
+
+// smoothsteps a grid of random numbers at the integers
+float noise(vec2 p) {
+  vec2 w = floor(p);
+  vec2 k = fract(p);
+  k = k*k*(3.-2.*k); // smooth it
+
+  float n = w.x + w.y*57.;
+
+  float a = hash(n);
+  float b = hash(n+1.);
+  float c = hash(n+57.);
+  float d = hash(n+58.);
+
+  return mix(
+    mix(a, b, k.x),
+    mix(c, d, k.x),
+    k.y);
+}
+
+void main() {
+  // relative coordinates
+  vec2 p = vec2(position*5.);
+  float t = time;
+
+  // offset with smooth noise
+  p.x += noise(p + t) * .5;
+  p.y += noise(p - t) * .5;
+
+  // checkerboard
+  p *= 10.;
+  float c = mod(floor(p.x) + floor(p.y), 2.);
+
+  vec3 col = vec3(c);
+  gl_FragColor = vec4(col, 1.);
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform sampler2D webcam;
+
+void main() {
+  // normalize to the center
+  vec2 p = position - 0.5;
+
+  // cartesian to polar coordinates
+  float r = length(p);
+  float a = atan(p.y, p.x);
+
+  // kaleidoscope
+  float sides = 8.;
+  float tau = 2. * 3.1416;
+  a = mod(a, tau/sides);
+  a = abs(a - tau/sides/2.);
+  a += time*.5; // rotate
+
+  // polar to cartesian coordinates
+  p = r * vec2(cos(a), sin(a));
+
+  // sample the webcam
+  vec4 color = texture2D(webcam, p + 0.5);
+  gl_FragColor = color;
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform vec2 resolution;
+
+void main() {
+  vec2 p = position - 0.5;
+  float t = time + 0.0;
+  t *= .05;
+
+  float r = length(p);
+  r = 1./r;
+
+  float size = .02 / (t*t);
+
+  float b = mod(r - t, size);
+
+  b = step(size/2., b);
+
+  gl_FragColor.rgb = vec3(b);
+  gl_FragColor.a = 1.0;
+}
+</div>
+
+
+
+
+
+
+
+
+<div class="book-shader">
+///////////////////////////
+//                       //
+//   GLSL 10 PRINT Cam   //
+//                       //
+///////////////////////////
+
+// @bitcraftlab 2012
+
+precision mediump float;
+
+varying vec2 position;
+uniform vec2 resolution;
+uniform sampler2D webcam;
+
+const float epsilon = 1.0 / 256.0;
+
+void main() {
+
+  // labyrinth randomness [0.0 ... 1.0]
+  float randomness = 1.0;
+
+  // diameter of a sampling cell
+  float cellsize = 8.0;
+
+  // maximum weight i.e. stroke levels
+  float maxweight = floor(cellsize / 2.0);
+
+  // get absolute position
+  vec2 pos = position * resolution;
+
+  // get block position
+  vec2 delta = mod(pos, cellsize);
+
+  // sample texture brightness
+  vec2 sampleres = (resolution / cellsize);
+  vec3 sample = texture2D(webcam, floor(position * sampleres) / sampleres).rgb;
+  float val = dot(sample, vec3(0.299, 0.587, 0.114));
+
+  // stroke weight
+  float weight = (1.0 + epsilon - val) * maxweight / (cellsize + (cellsize + 1.0) * epsilon);
+
+  // 10 PRINT dithering
+  float m = (1.0 - randomness) + epsilon;
+  float z = (delta.x + (mod(val, m) &lt; m / 2.0 ? delta.y : cellsize - delta.y )) / cellsize;
+  gl_FragColor = vec4(vec3(step(weight, abs(z - 1.0))), 1.0);
+
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+// by @bigsley
+
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+uniform vec2 resolution;
+
+vec3 RGBtoHSV(vec3 rgb)
+{
+  float r = rgb.x;
+  float g = rgb.y;
+  float b = rgb.z;
+  float minim, maxim, delta;
+  float v, s, h;
+  minim = min(min( r, g), b );
+  maxim = max(max( r, g), b );
+  v = maxim;
+  delta = maxim - minim;
+  if( maxim != 0. )
+    {
+    s = delta / maxim;
+    }
+  else {
+    return vec3(0., 0., 0.);
+  }
+  if( r == maxim )
+    h = ( g - b ) / delta;
+  else if( g == maxim )
+    h = 2. + ( b - r ) / delta;
+  else
+    h = 4. + ( r - g ) / delta;
+  h *= 60.;
+  if( h &lt; 0. )
+    h += 360.;
+  return vec3(h, s, v);
+}
+
+vec3 function_name(float val) {
+  if (val &lt; 0.00000) {
+    return vec3(0.734375, 0.96484375, 0.8515625);
+  } else if (val >= 0.00000 && val &lt; 0.25000) {
+    float param = ((val - 0.00000) / 0.25000);
+    vec3 color_1 = vec3(0.734375, 0.96484375, 0.8515625);
+    vec3 color_2 = vec3(0.1015625, 0.09375, 0.109375);
+    return mix(color_1, color_2, param);
+  } else if (val >= 0.25000 && val &lt; 0.50000) {
+    float param = ((val - 0.25000) / 0.25000);
+    vec3 color_1 = vec3(0.1015625, 0.09375, 0.109375);
+    vec3 color_2 = vec3(0.40234375, 0.8984375, 0.83203125);
+    return mix(color_1, color_2, param);
+  } else if (val >= 0.50000 && val &lt; 0.75000) {
+    float param = ((val - 0.50000) / 0.25000);
+    vec3 color_1 = vec3(0.40234375, 0.8984375, 0.83203125);
+    vec3 color_2 = vec3(0.078125, 0.10546875, 0.12890625);
+    return mix(color_1, color_2, param);
+  } else if (val >= 0.75000 && val &lt; 1.00000) {
+    float param = ((val - 0.75000) / 0.25000);
+    vec3 color_1 = vec3(0.078125, 0.10546875, 0.12890625);
+    vec3 color_2 = vec3(0.828125, 0.96484375, 0.9765625);
+    return mix(color_1, color_2, param);
+  } else {
+    return vec3(0.828125, 0.96484375, 0.9765625);
+  }
+}
+
+bool inLogo(vec2 pos_in_rect, vec2 rect_dims) {
+  float correct = (188. / 1.516);
+  float x = pos_in_rect.x;
+  float y = pos_in_rect.y;
+  float slope = 124. / 78.;
+  float y1 = slope * x;
+
+  float y2 = slope * x - slope * (58. / correct) * rect_dims.y;
+  float y3 = -slope * x + slope * (130. / correct) * rect_dims.y;
+  float y4 = -slope * x + slope * (188. / correct) * rect_dims.y;
+
+  if (y &lt; y1 && y > y2) {
+    return true;
+  }
+
+  if (y > rect_dims.y * 58. / 124.) {
+    return false;
+  }
+
+  if (y > y3 && y &lt; y4) {
+    return true;
+  }
+
+  return false;
+}
+
+vec3 drawFigure(vec2 pos_in_rect, vec2 rect_dims) {
+  if (inLogo(pos_in_rect, rect_dims)) {
+      return vec3(1.);
+    } else {
+      return vec3(0.);
+    }
+}
+
+
+vec3 tesselate(vec2 pos, float v) {
+    vec2 rect_dims = vec2(1.516, 1.);
+    float min_size = 0.01;
+    float max_size = 0.2;
+
+    vec2 new_rect_dims = rect_dims * (v * (max_size - min_size) + min_size);
+  float new_x = mod(pos.x, new_rect_dims.x);
+    float new_y = mod(pos.y, new_rect_dims.y);
+
+    // 0 &lt; new_x &lt; new_rect_dims.x
+    // 0 &lt; new_y &lt; new_rect_dims.y
+    return drawFigure(vec2(new_x, new_y), new_rect_dims);
+}
+
+void main() {
+  vec3 tex_col = texture2D(webcam, position).xyz;
+
+  float time_slow = 0.5;
+  float clip = 0.06;
+  vec3 hsv_tex_col = RGBtoHSV(tex_col);
+  float val = hsv_tex_col.z;
+  float original_val = val;
+  //val = mod(val + time / time_slow, 1.);
+  val = .5 * sin(val * 2. * 3.14159265 + time / time_slow) + .5;
+  val = val - mod(val, clip);
+  //float val = 0.5;
+
+  vec3 col = tesselate(position, val);
+
+
+  if (col.x > .5) {
+    col = function_name(original_val);
+  } else {
+    col = function_name(original_val) * .1;
+  }
+
+/*
+  if (col.x > .5) {
+    col = vec3(1.);
+  } else {
+    col = tex_col * .1;
+  }
+*/
+
+  gl_FragColor = vec4(col, 1.);
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+// by @bigsley
+
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+
+mat2 rotMatrix( float r ) {
+  return mat2(vec2(cos(r), -sin(r)), vec2(sin(r), cos(r)));
+}
+
+vec2 rotate(vec2 v, float r) {
+  return v * rotMatrix(r);
+}
+
+mat3 transMatrix( vec2 v ) {
+  return mat3(vec3(1., 0., v.x), vec3(0., 1., v.y), vec3(0., 0., 1.));
+}
+
+vec2 translate(vec2 v, vec2 t) {
+  vec3 result = vec3(v.x, v.y, 1.0) * transMatrix(t);
+  return vec2(result.x, result.y);
+}
+
+vec2 rotateAround( vec2 v, vec2 around, float r) {
+  return translate(rotate(translate(v, -around), r), around);
+}
+
+vec2 dilate(vec2 v, vec2 around, float amount) {
+  vec2 change = around - v;
+
+  return v + amount * change;
+}
+
+void main() {
+  // sample the webcam
+  vec4 color = texture2D(webcam, position);
+
+  float pi = 3.1415;
+  vec2 origin = vec2(0.5, 0.5);
+  //float v = max(color.x, max(color.y, color.z));
+  float v = color.x;
+  float dist = distance(position, origin);
+  v = mod(v + time / 10. + distance(position, origin), 1.0);
+
+
+  vec2 new_position = rotateAround(position, origin, dist * v);
+  color = texture2D(webcam, new_position);
+
+  gl_FragColor = color;
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+// by @bigsley
+
+precision mediump float;
+
+varying vec2 position;
+uniform sampler2D webcam;
+uniform float time;
+uniform vec2 resolution;
+
+vec3 RGBtoHSV(vec3 rgb)
+{
+  float r = rgb.x;
+  float g = rgb.y;
+  float b = rgb.z;
+  float minim, maxim, delta;
+  float v, s, h;
+  minim = min(min( r, g), b );
+  maxim = max(max( r, g), b );
+  v = maxim;
+  delta = maxim - minim;
+  if( maxim != 0. )
+    {
+    s = delta / maxim;
+    }
+  else {
+    return vec3(0., 0., 0.);
+  }
+  if( r == maxim )
+    h = ( g - b ) / delta;
+  else if( g == maxim )
+    h = 2. + ( b - r ) / delta;
+  else
+    h = 4. + ( r - g ) / delta;
+  h *= 60.;
+  if( h &lt; 0. )
+    h += 360.;
+  return vec3(h, s, v);
+}
+
+vec3 shader_func(float val) {
+if (val &lt; 0.00000) {
+   return vec3(0.99609375, 0, 0);
+} else if (val >= 0.00000 && val &lt; 0.20000) {
+  float param = ((val - 0.00000) / 0.20000);
+  vec3 color_1 = vec3(0.99609375, 0, 0);
+  vec3 color_2 = vec3(0.99609375, 0.62890625, 0);
+  return mix(color_1, color_2, param);
+} else if (val >= 0.20000 && val &lt; 0.30000) {
+  float param = ((val - 0.20000) / 0.10000);
+  vec3 color_1 = vec3(0.99609375, 0.62890625, 0);
+  vec3 color_2 = vec3(0.91796875, 0.99609375, 0);
+  return mix(color_1, color_2, param);
+} else if (val >= 0.30000 && val &lt; 0.40000) {
+  float param = ((val - 0.30000) / 0.10000);
+  vec3 color_1 = vec3(0.91796875, 0.99609375, 0);
+  vec3 color_2 = vec3(0.046875, 0.9609375, 0.02734375);
+  return mix(color_1, color_2, param);
+} else if (val >= 0.40000 && val &lt; 0.60000) {
+  float param = ((val - 0.40000) / 0.20000);
+  vec3 color_1 = vec3(0.046875, 0.9609375, 0.02734375);
+  vec3 color_2 = vec3(0, 0.546875, 0.99609375);
+  return mix(color_1, color_2, param);
+} else if (val >= 0.60000 && val &lt; 0.80000) {
+  float param = ((val - 0.60000) / 0.20000);
+  vec3 color_1 = vec3(0, 0.546875, 0.99609375);
+  vec3 color_2 = vec3(0.41015625, 0, 0.99609375);
+  return mix(color_1, color_2, param);
+} else if (val >= 0.80000 && val &lt; 1.00000) {
+  float param = ((val - 0.80000) / 0.20000);
+  vec3 color_1 = vec3(0.41015625, 0, 0.99609375);
+  vec3 color_2 = vec3(0.99609375, 0, 0.74609375);
+  return mix(color_1, color_2, param);
+} else {
+  return vec3(0.99609375, 0, 0.74609375);
+}
+}
+
+
+void main() {
+  float mytime = time + 50.0;
+  vec3 tex_col = texture2D(webcam, position).xyz;
+
+  vec3 hsv_tex_col = RGBtoHSV(tex_col);
+  float val = hsv_tex_col.z;
+
+  float skip_pix_1 = 50./resolution.x;
+  float skip_pix_2 = 3./resolution.y;
+
+  float skip_pix_tolerance_1 = skip_pix_1 / 3.;
+  float skip_pix_tolerance_2 = skip_pix_2 / 3.;
+
+  vec3 col = vec3(0.);
+
+  val = mod(val + mod(time, 1.), 1.);
+
+  if (mod(val * position.x + (1. - val) * position.y, skip_pix_1) &lt; skip_pix_tolerance_1)
+  {
+
+    col = shader_func(val);
+  }
+
+  gl_FragColor = vec4(col, 1.);
+}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="book-shader">
+// by @mrotondo
+
+precision mediump float;
+
+varying vec2 position;
+uniform float time;
+uniform vec2 resolution;
+
+float ballsCloseness(vec2 p)
+{
+    float sumCloseness = 0.0;
+
+    float increment = 1.0 / 40.0;
+  for (float i = 0.0; i &lt; 39.0; i += 1.0)
+    {
+      vec2 aspectRatio = resolution.xy / resolution.x;
+      vec2 ballPos = vec2(increment + i * increment, 0.5 + 0.5 * cos((i + 1.0) * time * 0.05));
+      float distance = distance(p * aspectRatio, ballPos * aspectRatio);
+      float nonZeroDistance = max(0.0001, distance);
+      float closeness = (1.0 / nonZeroDistance);
+      sumCloseness += closeness / 400.0;
+    }
+
+    return sumCloseness;
+}
+
+float spike(float center, float width, float val)
+{
+  float left = smoothstep(center, center - width / 2.0, val);
+    float right = smoothstep(center - width / 2.0, center, val);
+    return left * right;
+}
+
+void main() {
+  vec2 p = gl_FragCoord.xy / resolution;
+
+  float closeness = ballsCloseness(p);
+  float spike1 = spike(0.39, 0.02, closeness);
+  float spike2 = spike(0.4, 0.02, closeness);
+  float spike3 = spike(0.41, 0.02, closeness);
+  float spike4 = spike(0.42, 0.02, closeness);
+  float spike5 = spike(0.43, 0.02, closeness);
+  float spike6 = spike(0.44, 0.02, closeness);
+  float spike7 = spike(0.45, 0.02, closeness);
+
+  float spikes = 2.0 * (spike1 * 0.8 + spike2 * 0.2 + spike3 * 0.9 + spike4 * 0.35 + spike5 * 0.9 + spike6 * 0.39 + spike7 * 0.5);
+
+//  gl_FragColor.r = 2.0 * (spike1 * 0.4 + spike2 * 0.5 + spike6 * 0.3 + spike7 * 0.8);
+//  gl_FragColor.g = 2.0 * (spike2 * 0.5 + spike3 * 0.65 + spike4 * 0.3 + spike5 * 0.1 + spike6 * 0.8);
+//  gl_FragColor.b = 2.0 * (spike1 * 0.8 + spike2 * 0.2 + spike3 * 0.9 + spike4 * 0.35 + spike5 * 0.9 + spike6 * 0.39 + spike7 * 0.5);
+
+  float background = smoothstep(0.3, 0.5, closeness);
+
+  gl_FragColor.r = sin(time) * background + spikes;
+  gl_FragColor.g = cos(time / 25.0) * background + spikes;
+  gl_FragColor.b = cos(time / 100.0) * background + spikes;
+  gl_FragColor.a = 1.0;
+}
+</div>
 
 
 
