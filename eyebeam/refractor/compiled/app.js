@@ -188,7 +188,7 @@
 
 }).call(this);
 }, "app": function(exports, require, module) {(function() {
-  var $c, canvas, changeImage, imageCount, koState, koUpdate, onclick, parentHeight, parentWidth, state;
+  var $c, canvas, changeImage, imageCount, koState, koUpdate, onclick, setCanvasSize, state;
 
   _.reverse = function(a) {
     return a.slice().reverse();
@@ -198,24 +198,29 @@
 
   canvas = $c[0];
 
-  parentWidth = $c.parent().width();
+  setCanvasSize = function() {
+    var parentHeight, parentWidth;
+    parentWidth = $c.parent().width();
+    parentHeight = $c.parent().height();
+    $c.css({
+      width: parentWidth + "px",
+      height: parentHeight + "px"
+    });
+    canvas.width = parentWidth;
+    return canvas.height = parentHeight;
+  };
 
-  parentHeight = $c.parent().height();
-
-  $c.css({
-    width: parentWidth + "px",
-    height: parentHeight + "px"
-  });
-
-  canvas.width = parentWidth * 2;
-
-  canvas.height = parentHeight * 2;
+  setCanvasSize();
 
   require("draw");
 
   require("touch");
 
-  imageCount = 16;
+  $(window).on("resize", function() {
+    return setCanvasSize();
+  });
+
+  imageCount = 4;
 
   state = require("state");
 
@@ -344,7 +349,7 @@
 
 }).call(this);
 }, "draw": function(exports, require, module) {(function() {
-  var bounds, canvas, fragmentSrc, generate, s, shader, state, updateWebcamImage, vertexSrc, webcam;
+  var bounds, canvas, fragmentSrc, generate, image, s, setImage, shader, state, updateImage, updateWebcamImage, vertexSrc, webcam;
 
   shader = require("shader");
 
@@ -373,9 +378,21 @@
 
   webcam = require("webcam");
 
+  webcam();
+
   updateWebcamImage = function() {
-    var image;
-    if (image = webcam()) {
+    var webcamImage;
+    if (state.image === 0) {
+      if (webcamImage = webcam()) {
+        s.draw({
+          uniforms: {
+            image: webcamImage,
+            resolution: [canvas.width, canvas.height],
+            imageResolution: [webcamImage.width, webcamImage.height]
+          }
+        });
+      }
+    } else {
       s.draw({
         uniforms: {
           image: image,
@@ -388,6 +405,22 @@
   };
 
   updateWebcamImage();
+
+  image = new Image();
+
+  setImage = function(src) {
+    return image.src = src;
+  };
+
+  updateImage = function() {
+    if (state.image !== 0) {
+      return setImage("images/" + state.image + ".jpg");
+    }
+  };
+
+  updateImage();
+
+  state.watch("image", updateImage);
 
   state.watch("globalTransform", function() {
     return _.pluck(state.chain, "transform");
@@ -444,7 +477,7 @@
     if (state.polarMode) {
       code += "\np.xy = vec2(p.x*cos(p.y), p.x*sin(p.y));\n";
     }
-    code += "\n  p.xy = (p.xy + 1.) * .5;\n\n  /*\n  if (p.x < 0. || p.x > 1. || p.y < 0. || p.y > 1.) {\n    // black if out of bounds\n    gl_FragColor = vec4(0., 0., 0., 1.);\n  } else {\n    gl_FragColor = texture2D(image, p.xy);\n  }\n  */\n\n  // mirror wrap it\n  p = abs(mod((p-1.), 2.)-1.);\n\n  gl_FragColor = texture2D(image, p.xy);\n}";
+    code += "\n  p.xy = (p.xy + 1.) * .5;\n\n  /*\n  if (p.x < 0. || p.x > 1. || p.y < 0. || p.y > 1.) {\n    // black if out of bounds\n    gl_FragColor = vec4(0., 0., 0., 1.);\n  } else {\n    gl_FragColor = texture2D(image, p.xy);\n  }\n  */\n\n  p.x *= (imageResolution.y / imageResolution.x);\n\n  // mirror wrap it\n  p = abs(mod((p-1.), 2.)-1.);\n\n\n\n  gl_FragColor = texture2D(image, p.xy);\n}";
     return code;
   };
 
@@ -617,6 +650,7 @@ to set uniforms,
         opts = {};
       }
       set(opts);
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       return gl.drawArrays(gl.TRIANGLES, 0, 6);
     };
     gl = opts.canvas.getContext("experimental-webgl", {

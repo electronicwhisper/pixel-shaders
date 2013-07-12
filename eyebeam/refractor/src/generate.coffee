@@ -68,8 +68,12 @@ generate.code = ->
       }
       */
 
+      p.x *= (imageResolution.y / imageResolution.x);
+
       // mirror wrap it
       p = abs(mod((p-1.), 2.)-1.);
+
+
 
       gl_FragColor = texture2D(image, p.xy);
     }

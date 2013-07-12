@@ -1,8 +1,5 @@
-SRC = $(shell find web/src -name "*.coffee")
+SRC = $(shell find src -name "*.coffee")
 
-web/compiled: $(SRC)
-	node web/compile.js
-	rm -r refractor.ad/AdUnit/*
-	cp -r web/* refractor.ad/AdUnit
-	zip -r refractor.ad.zip refractor.ad
-	touch web/compiled
+compiled: $(SRC)
+	node compile.js
+	touch compiled

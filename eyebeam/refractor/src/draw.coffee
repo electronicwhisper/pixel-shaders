@@ -33,8 +33,18 @@ s.set({uniforms: require("bounds")()})
 
 
 webcam = require("webcam")
+webcam()
 updateWebcamImage = ->
-  if image = webcam()
+  if state.image == 0
+    if webcamImage = webcam()
+      s.draw({
+        uniforms: {
+          image: webcamImage
+          resolution: [canvas.width, canvas.height]
+          imageResolution: [webcamImage.width, webcamImage.height]
+        }
+      })
+  else
     s.draw({
       uniforms: {
         image: image
@@ -46,22 +56,23 @@ updateWebcamImage = ->
 updateWebcamImage()
 
 
-# image = new Image()
-# setImage = (src) ->
-#   image.src = src
-#   image.onload = ->
-#     s.draw({
-#       uniforms: {
-#         image: image
-#         resolution: [canvas.width, canvas.height]
-#         imageResolution: [image.width, image.height]
-#       }
-#     })
+image = new Image()
+setImage = (src) ->
+  image.src = src
+  # image.onload = ->
+  #   s.draw({
+  #     uniforms: {
+  #       image: image
+  #       resolution: [canvas.width, canvas.height]
+  #       imageResolution: [image.width, image.height]
+  #     }
+  #   })
 
-# updateImage = ->
-#   setImage("images/#{state.image}.jpg")
-# updateImage()
-# state.watch("image", updateImage)
+updateImage = ->
+  if state.image != 0
+    setImage("images/#{state.image}.jpg")
+updateImage()
+state.watch("image", updateImage)
 
 
 state.watch("globalTransform", ->

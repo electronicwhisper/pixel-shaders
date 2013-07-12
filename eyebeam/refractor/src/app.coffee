@@ -5,27 +5,32 @@ _.reverse = (a) ->
 
 $c = $("#c")
 canvas = $c[0]
-parentWidth  = $c.parent().width()
-parentHeight = $c.parent().height()
-$c.css({
-  width: parentWidth + "px"
-  height: parentHeight + "px"
-})
-canvas.width  = parentWidth  * 2
-canvas.height = parentHeight * 2
+
+setCanvasSize = ->
+  parentWidth  = $c.parent().width()
+  parentHeight = $c.parent().height()
+  $c.css({
+    width: parentWidth + "px"
+    height: parentHeight + "px"
+  })
+  canvas.width  = parentWidth
+  canvas.height = parentHeight
+
+setCanvasSize()
 
 require("draw")
 require("touch")
 
 
 
+$(window).on "resize", ->
+  setCanvasSize()
 
 
 
 
 
-
-imageCount = 16
+imageCount = 4
 
 state = require("state")
 

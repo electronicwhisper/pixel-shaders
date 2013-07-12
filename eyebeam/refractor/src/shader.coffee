@@ -157,6 +157,7 @@ module.exports = (opts) ->
 
   draw = (opts={}) ->
     set(opts)
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     gl.drawArrays(gl.TRIANGLES, 0, 6)
 
 

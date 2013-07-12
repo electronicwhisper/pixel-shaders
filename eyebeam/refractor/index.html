@@ -85,10 +85,10 @@ button {
 
 <div id="sidebar" data-bind="with: koState">
 
-  <div class="section" style="text-align: center">
-    <button class="button-image-prev"><span class="typicn previous"></span></button>
-    <img data-bind="attr: {src: 'images/' + image + '.jpg'}" width="96" height="96" style="vertical-align: middle;" />
-    <button class="button-image-next"><span class="typicn next"></span></button>
+  <div class="section" style="text-align: center; height: 120px">
+    <button class="button-image-prev" style="vertical-align: middle;"><span class="typicn previous"></span></button>
+    <img data-bind="attr: {src: 'images/' + image + '.jpg'}" style="vertical-align: middle; max-width: 96px; max-height: 96px;" />
+    <button class="button-image-next" style="vertical-align: middle;"><span class="typicn next"></span></button>
   </div>
 
   <div class="section chain" data-bind="foreach: chain">
