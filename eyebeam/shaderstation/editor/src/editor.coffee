@@ -93,6 +93,21 @@ makeEditor = (opts) ->
       cm.setLineClass(line, null, "errorLine")
       cm.setMarker(line, "<div class='errorMessage'>#{error.error}</div>%N%", "errorMarker")
 
+    $(".errorDiv").remove()
+    $(".errorMarker").each ->
+      $el = $(this)
+      offset = $el.offset()
+
+      $errorDiv = $("""
+      <div class="errorDiv" style="position: absolute; width: 400px; margin-left: -400px; font-size: 13px; font-family: monospace; background-color: rgba(0, 0, 0, 0.9); color: #fff;">
+      #{$el.find(".errorMessage").text()}
+      </div>
+      """)
+
+      $errorDiv.css({left: offset.left, top: offset.top})
+
+      $("body").append($errorDiv)
+
   refreshCode = () ->
     src = cm.getValue()
     err = renderer.loadFragmentShader(src)

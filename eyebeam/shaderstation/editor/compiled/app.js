@@ -164,7 +164,7 @@
     };
     errorLines = [];
     markErrors = function(errors) {
-      var error, line, _i, _j, _len, _len1, _results;
+      var error, line, _i, _j, _len, _len1;
       for (_i = 0, _len = errorLines.length; _i < _len; _i++) {
         line = errorLines[_i];
         cm.setLineClass(line, null, null);
@@ -172,15 +172,25 @@
       }
       errorLines = [];
       $.fn.tipsy.revalidate();
-      _results = [];
       for (_j = 0, _len1 = errors.length; _j < _len1; _j++) {
         error = errors[_j];
         line = cm.getLineHandle(error.lineNum - 1);
         errorLines.push(line);
         cm.setLineClass(line, null, "errorLine");
-        _results.push(cm.setMarker(line, "<div class='errorMessage'>" + error.error + "</div>%N%", "errorMarker"));
+        cm.setMarker(line, "<div class='errorMessage'>" + error.error + "</div>%N%", "errorMarker");
       }
-      return _results;
+      $(".errorDiv").remove();
+      return $(".errorMarker").each(function() {
+        var $el, $errorDiv, offset;
+        $el = $(this);
+        offset = $el.offset();
+        $errorDiv = $("<div class=\"errorDiv\" style=\"position: absolute; width: 400px; margin-left: -400px; font-size: 13px; font-family: monospace; background-color: rgba(0, 0, 0, 0.9); color: #fff;\">\n" + ($el.find(".errorMessage").text()) + "\n</div>");
+        $errorDiv.css({
+          left: offset.left,
+          top: offset.top
+        });
+        return $("body").append($errorDiv);
+      });
     };
     refreshCode = function() {
       var err, errors;
