@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="build/build.css" type="text/css" media="screen" title="no title" charset="utf-8">
+<style type="text/css">
+/** {
+  box-sizing: border-box;
+}*/
+body {
+  margin: 24px;
+  font-family: georgia;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+}
+
+
+.book-split {
+  overflow: hidden;
+  margin-bottom: 96px;
+}
+.book-left {
+  width: 480px;
+/*  height: 480px;*/
+  float: left;
+  position: relative;
+}
+.book-right {
+  margin-left: 504px;
+}
+
+
+.control {
+  float: left;
+  margin-right: 24px;
+}
+
+</style>
+</head>
+<body>
+<!-- <a id="mylink" href="/">asdf</a>
+
+<div id="tt">Here's the <b>tooltip</b>.</div> -->
+
+<div class="book-split">
+  <div class="book-right">
+    FYI: pages under /dev are in development and subject to change/break.
+  </div>
+</div>
+
+<div class="book-split">
+  
+  <div class="book-left">
+    <div id="main" style="width: 480px; height: 480px">
+      <canvas id="c1" width="480" height="480" style="position: absolute"></canvas>
+      <canvas id="c2" width="480" height="480" style="position: absolute"></canvas>
+    </div>
+    <div style="margin-top: 12px; overflow: hidden">
+      <div class="control">
+        <input type="checkbox" id="showgrid" /> Grid
+      </div>
+      <div class="control">
+        <button id="resetbounds">Reset Viewport</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="book-right">
+    <div id="cm" style="border: 1px solid #ccc; height: 480px; box-sizing: border-box;"></div>
+  </div>
+
+</div>
+
+
+<div class="book-split">
+  <div class="book-left" id="linegraph">
+    <canvas id="c3" width="480" height="480"></canvas>
+  </div>
+  <div class="book-right">
+    <div id="graph-cm" style="border: 1px solid #ccc;"></div>
+    <div id="substitution"></div>
+  </div>
+</div>
+
+<div class="book-split">
+  <div class="book-right">
+    <h2>Useful Links</h2>
+    <ul>
+      <li><a href="http://www.khronos.org/opengles/sdk/docs/manglsl/" target="_blank">GLSL Reference</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- <img src="anim.gif" /> -->
+<!-- <img src="turtle.jpg" /> -->
+
+<script src="build/build.js"></script>
+<script>
+require("boot");
+</script>
+</body>
+</html>
